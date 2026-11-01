@@ -1,0 +1,16 @@
+# Biên dịch và đóng gói
+dong-goi/ban-phat-hanh/
+*.exe
+*.obj
+*.pdb
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Hệ thống & IDE
+.vscode/
+.vs/
+Thumbs.db
+Desktop.ini
+.DS_Store
