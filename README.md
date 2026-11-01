@@ -1,12 +1,46 @@
 # XML-Pro — Trình xem & Trích xuất dữ liệu Chứng từ điện tử chuẩn Quốc gia
 
-Ứng dụng Windows siêu nhẹ, độc lập, **100% offline**, thay thế hoàn hảo cho iTax Viewer và mở rộng thành **Trình đọc và xử lý chứng từ điện tử số 1 cho người dùng Windows tại Việt Nam**.
+Ứng dụng Windows siêu nhẹ, độc lập, **100% offline**, thay thế hoàn hảo cho iTax Viewer và mở rộng thành **Trình đọc và xử lý chứng từ điện tử số 1 cho doanh nghiệp và kế toán tại Việt Nam**.
 
 Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuongotpho/xml-pro.git)
 
 ---
 
-## 8 Nhóm Chứng từ & Định dạng Chuyên biệt Hỗ trợ (Phiên bản v1.3.0)
+## 🚀 Tính Năng Mới Cho Kế Toán Doanh Nghiệp (Phiên bản v1.4.0)
+
+Dành riêng cho các chuyên viên kế toán xử lý hàng nghìn hóa đơn đầu vào - đầu ra mỗi tháng:
+
+### 1. Tự động Phân loại Hóa đơn Mua vào (Đầu vào) / Bán ra (Đầu ra)
+* **Nhận diện theo MST Doanh nghiệp:** Chỉ cần nhập Mã số thuế công ty của bạn một lần, ứng dụng tự động lưu trên máy và đối chiếu với mọi hóa đơn XML:
+  * Trùng MST người bán $\rightarrow$ Gán nhãn **📤 BÁN RA (ĐẦU RA)**.
+  * Trùng MST người mua $\rightarrow$ Gán nhãn **📥 MUA VÀO (ĐẦU VÀO)**.
+* **Tự nhận diện theo cấu trúc thư mục:** Nếu chưa cài MST hoặc xử lý file lưu trong các thư mục có tên `mua`, `ban`, `dauvao`, `daura`, `in`, `out`... app tự động phân loại thông minh.
+* Huy hiệu (Badge) trực quan trên danh sách file và ngay góc trên bên trái tờ hóa đơn điện tử.
+
+### 2. Mini-Dashboard Kế toán & Bộ lọc Nhanh
+* **Mini-Dashboard tính toán tức thời:**
+  * Thống kê tổng số lượng hóa đơn, tổng doanh thu & tiền thuế GTGT **Bán ra**.
+  * Thống kê tổng số lượng hóa đơn, tổng chi phí tiền hàng & tiền thuế GTGT **Mua vào**.
+  * **Chênh lệch thuế GTGT tạm tính:** Tự động tính `Thuế đầu ra - Thuế đầu vào`. Hiển thị màu đỏ nổi bật nếu phát sinh thuế GTGT phải nộp, hoặc màu xanh nếu thuế GTGT còn được khấu trừ chuyển kỳ sau.
+* **Bộ lọc nhanh 1-chạm:**
+  * `[Tất cả]` · `[📥 Mua vào (N)]` · `[📤 Bán ra (N)]` · `[⚠ Cần chú ý (N)]` (lọc nhanh các hóa đơn có cảnh báo lệch tiền, thiếu MCCQT, hóa đơn điều chỉnh/thay thế...).
+
+### 3. Đổi tên File Hàng loạt Chuẩn Kế toán (Smart File Renamer)
+* Giải quyết triệt để vấn đề file hóa đơn tải về từ các nhà mạng (VNPT, Viettel, MISA, BKAV...) bị đặt tên lộn xộn khó tra cứu (`hdon_1234.xml`, `invoice.xml`, chuỗi GUID...).
+* Chuẩn hóa tự động sang định dạng kế toán chuẩn:
+  ```text
+  [Loai]_[YYYYMMDD]_[MSTDoiTac]_[TenDoiTac]_[KyHieu]_[SoHD].xml
+  Ví dụ: Mua_20261008_2601102955_RENTECH_C26TNA_0000017.xml
+         Ban_20261015_0100112437_PETROLIMEX_1C26TAA_0000099.xml
+  ```
+* Xem trước bảng đối chiếu tên cũ $\rightarrow$ tên mới, tích chọn từng file linh hoạt.
+* **2 hình thức xuất 1-click:**
+  1. **Tải file .ZIP đã đổi tên:** Đóng gói toàn bộ hóa đơn đã đổi tên vào 1 file ZIP sạch sẽ, an toàn tuyệt đối.
+  2. **Tải Script PowerShell (.ps1):** Tải script về thư mục chứa hóa đơn trên máy, click chuột phải chọn *"Run with PowerShell"* để đổi tên trực tiếp hàng loạt file trên ổ cứng trong 1 giây.
+
+---
+
+## 8 Nhóm Chứng từ & Định dạng Chuyên biệt Hỗ trợ (Phiên bản v1.4.0)
 
 ### 1. Thuế & Kế toán (Mẫu chuẩn iTax Viewer)
 * **Tờ khai, phụ lục, báo cáo tài chính** xuất từ HTKK / eTax (gốc `HSoThueDTu`): 01/GTGT, 05/KK-TNCN, 03/TNDN, BCTC TT200, TT133…
@@ -87,7 +121,7 @@ Tạo file `.xlsx` thật 100% trong tích tắc ngay trên máy, tương thích
 Bấm đúp file `index.html` để mở bằng Microsoft Edge hoặc Google Chrome. Kéo thả file XML/ZIP vào và xem/xuất Excel ngay lập tức.
 
 ### Cách 2: Cài đặt vào Windows (Bấm đúp file XML là tự mở)
-1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XemXmlThue-1.3.0.exe`.
+1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XemXmlThue-1.4.0.exe`.
 2. Bấm **Có** để cài đặt vào `%LOCALAPPDATA%\Programs\XemXmlThue` (không cần quyền Admin).
 3. Đặt làm ứng dụng mặc định cho đuôi file `.xml` khi được Windows hỏi.
 

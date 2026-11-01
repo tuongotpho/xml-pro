@@ -239,7 +239,8 @@
     if (hdDocs.length > 0) {
       const hdCols = [
         { width: 6 },  // STT
-        { width: 14 }, // Phân loại/Trạng thái
+        { width: 14 }, // Phân loại (Mua/Bán)
+        { width: 14 }, // Trạng thái kiểm tra
         { width: 8 },  // Mẫu số
         { width: 11 }, // Ký hiệu
         { width: 11 }, // Số HĐ
@@ -262,7 +263,7 @@
       ];
 
       const hdHeaders = [
-        'STT', 'Trạng thái', 'Mẫu số', 'Ký hiệu', 'Số HĐ', 'Ngày lập',
+        'STT', 'Phân loại', 'Trạng thái', 'Mẫu số', 'Ký hiệu', 'Số HĐ', 'Ngày lập',
         'Tên người bán', 'MST người bán', 'Tên người mua', 'MST người mua',
         'Tiền hàng (VNĐ)', 'Thuế GTGT (VNĐ)', 'Phí khác (VNĐ)', 'Tổng thanh toán (VNĐ)',
         'Trạng thái TT', 'Hình thức TT', 'Mã CQT cấp',
@@ -272,31 +273,43 @@
       const hdRows = [];
       hdDocs.forEach((inv, i) => {
         const stt = i + 1;
+        const plTxt = inv.phanLoai === 'ban' ? 'BÁN RA' : inv.phanLoai === 'mua' ? 'MUA VÀO' : 'CHƯA XÁC ĐỊNH';
         const ttStatus = timTrangThaiThanhToan(inv);
         const tongPhi = (inv.phi || []).reduce((sum, p) => sum + (Number(p.tien) || 0), 0);
-        const lqTxt = inv.lienQuan ? `${inv.lienQuan.tc === '1' ? 'Thay thế' : 'Điều chỉnh'} HĐ ${inv.lienQuan.kh}-${inv.lienQuan.so} ngày ${inv.lienQuan.ngay || ''}` : '';
+        const lqTxt = inv.lienQuan ? `${inv.lienQuan.tc === '1' ? 'Thay thế' : 'Điều chỉnh'} HĐ ${inv.lienQuan.kh || ''}-${inv.lienQuan.so || ''} ngày ${inv.lienQuan.ngay || ''}` : '';
         const ttHD = inv.notes?.some(n => n[0] === 'warn') ? 'Cần kiểm tra' : 'Hợp lệ';
+
+        const tenBan = inv.ban?.Ten || inv.ban?.ten || '';
+        const mstBan = inv.ban?.MST || inv.ban?.mst || '';
+        const tenMua = inv.mua?.Ten || inv.mua?.ten || '';
+        const mstMua = inv.mua?.MST || inv.mua?.mst || '';
+        const tienHang = inv.tongTruocThue != null ? inv.tongTruocThue : (inv.tienHang != null ? inv.tienHang : 0);
+        const tongThue = inv.tongThue != null ? inv.tongThue : 0;
+        const tongTien = inv.tong != null ? inv.tong : 0;
+        const nguoiKy = inv.kyBan?.cn || inv.kyBan?.nguoiKy || '';
+        const thoiDiemKy = inv.kyBan?.time || inv.kyBan?.ngayKy || '';
 
         hdRows.push([
           stt,
+          { text: plTxt, isCenter: true },
           { text: ttHD, isCenter: true },
           { text: inv.mau || '', isCenter: true },
           { text: inv.kyHieu || '', isCenter: true },
           { text: inv.so || '', isCenter: true },
           { text: fmtDateStr(inv.ngay), isCenter: true },
-          inv.ban?.ten || '',
-          { text: inv.ban?.mst || '', isCenter: true },
-          inv.mua?.ten || '',
-          { text: inv.mua?.mst || '', isCenter: true },
-          typeof inv.tienHang === 'number' ? inv.tienHang : (Number(inv.tienHang) || 0),
-          typeof inv.tongThue === 'number' ? inv.tongThue : (Number(inv.tongThue) || 0),
+          tenBan,
+          { text: mstBan, isCenter: true },
+          tenMua,
+          { text: mstMua, isCenter: true },
+          typeof tienHang === 'number' ? tienHang : (Number(tienHang) || 0),
+          typeof tongThue === 'number' ? tongThue : (Number(tongThue) || 0),
           tongPhi || 0,
-          typeof inv.tong === 'number' ? inv.tong : (Number(inv.tong) || 0),
+          typeof tongTien === 'number' ? tongTien : (Number(tongTien) || 0),
           { text: ttStatus || 'Chưa rõ', isCenter: true },
           { text: inv.httt || '', isCenter: true },
           inv.mccqt || '',
-          inv.kyBan?.nguoiKy || '',
-          inv.kyBan?.ngayKy || '',
+          nguoiKy,
+          thoiDiemKy,
           lqTxt,
           inv.fileName || inv.source || ''
         ]);
@@ -307,11 +320,11 @@
         const lastRow = hdDocs.length + 1;
         hdRows.push([
           { text: 'Tổng cộng', isBold: true },
-          '', '', '', '', '', '', '', '', '',
-          { formula: `SUM(K2:K${lastRow})`, isMoney: true },
+          '', '', '', '', '', '', '', '', '', '',
           { formula: `SUM(L2:L${lastRow})`, isMoney: true },
           { formula: `SUM(M2:M${lastRow})`, isMoney: true },
           { formula: `SUM(N2:N${lastRow})`, isMoney: true },
+          { formula: `SUM(O2:O${lastRow})`, isMoney: true },
           '', '', '', '', '', '', ''
         ]);
       }

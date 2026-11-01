@@ -55,4 +55,34 @@ Tài liệu này lưu trữ toàn bộ các ý tưởng, kiến trúc và lộ t
 
 ---
 
+## 5. Lộ trình Chuyên biệt Phục vụ Kế toán Doanh nghiệp & Kế toán Thuế
+*Các tính năng được đề xuất và ghi nhớ để phát triển tiếp theo sau phiên bản v1.4.0:*
+
+### 5.1. Tự Động Lập "Bản Nháp Tờ Khai 01/GTGT" Tạm Tính (Tính năng 2)
+* **Ý nghĩa:** Giúp kế toán và chủ doanh nghiệp biết ngay số thuế GTGT phải nộp chỉ sau 3 giây nạp thư mục hóa đơn.
+* **Quy tắc tính toán chỉ tiêu:**
+  * **Chỉ tiêu [23], [24], [25]:** Tổng giá trị hàng hóa, dịch vụ mua vào và thuế GTGT đầu vào đủ điều kiện khấu trừ.
+  * **Chỉ tiêu [26], [29], [30], [32]:** Doanh thu bán ra chưa thuế phân bổ theo các mức thuế suất: Không chịu thuế, 0%, 5%, 8% (giảm thuế NQ), 10%.
+  * **Chỉ tiêu [27], [28], [31], [33]:** Tổng thuế GTGT bán ra.
+  * **Chỉ tiêu [40] / [43]:** Cân đối thuế:
+    $$\text{Thuế phải nộp [40]} = \text{Thuế bán ra [28]} - \text{Thuế mua vào [25]}$$
+    Nếu âm $\rightarrow$ chuyển sang Thuế còn được khấu trừ kỳ sau **[43]**.
+* **Xuất file XML nạp thẳng vào HTKK:** Tự động sinh file XML chuẩn cấu trúc `01/GTGT` của Tổng cục Thuế để nạp ngay vào ứng dụng HTKK.
+
+### 5.2. Bộ lọc "Rủi Ro & Bẫy Thuế" Nâng cao (Tính năng 3)
+* **Cảnh báo ký lùi ngày / trễ quý:** Hóa đơn lập ngày cuối quý nhưng đối tác ký số sang quý sau (nguy cơ bị cơ quan thuế loại khấu trừ).
+* **Cảnh báo sai lệch số học:** Kiểm tra tự động từng dòng hàng `Đơn giá × Số lượng - Chiết khấu = Thành tiền` và `Thành tiền × Thuế suất = Tiền thuế` (báo động khi sai lệch làm tròn $> 50$ đồng).
+* **Cảnh báo hóa đơn điều chỉnh / thay thế:** Liên kết mã số và hiển thị cây quan hệ giữa HĐ gốc và HĐ thay thế/điều chỉnh, tránh kế toán kê khai sót hoặc trùng 2 lần.
+* **Đối chiếu danh sách đen Doanh nghiệp bỏ trốn / Tạm ngừng kinh doanh:** Tra cứu cảnh báo các MST bán hàng có rủi ro cao.
+
+### 5.3. Xuất Bảng Kê Chuẩn Nhập Vào Phần Mềm Kế Toán (Tính năng 4)
+* **MISA SME / MISA AMIS:** Xuất file Excel đúng chuẩn cấu trúc cột để kế toán vào MISA chọn *Tệp $\rightarrow$ Nhập khẩu từ Excel* là vào thẳng chứng từ mua/bán hàng.
+* **Fast Accounting / Bravo / Asia:** Bảng kê tương thích các trường dữ liệu kế toán thông dụng.
+* **Bảng kê công nợ đối tác:** Tự động gom nhóm theo từng Nhà cung cấp / Khách hàng để kế toán đối chiếu công nợ cuối kỳ.
+
+---
+
+*(Đã triển khai trong v1.4.0: Tính năng 1 - Tự phân loại Mua/Bán theo MST công ty; Tính năng 5 - Bộ công cụ Đổi tên file chuẩn hóa kế toán hàng loạt; Tính năng 6 - Bộ lọc nhanh & Mini Dashboard tài chính Mua/Bán/Cân đối thuế).*
+
 *(Ghi nhận vào hệ thống bộ nhớ XML-Pro ngày 02/11/2026)*
+
