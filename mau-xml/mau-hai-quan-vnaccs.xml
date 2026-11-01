@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Customs_Declaration xmlns="http://customs.gov.vn">
+  <DeclarationNumber>105829182390</DeclarationNumber>
+  <DeclarationDate>2026-10-28T09:30:00</DeclarationDate>
+  <DeclarationKindCode>A11</DeclarationKindCode>
+  <DeclarationKindName>Nhập kinh doanh tiêu dùng</DeclarationKindName>
+  <ClassificationCheckCode>2</ClassificationCheckCode>
+  <ClearanceStatus>LUỒNG VÀNG</ClearanceStatus>
+  <CustomsOffice>Cục Hải quan TP. Hồ Chí Minh</CustomsOffice>
+  <SubCustomsOffice>Chi cục HQ Cửa khẩu Cảng Sài Gòn KV1 (Cát Lái)</SubCustomsOffice>
+
+  <Exporter>
+    <ExporterName>TOYOTA TSUSHO CORPORATION JAPAN</ExporterName>
+    <ExporterTaxCode>JP-8010001008741</ExporterTaxCode>
+    <ExporterAddress>4-9-8 Meieki, Nakamura-ku, Nagoya, Aichi, Japan</ExporterAddress>
+    <ExporterCountryCode>JP</ExporterCountryCode>
+  </Exporter>
+
+  <Importer>
+    <ImporterName>CÔNG TY TNHH THƯƠNG MẠI &amp; KỸ THUẬT QUỐC TẾ HÀ NỘI</ImporterName>
+    <ImporterTaxCode>0108928374</ImporterTaxCode>
+    <ImporterAddress>Tầng 8, Tòa nhà Indochina, Xuân Thủy, Cầu Giấy, Hà Nội</ImporterAddress>
+    <ImporterCountryCode>VN</ImporterCountryCode>
+  </Importer>
+
+  <TransportMeans>M/V WAN HAI 215 / V.082S</TransportMeans>
+  <BillOfLadingNumber>WHL098234819</BillOfLadingNumber>
+  <LoadingPort>JPOSA - Osaka, Japan</LoadingPort>
+  <DischargePort>VNSGN - Cát Lái, TP.HCM</DischargePort>
+  <ArrivalDate>2026-10-27</ArrivalDate>
+
+  <CommercialInvoiceNo>INV-2026-TY881</CommercialInvoiceNo>
+  <InvoiceDate>2026-10-20</InvoiceDate>
+  <TotalInvoiceAmount>85200.00</TotalInvoiceAmount>
+  <CurrencyCode>USD</CurrencyCode>
+  <IncotermsCode>CIF</IncotermsCode>
+
+  <DeclarationItem>
+    <ItemNumber>1</ItemNumber>
+    <TariffClassificationCode>84713020</TariffClassificationCode>
+    <GoodsDescription>Máy tính xách tay ThinkPad T14 Gen 5 Core Ultra 7 155H 32GB 1TB, mới 100%</GoodsDescription>
+    <OriginCountryCode>JP</OriginCountryCode>
+    <Quantity>50</Quantity>
+    <QuantityUnit>CÁI</QuantityUnit>
+    <UnitPrice>1150.00</UnitPrice>
+    <InvoiceAmount>57500.00</InvoiceAmount>
+    <CustomsValue>1437500000</CustomsValue>
+    <DutyRate>0%</DutyRate>
+    <DutyAmount>0</DutyAmount>
+    <VatRate>10%</VatRate>
+    <VatAmount>143750000</VatAmount>
+  </DeclarationItem>
+
+  <DeclarationItem>
+    <ItemNumber>2</ItemNumber>
+    <TariffClassificationCode>85285200</TariffClassificationCode>
+    <GoodsDescription>Màn hình máy tính hiển thị màu 27 inch 4K Ultra HD IPS, model ThinkVision P27u, mới 100%</GoodsDescription>
+    <OriginCountryCode>JP</OriginCountryCode>
+    <Quantity>80</Quantity>
+    <QuantityUnit>CÁI</QuantityUnit>
+    <UnitPrice>346.25</UnitPrice>
+    <InvoiceAmount>27700.00</InvoiceAmount>
+    <CustomsValue>692500000</CustomsValue>
+    <DutyRate>5%</DutyRate>
+    <DutyAmount>34625000</DutyAmount>
+    <VatRate>10%</VatRate>
+    <VatAmount>72712500</VatAmount>
+  </DeclarationItem>
+
+  <TotalDutyAmount>34625000</TotalDutyAmount>
+  <TotalVatAmount>216462500</TotalVatAmount>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></SignedInfo>
+    <SignatureValue>MEQCIAx123...</SignatureValue>
+    <KeyInfo>
+      <X509Data>
+        <X509SubjectName>CN=CÔNG TY TNHH THƯƠNG MẠI &amp; KỸ THUẬT QUỐC TẾ HÀ NỘI, OID.0.9.2342.19200300.100.1.1=MST:0108928374</X509SubjectName>
+      </X509Data>
+    </KeyInfo>
+    <Object>
+      <SigningTime>2026-10-28T09:35:12</SigningTime>
+    </Object>
+  </Signature>
+</Customs_Declaration>

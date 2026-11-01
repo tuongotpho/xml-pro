@@ -199,6 +199,50 @@
   .itax-sig-foot, .itax-sig-foot * { box-sizing: border-box; }
   .itax-sig-foot { clear: both; margin-top: 12px; }
 
+  /* Tag Hải quan & Y tế */
+  .tag.hq { background: #0369a1; color: #fff; }
+  .tag.yte { background: #059669; color: #fff; }
+
+  /* Giao diện Hải quan */
+  .hq-head { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; }
+  .hq-brand h3 { margin: 0 0 4px; font-size: 13.5px; color: #0369a1; text-transform: uppercase; }
+  .hq-title-box { text-align: center; }
+  .hq-title-box h2 { margin: 0; font-size: 17px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .hq-title-box .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .hq-luong-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+  .hq-luong-badge.xanh { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .hq-luong-badge.vang { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+  .hq-luong-badge.do { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .hq-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .hq-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .hq-party-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; line-height: 1.55; }
+  .hq-party-box h4 { margin: 0 0 6px; font-size: 12.5px; color: #0369a1; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; }
+  .hq-section { margin-bottom: 16px; }
+  .hq-section h4 { margin: 0 0 8px; font-size: 13px; color: #0f172a; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .hq-grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; font-size: 12.5px; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+  /* Giao diện Y tế & BHYT */
+  .yte-head { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 16px; }
+  .yte-brand h3 { margin: 0 0 4px; font-size: 13.5px; color: #059669; text-transform: uppercase; }
+  .yte-title-box { text-align: center; }
+  .yte-title-box h2 { margin: 0; font-size: 16.5px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .yte-title-box .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .yte-badge { display: inline-block; margin-top: 6px; padding: 2px 10px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 99px; font-size: 11.5px; color: #065f46; }
+  .yte-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .yte-section { margin-bottom: 16px; }
+  .yte-section h4 { margin: 0 0 8px; font-size: 12.5px; color: #059669; text-transform: uppercase; border-bottom: 1px solid #a7f3d0; padding-bottom: 4px; }
+  .yte-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 14px; font-size: 12.5px; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .yte-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; font-size: 12.5px; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .yte-card { font-family: Consolas, monospace; letter-spacing: 1px; color: #059669; }
+  .yte-cost-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .c-card { padding: 10px 12px; border-radius: 8px; text-align: center; border: 1px solid #cbd5e1; }
+  .c-card.total { background: #f8fafc; border-color: #94a3b8; }
+  .c-card.bhyt { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+  .c-card.bn { background: #fefce8; border-color: #fde047; color: #854d0e; }
+  .c-card.out { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .c-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .c-val { font-size: 15px; font-weight: 800; font-family: "Segoe UI", sans-serif; }
+
   @media (max-width: 800px) {
     .dn-box { grid-template-columns: 1fr; justify-items: center; text-align: left; }
     .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
@@ -256,15 +300,16 @@
   <div class="tabs" id="tabs"></div>
   <main id="main">
     <div class="empty" id="homeEmpty">
-      <h2>Trình xem XML thuế — thay cho iTax Viewer</h2>
-      <p>Mở được các loại file:</p>
+      <h2>XML-Pro — Trình xem & Trích xuất chứng từ điện tử</h2>
+      <p>Mở được các loại chứng từ XML chuẩn quốc gia:</p>
       <ul>
         <li><b>Tờ khai, phụ lục, báo cáo tài chính</b> xuất từ HTKK / eTax (gốc <code>HSoThueDTu</code>, và cả file lưu nháp trong <code>HTKK\DataFiles</code>): 01/GTGT, 05/KK-TNCN, 05/QTT-TNCN, 03/TNDN, BCTC TT200, TT133…</li>
-        <li><b>Thông báo của cơ quan thuế, đăng ký thuế</b> (gốc <code>TBaoThue</code>, <code>THONGBAO</code>, <code>DKyThueDTu</code>…).</li>
-        <li><b>Chứng từ nộp tiền thuế</b> (gốc <code>CHUNGTU</code>).</li>
-        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — iTax Viewer không mở được loại này.</li>
+        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — hiển thị đầy đủ bảng hàng hóa, chiết khấu, trạng thái thanh toán.</li>
+        <li><b>Tờ khai Hải quan điện tử</b> (hệ thống VNACCS/VCIS, Cổng Một cửa Quốc gia NSW) — hiển thị phân luồng Xanh / Vàng / Đỏ, hàng hóa XNK, thuế XNK.</li>
+        <li><b>Bệnh án điện tử & Viện phí BHYT</b> (chuẩn XML 4210 / Quyết định 130/QĐ-BYT) — bảng kê chi phí KCB, chi tiết thuốc, dịch vụ kỹ thuật.</li>
+        <li><b>Thông báo thuế, đăng ký thuế & Chứng từ nộp tiền thuế</b> (gốc <code>TBaoThue</code>, <code>CHUNGTU</code>…).</li>
       </ul>
-      <p>Tờ khai, phụ lục, BCTC, thông báo và chứng từ được dựng bằng <b>chính bộ mẫu chuẩn của iTax Viewer</b> (hiển thị giống hệt bản xem/in của Tổng cục Thuế); file nháp <code>HTKK\DataFiles</code> và mẫu dự phòng dùng bộ tên chỉ tiêu HTKK 5.8.1.</p>
+      <p>Tờ khai, phụ lục, BCTC được dựng bằng <b>chính bộ mẫu chuẩn của iTax Viewer</b>; đồng thời hỗ trợ <b>Xuất bảng kê Excel (.xlsx)</b> chuẩn OpenXML cho toàn bộ hồ sơ.</p>
       <p>Trang <b>không kiểm tra chữ ký số là thật hay giả</b> — chỉ đọc tên người ký và thời điểm ký ghi trong file.</p>
       <div class="dn-box">
         <div class="dn-info">
@@ -323,6 +368,7 @@
 </dialog>
 <script src="jszip.min.js"></script>
 <script src="xuat-excel.js"></script>
+<script src="nganh-doc.js"></script>
 <script src="mau-itax.js"></script>
 <script src="ten-chi-tieu.js"></script>
 <script src="phien-ban.js"></script>
@@ -1602,6 +1648,8 @@
     const r = root.localName;
     let d;
     if (r === 'HDon') d = parseInvoice(root, fileName);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isCustomsXml(root)) d = window.NGANH_DOC.parseCustoms(root, fileName, readSignatures);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isHealthcareXml(root)) d = window.NGANH_DOC.parseHealthcare(root, fileName, readSignatures);
     else if (r === 'HSoThueDTu' && kid(root, 'HSoKhaiThue')) d = parseToKhai(root, fileName);
     else if (r === 'TBaoThueDTu' || r === 'TBaoThue' || r === 'TBao' || r === 'TBTNhan' || r === 'THONGBAO' || r === 'THONG_BAO' || r === 'TBAO_TKHOAN_NH' || r === 'TBAO_TKHOAN_NT' || r === 'TBAO_NGUNG') {
       d = parseThongBao(root, fileName);
@@ -1626,7 +1674,7 @@
     return d;
   }
 
-  const KIND = { tk: ['tk', 'Tờ khai'], nhap: ['', 'Nháp HTKK'], tb: ['tb', 'Thông báo'], ct: ['ct', 'Chứng từ'], hd: ['hd', 'Hoá đơn'], khac: ['', 'Khác'] };
+  const KIND = { tk: ['tk', 'Tờ khai'], nhap: ['', 'Nháp HTKK'], tb: ['tb', 'Thông báo'], ct: ['ct', 'Chứng từ'], hd: ['hd', 'Hoá đơn'], hq: ['hq', 'Hải quan'], yte: ['yte', 'Y tế / BHYT'], khac: ['', 'Khác'] };
 
   // ---------- Nạp file ----------
   let skipped = 0;
@@ -1748,7 +1796,10 @@
   // ---------- Danh sách ----------
   let cheDo = 'mo'; // 'mo' = danh sách đang mở, 'ls' = lịch sử
   const tenTab = d => d.error ? 'Lỗi: ' + d.source.split(/[\\/›]/).pop().trim()
-    : d.kind === 'hd' ? `HĐ ${d.kyHieu}-${d.so}` : (d.title.replace(/\s*\(.*$/, '') + (d.ky ? ' · ' + d.ky.replace(/\s*\(.*$/, '') : ''));
+    : d.kind === 'hd' ? `HĐ ${d.kyHieu}-${d.so}`
+    : d.kind === 'hq' ? `HQ ${d.soTKhai || ''}`
+    : d.kind === 'yte' ? `KCB ${d.hoTen || d.maBN || ''}`
+    : (d.title.replace(/\s*\(.*$/, '') + (d.ky ? ' · ' + d.ky.replace(/\s*\(.*$/, '') : ''));
   function renderTabs() {
     $('tabs').innerHTML = docs.map((d, i) => {
       const [cls] = d.error ? ['err'] : KIND[d.kind];
@@ -1809,11 +1860,14 @@
     selected = i;
     renderList();
     const d = docs[i];
-    if (!d.error && d.kind !== 'hd' && d.kind !== 'nhap' && !d._itaxDone) {
+    if (!d.error && d.kind !== 'hd' && d.kind !== 'hq' && d.kind !== 'yte' && d.kind !== 'nhap' && !d._itaxDone) {
       buildItaxSheets(d).then(sh => { if (sh && docs[selected] === d) select(selected); });
     }
     $('main').innerHTML = d.error ? `<div class="notes"><div class="note warn"><b>${esc(d.source)}</b><br>${esc(d.error)}</div></div>`
-      : d.kind === 'hd' ? renderInvoice(d) : renderDoc(d);
+      : d.kind === 'hd' ? renderInvoice(d)
+      : d.kind === 'hq' ? (window.NGANH_DOC ? window.NGANH_DOC.renderCustoms(d) : renderDoc(d))
+      : d.kind === 'yte' ? (window.NGANH_DOC ? window.NGANH_DOC.renderHealthcare(d) : renderDoc(d))
+      : renderDoc(d);
     $('main').scrollTop = 0;
     const p = $('printBtn'); if (p) p.onclick = () => window.print();
     const e = $('showEmpty'); if (e) e.onchange = () => { showEmpty = e.checked; select(selected); };

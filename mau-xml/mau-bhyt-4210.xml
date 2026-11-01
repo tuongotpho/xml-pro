@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GIAMDINHHS xmlns="http://giamdinhbhyt.baohiemxahoi.gov.vn">
+  <TONG_HOP>
+    <MA_BN>BN202688192</MA_BN>
+    <HO_TEN>NGUYỄN VĂN AN</HO_TEN>
+    <NGAY_SINH>1982-05-15</NGAY_SINH>
+    <GIOI_TINH>1</GIOI_TINH>
+    <DIA_CHI>Số 45 Đường Hoàng Quốc Việt, Phường Nghĩa Đô, Cầu Giấy, Hà Nội</DIA_CHI>
+    <MA_THE>DN4010123984102</MA_THE>
+    <MA_DKBD>01004</MA_DKBD>
+    <GT_THE_TU>2026-01-01</GT_THE_TU>
+    <GT_THE_DEN>2026-12-31</GT_THE_DEN>
+    <MA_CSKCB>01004</MA_CSKCB>
+    <TEN_CSKCB>Bệnh viện Đa khoa Xanh Pôn Hà Nội</TEN_CSKCB>
+    <MA_LOAI_KCB>3</MA_LOAI_KCB>
+    <NGAY_VAO>2026-10-18T08:15:00</NGAY_VAO>
+    <NGAY_RA>2026-10-23T11:00:00</NGAY_RA>
+    <SO_NGAY_DTRI>5</SO_NGAY_DTRI>
+    <MA_BENH>K29.0</MA_BENH>
+    <TEN_BENH>Viêm dạ dày xuất huyết cấp tính</TEN_BENH>
+    <MA_BENHKEM>I10</MA_BENHKEM>
+    <KET_QUA_DTRI>2</KET_QUA_DTRI>
+    <T_TONGCHI>6850000</T_TONGCHI>
+    <T_BHTT>5480000</T_BHTT>
+    <T_BNCCT>1370000</T_BNCCT>
+    <T_BNTT>0</T_BNTT>
+    <T_KHAM>120000</T_KHAM>
+    <T_THUOC>2450000</T_THUOC>
+    <T_DVKT_TYLE>2880000</T_DVKT_TYLE>
+    <T_GIUONG>1400000</T_GIUONG>
+  </TONG_HOP>
+
+  <DSACH_CHI_TIET_THUOC>
+    <CHI_TIET_THUOC>
+      <MA_THUOC>40.102</MA_THUOC>
+      <TEN_THUOC>Nexium 40mg (Esomeprazol)</TEN_THUOC>
+      <HAM_LUONG>40mg</HAM_LUONG>
+      <DON_VI_TINH>Lọ tiêm</DON_VI_TINH>
+      <SO_LUONG>10</SO_LUONG>
+      <DON_GIA>85000</DON_GIA>
+      <THANH_TIEN>850000</THANH_TIEN>
+      <T_BHTT>680000</T_BHTT>
+    </CHI_TIET_THUOC>
+    <CHI_TIET_THUOC>
+      <MA_THUOC>40.215</MA_THUOC>
+      <TEN_THUOC>Cefoperazol + Sulbactam 1.5g</TEN_THUOC>
+      <HAM_LUONG>1.5g</HAM_LUONG>
+      <DON_VI_TINH>Lọ</DON_VI_TINH>
+      <SO_LUONG>10</SO_LUONG>
+      <DON_GIA>160000</DON_GIA>
+      <THANH_TIEN>1600000</THANH_TIEN>
+      <T_BHTT>1280000</T_BHTT>
+    </CHI_TIET_THUOC>
+  </DSACH_CHI_TIET_THUOC>
+
+  <DSACH_CHI_TIET_DVKT>
+    <CHI_TIET_DVKT>
+      <MA_DICH_VU>03.0125</MA_DICH_VU>
+      <TEN_DICH_VU>Nội soi dạ dày can thiệp cầm máu qua nội soi</TEN_DICH_VU>
+      <DON_VI_TINH>Lần</DON_VI_TINH>
+      <SO_LUONG>1</SO_LUONG>
+      <DON_GIA>1680000</DON_GIA>
+      <THANH_TIEN>1680000</THANH_TIEN>
+      <T_BHTT>1344000</T_BHTT>
+    </CHI_TIET_DVKT>
+    <CHI_TIET_DVKT>
+      <MA_DICH_VU>01.0042</MA_DICH_VU>
+      <TEN_DICH_VU>Tổng phân tích tế bào máu ngoại vi bằng máy đếm tự động</TEN_DICH_VU>
+      <DON_VI_TINH>Lần</DON_VI_TINH>
+      <SO_LUONG>3</SO_LUONG>
+      <DON_GIA>400000</DON_GIA>
+      <THANH_TIEN>1200000</THANH_TIEN>
+      <T_BHTT>960000</T_BHTT>
+    </CHI_TIET_DVKT>
+  </DSACH_CHI_TIET_DVKT>
+
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></SignedInfo>
+    <SignatureValue>MEQCIAy456...</SignatureValue>
+    <KeyInfo>
+      <X509Data>
+        <X509SubjectName>CN=BS.CKII TRẦN VĂN HÙNG, O=BỆNH VIỆN ĐA KHOA XANH PÔN HÀ NỘI</X509SubjectName>
+      </X509Data>
+    </KeyInfo>
+    <Object>
+      <SigningTime>2026-10-23T11:15:30</SigningTime>
+    </Object>
+  </Signature>
+</GIAMDINHHS>

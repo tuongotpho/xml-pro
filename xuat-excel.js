@@ -225,7 +225,9 @@
     }
 
     const hdDocs = validDocs.filter(d => d.kind === 'hd');
-    const tkDocs = validDocs.filter(d => d.kind !== 'hd');
+    const hqDocs = validDocs.filter(d => d.kind === 'hq');
+    const yteDocs = validDocs.filter(d => d.kind === 'yte');
+    const tkDocs = validDocs.filter(d => d.kind !== 'hd' && d.kind !== 'hq' && d.kind !== 'yte');
 
     const sheets = [];
 
@@ -386,6 +388,303 @@
       }
     }
 
+    // 2. Sheet: Bảng kê Tờ khai Hải quan
+    if (hqDocs.length > 0) {
+      const hqCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Phân luồng
+        { width: 14 }, // Số tờ khai
+        { width: 12 }, // Ngày đăng ký
+        { width: 10 }, // Mã LH
+        { width: 28 }, // Tên loại hình
+        { width: 28 }, // Chi cục Hải quan
+        { width: 32 }, // Đơn vị xuất khẩu
+        { width: 15 }, // MST xuất khẩu
+        { width: 32 }, // Đơn vị nhập khẩu
+        { width: 15 }, // MST nhập khẩu
+        { width: 16 }, // Vận đơn (B/L)
+        { width: 15 }, // Số HĐ thương mại
+        { width: 16 }, // Trị giá HĐ (Ngoại tệ)
+        { width: 10 }, // Đồng tiền
+        { width: 16 }, // Thuế XNK (VNĐ)
+        { width: 16 }, // Thuế GTGT (VNĐ)
+        { width: 18 }, // Tổng tiền thuế
+        { width: 28 }  // Tên file gốc
+      ];
+
+      const hqHeaders = [
+        'STT', 'Phân luồng', 'Số tờ khai', 'Ngày đăng ký', 'Mã LH',
+        'Tên loại hình XNK', 'Chi cục Hải quan',
+        'Đơn vị xuất khẩu', 'MST xuất khẩu', 'Đơn vị nhập khẩu', 'MST nhập khẩu',
+        'Số vận đơn (B/L)', 'Số HĐ thương mại', 'Trị giá hóa đơn', 'Đồng tiền',
+        'Tiền thuế XNK (VNĐ)', 'Tiền thuế GTGT (VNĐ)', 'Tổng tiền thuế (VNĐ)', 'Tên file XML'
+      ];
+
+      const hqRows = [];
+      hqDocs.forEach((d, idx) => {
+        const lName = d.luong?.name || 'LUỒNG XANH';
+        hqRows.push([
+          idx + 1,
+          { text: lName, isCenter: true },
+          { text: d.soTKhai || '', isCenter: true },
+          { text: fmtDateStr(d.ngayDky), isCenter: true },
+          { text: d.maLH || '', isCenter: true },
+          d.tenLH || '',
+          d.chiCucHQ || '',
+          d.xk?.ten || '',
+          { text: d.xk?.mst || '', isCenter: true },
+          d.nk?.ten || '',
+          { text: d.nk?.mst || '', isCenter: true },
+          d.vanChuyen?.vanDon || '',
+          d.hoaDon?.soHD || '',
+          d.hoaDon?.triGia || 0,
+          { text: d.hoaDon?.dongTien || 'USD', isCenter: true },
+          d.tongThueXNK || 0,
+          d.tongThueGTGT || 0,
+          d.tongTienThue || 0,
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (hqDocs.length > 1) {
+        const lastHqRow = hqDocs.length + 1;
+        hqRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+          { formula: `SUM(P2:P${lastHqRow})`, isMoney: true },
+          { formula: `SUM(Q2:Q${lastHqRow})`, isMoney: true },
+          { formula: `SUM(R2:R${lastHqRow})`, isMoney: true },
+          ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Bảng kê Tờ khai Hải quan',
+        cols: hqCols,
+        headers: hqHeaders,
+        rows: hqRows
+      });
+
+      // Sheet: Chi tiết hàng hóa XNK
+      const hqItemCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Số tờ khai
+        { width: 10 }, // Mã HS
+        { width: 35 }, // Mô tả hàng hóa
+        { width: 10 }, // Xuất xứ
+        { width: 8 },  // ĐVT
+        { width: 12 }, // Số lượng
+        { width: 14 }, // Đơn giá
+        { width: 17 }, // Trị giá tính thuế (VNĐ)
+        { width: 12 }, // Thuế suất XNK
+        { width: 16 }, // Tiền thuế XNK
+        { width: 12 }, // Thuế suất GTGT
+        { width: 16 }  // Tiền thuế GTGT
+      ];
+
+      const hqItemHeaders = [
+        'STT dòng', 'Số tờ khai', 'Mã HS', 'Mô tả hàng hóa', 'Xuất xứ',
+        'ĐVT', 'Số lượng', 'Đơn giá', 'Trị giá tính thuế (VNĐ)',
+        'Thuế suất XNK', 'Tiền thuế XNK (VNĐ)', 'Thuế suất GTGT', 'Tiền thuế GTGT (VNĐ)'
+      ];
+
+      const hqItemRows = [];
+      hqDocs.forEach(d => {
+        (d.hangHoa || []).forEach((h, hIdx) => {
+          hqItemRows.push([
+            hIdx + 1,
+            { text: d.soTKhai || '', isCenter: true },
+            { text: h.maHS || '', isCenter: true },
+            h.ten || '',
+            { text: h.xuatXu || '', isCenter: true },
+            { text: h.dvt || '', isCenter: true },
+            h.sl || 0,
+            h.dg || 0,
+            h.triGiaTinhThue || h.triGia || 0,
+            { text: h.tsXNK || '', isCenter: true },
+            h.thueXNK || 0,
+            { text: h.tsGTGT || '', isCenter: true },
+            h.thueGTGT || 0
+          ]);
+        });
+      });
+
+      if (hqItemRows.length > 0) {
+        if (hqItemRows.length > 1) {
+          const lastItemRow = hqItemRows.length + 1;
+          hqItemRows.push([
+            { text: 'Tổng cộng', isBold: true },
+            '', '', '', '', '',
+            { formula: `SUM(G2:G${lastItemRow})`, isMoney: true },
+            '',
+            { formula: `SUM(I2:I${lastItemRow})`, isMoney: true },
+            '',
+            { formula: `SUM(K2:K${lastItemRow})`, isMoney: true },
+            '',
+            { formula: `SUM(M2:M${lastItemRow})`, isMoney: true }
+          ]);
+        }
+        sheets.push({
+          name: 'Chi tiết hàng hóa XNK',
+          cols: hqItemCols,
+          headers: hqItemHeaders,
+          rows: hqItemRows
+        });
+      }
+    }
+
+    // 3. Sheet: Bảng kê Hồ sơ BHYT - Viện phí
+    if (yteDocs.length > 0) {
+      const yteCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Mã bệnh nhân
+        { width: 26 }, // Họ tên bệnh nhân
+        { width: 12 }, // Ngày sinh
+        { width: 10 }, // Giới tính
+        { width: 16 }, // Mã thẻ BHYT
+        { width: 28 }, // Cơ sở KCB
+        { width: 16 }, // Loại KCB
+        { width: 12 }, // Ngày vào viện
+        { width: 12 }, // Ngày ra viện
+        { width: 10 }, // Số ngày ĐT
+        { width: 10 }, // Mã bệnh (ICD-10)
+        { width: 30 }, // Tên bệnh chính
+        { width: 12 }, // Kết quả ĐT
+        { width: 16 }, // Tổng chi phí KCB (VNĐ)
+        { width: 16 }, // BHYT thanh toán (VNĐ)
+        { width: 16 }, // BN cùng chi trả (VNĐ)
+        { width: 16 }, // BN tự trả (VNĐ)
+        { width: 28 }  // Tên file XML
+      ];
+
+      const yteHeaders = [
+        'STT', 'Mã bệnh nhân', 'Họ tên bệnh nhân', 'Ngày sinh', 'Giới tính',
+        'Mã thẻ BHYT', 'Cơ sở KCB', 'Hình thức KCB',
+        'Ngày vào', 'Ngày ra', 'Số ngày', 'Mã ICD-10', 'Chẩn đoán bệnh', 'Kết quả ĐT',
+        'Tổng chi phí (VNĐ)', 'BHYT thanh toán (VNĐ)', 'Người bệnh trả (VNĐ)', 'Ngoài danh mục (VNĐ)', 'Tên file XML'
+      ];
+
+      const yteRows = [];
+      yteDocs.forEach((d, idx) => {
+        yteRows.push([
+          idx + 1,
+          { text: d.maBN || '', isCenter: true },
+          d.hoTen || '',
+          { text: fmtDateStr(d.ngaySinh), isCenter: true },
+          { text: d.gioiTinh || '', isCenter: true },
+          { text: d.maThe || '', isCenter: true },
+          d.tenCSKCB || '',
+          { text: d.tenLoaiKCB || '', isCenter: true },
+          { text: fmtDateStr(d.ngayVao), isCenter: true },
+          { text: fmtDateStr(d.ngayRa), isCenter: true },
+          d.soNgayDt || 1,
+          { text: d.maBenh || '', isCenter: true },
+          d.tenBenh || '',
+          { text: d.ketQua || '', isCenter: true },
+          d.tongChi || 0,
+          d.bhytChi || 0,
+          d.cungChiTra || 0,
+          d.tuTra || 0,
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (yteDocs.length > 1) {
+        const lastYteRow = yteDocs.length + 1;
+        yteRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '', '', '', '', '', '', '', '',
+          { formula: `SUM(O2:O${lastYteRow})`, isMoney: true },
+          { formula: `SUM(P2:P${lastYteRow})`, isMoney: true },
+          { formula: `SUM(Q2:Q${lastYteRow})`, isMoney: true },
+          { formula: `SUM(R2:R${lastYteRow})`, isMoney: true },
+          ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Bảng kê Viện phí BHYT',
+        cols: yteCols,
+        headers: yteHeaders,
+        rows: yteRows
+      });
+
+      // Sheet: Chi tiết thuốc & DVKT BHYT
+      const medCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Mã BN
+        { width: 22 }, // Họ tên BN
+        { width: 14 }, // Phân loại (Thuốc / DVKT)
+        { width: 12 }, // Mã mục
+        { width: 35 }, // Tên thuốc / Dịch vụ kỹ thuật
+        { width: 10 }, // ĐVT
+        { width: 10 }, // Số lượng
+        { width: 14 }, // Đơn giá
+        { width: 16 }, // Thành tiền
+        { width: 16 }  // Tiền BHYT trả
+      ];
+
+      const medHeaders = [
+        'STT', 'Mã BN', 'Tên bệnh nhân', 'Phân loại', 'Mã mục',
+        'Tên thuốc / Dịch vụ kỹ thuật', 'ĐVT', 'Số lượng', 'Đơn giá (VNĐ)', 'Thành tiền (VNĐ)', 'BHYT chi trả (VNĐ)'
+      ];
+
+      const medRows = [];
+      let medIdx = 1;
+      yteDocs.forEach(d => {
+        (d.dsThuoc || []).forEach(t => {
+          medRows.push([
+            medIdx++,
+            { text: d.maBN || '', isCenter: true },
+            d.hoTen || '',
+            { text: 'Thuốc / Dược', isCenter: true },
+            { text: t.ma || '', isCenter: true },
+            t.ten || '',
+            { text: t.dvt || '', isCenter: true },
+            t.sl || 0,
+            t.dg || 0,
+            t.tien || 0,
+            t.tienBHYT || t.tien || 0
+          ]);
+        });
+        (d.dsDVKT || []).forEach(v => {
+          medRows.push([
+            medIdx++,
+            { text: d.maBN || '', isCenter: true },
+            d.hoTen || '',
+            { text: 'Dịch vụ KT', isCenter: true },
+            { text: v.ma || '', isCenter: true },
+            v.ten || '',
+            { text: v.dvt || '', isCenter: true },
+            v.sl || 0,
+            v.dg || 0,
+            v.tien || 0,
+            v.tienBHYT || v.tien || 0
+          ]);
+        });
+      });
+
+      if (medRows.length > 0) {
+        if (medRows.length > 1) {
+          const lastMedRow = medRows.length + 1;
+          medRows.push([
+            { text: 'Tổng cộng', isBold: true },
+            '', '', '', '', '', '',
+            { formula: `SUM(H2:H${lastMedRow})`, isMoney: true },
+            '',
+            { formula: `SUM(J2:J${lastMedRow})`, isMoney: true },
+            { formula: `SUM(K2:K${lastMedRow})`, isMoney: true }
+          ]);
+        }
+        sheets.push({
+          name: 'Chi tiết thuốc & DVKT',
+          cols: medCols,
+          headers: medHeaders,
+          rows: medRows
+        });
+      }
+    }
+
     // 3. Sheet: Hồ sơ & Tờ khai thuế
     if (tkDocs.length > 0) {
       const KIND_NAMES = {
@@ -458,3 +757,4 @@
 
   window.xuatExcel = xuatExcel;
 })();
+
