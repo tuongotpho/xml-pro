@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>VCB-STM-20250430-9988</MsgId>
+      <CreDtTm>2025-04-30T17:30:00+07:00</CreDtTm>
+    </GrpHdr>
+    <Stmt>
+      <Id>STMT-2025-04</Id>
+      <LglSeqNb>4</LglSeqNb>
+      <CreDtTm>2025-04-30T17:30:00+07:00</CreDtTm>
+      <FrToDt>
+        <FrDtTm>2025-04-01T00:00:00</FrDtTm>
+        <ToDtTm>2025-04-30T23:59:59</ToDtTm>
+      </FrToDt>
+      <Acct>
+        <Id>
+          <Othr>
+            <Id>0011004567899</Id>
+          </Othr>
+        </Id>
+        <Ccy>VND</Ccy>
+        <Nm>Tài khoản thanh toán doanh nghiệp VND</Nm>
+        <Ownr>
+          <Nm>CÔNG TY TNHH GIẢI PHÁP SỐ TOÀN CẦU</Nm>
+        </Ownr>
+        <Svcr>
+          <FinInstnId>
+            <BICFI>BFTVVNVX</BICFI>
+            <Nm>NGÂN HÀNG THƯƠNG MẠI CỔ PHẦN NGOẠI THƯƠNG VIỆT NAM (VIETCOMBANK)</Nm>
+            <Othr>
+              <Id>VCB - SỞ GIAO DỊCH HÀ NỘI</Id>
+            </Othr>
+          </FinInstnId>
+        </Svcr>
+      </Acct>
+      <!-- Số dư đầu kỳ -->
+      <Bal>
+        <Tp>
+          <CdOrPrtry>
+            <Cd>OPBD</Cd>
+          </CdOrPrtry>
+        </Tp>
+        <Amt Ccy="VND">158200000</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt>
+          <Dt>2025-04-01</Dt>
+        </Dt>
+      </Bal>
+      <!-- Các giao dịch trong kỳ -->
+      <Ntry>
+        <Amt Ccy="VND">85000000</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt>
+          <Dt>2025-04-05</Dt>
+        </BookgDt>
+        <ValDt>
+          <Dt>2025-04-05</Dt>
+        </ValDt>
+        <AcctSvcrRef>FT2509511223344</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <RltdPties>
+              <Dbtr>
+                <Nm>CÔNG TY CỔ PHẦN ĐẦU TƯ ALPHA</Nm>
+              </Dbtr>
+              <DbtrAcct>
+                <Id>
+                  <Othr>
+                    <Id>19033445566011</Id>
+                  </Othr>
+                </Id>
+              </DbtrAcct>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Thanh toan tien hop dong phan mem so 05/2025/HDKT-GS</Ustrd>
+            </RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="VND">30560000</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt>
+          <Dt>2025-04-12</Dt>
+        </BookgDt>
+        <ValDt>
+          <Dt>2025-04-12</Dt>
+        </ValDt>
+        <AcctSvcrRef>FT2510255667788</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <RltdPties>
+              <Cdtr>
+                <Nm>BAO HIEM XA HOI QUAN THANH XUAN</Nm>
+              </Cdtr>
+              <CdtrAcct>
+                <Id>
+                  <Othr>
+                    <Id>0011009988776</Id>
+                  </Othr>
+                </Id>
+              </CdtrAcct>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Nop tien BHXH BHYT BHTN thang 04/2025 don vi TA0988A</Ustrd>
+            </RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="VND">220000</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt>
+          <Dt>2025-04-25</Dt>
+        </BookgDt>
+        <ValDt>
+          <Dt>2025-04-25</Dt>
+        </ValDt>
+        <AcctSvcrRef>CHG251158899001</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <RltdPties>
+              <Cdtr>
+                <Nm>VIETCOMBANK</Nm>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Thu phi quan ly tai khoan va phi duy tri VCB DigiBiz thang 04/2025</Ustrd>
+            </RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <!-- Số dư cuối kỳ -->
+      <Bal>
+        <Tp>
+          <CdOrPrtry>
+            <Cd>CLBD</Cd>
+          </CdOrPrtry>
+        </Tp>
+        <Amt Ccy="VND">212420000</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt>
+          <Dt>2025-04-30</Dt>
+        </Dt>
+      </Bal>
+    </Stmt>
+  </BkToCstmrStmt>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+    </SignedInfo>
+    <SignatureValue>MEQCIAgZ8V...</SignatureValue>
+    <KeyInfo>
+      <X509Data>
+        <X509SubjectName>CN=NGÂN HÀNG TMCP NGOẠI THƯƠNG VIỆT NAM (VIETCOMBANK), MST:0100112437, C=VN</X509SubjectName>
+        <X509Certificate>MIIE3jCCA8agAwIBAgIQ...</X509Certificate>
+      </X509Data>
+    </KeyInfo>
+    <Object>
+      <SigningTime>2025-04-30T18:00:00+07:00</SigningTime>
+    </Object>
+  </Signature>
+</Document>

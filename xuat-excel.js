@@ -227,7 +227,11 @@
     const hdDocs = validDocs.filter(d => d.kind === 'hd');
     const hqDocs = validDocs.filter(d => d.kind === 'hq');
     const yteDocs = validDocs.filter(d => d.kind === 'yte');
-    const tkDocs = validDocs.filter(d => d.kind !== 'hd' && d.kind !== 'hq' && d.kind !== 'yte');
+    const tncnDocs = validDocs.filter(d => d.kind === 'tncn');
+    const bhxhDocs = validDocs.filter(d => d.kind === 'bhxh');
+    const nhDocs = validDocs.filter(d => d.kind === 'nh');
+    const thauDocs = validDocs.filter(d => d.kind === 'thau');
+    const tkDocs = validDocs.filter(d => !['hd', 'hq', 'yte', 'tncn', 'bhxh', 'nh', 'thau'].includes(d.kind));
 
     const sheets = [];
 
@@ -681,6 +685,479 @@
           cols: medCols,
           headers: medHeaders,
           rows: medRows
+        });
+      }
+    }
+
+    // Sheet: Bảng kê Chứng từ khấu trừ TNCN
+    if (tncnDocs.length > 0) {
+      const tncnCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Số chứng từ
+        { width: 12 }, // Ký hiệu
+        { width: 10 }, // Mẫu số
+        { width: 12 }, // Ngày lập
+        { width: 32 }, // Đơn vị chi trả
+        { width: 15 }, // MST đơn vị
+        { width: 28 }, // Người nộp thuế
+        { width: 15 }, // MST cá nhân
+        { width: 16 }, // CCCD / CMND
+        { width: 12 }, // Cá nhân cư trú
+        { width: 24 }, // Khoản thu nhập
+        { width: 16 }, // Kỳ trả thu nhập
+        { width: 18 }, // Tổng thu nhập chịu thuế
+        { width: 18 }, // Khoản giảm trừ
+        { width: 18 }, // Thu nhập tính thuế
+        { width: 18 }, // Thuế TNCN đã khấu trừ
+        { width: 18 }, // Thu nhập thực nhận
+        { width: 28 }, // Người ký số
+        { width: 18 }, // Ngày ký
+        { width: 28 }  // Tên file XML
+      ];
+
+      const tncnHeaders = [
+        'STT', 'Số chứng từ', 'Ký hiệu', 'Mẫu số', 'Ngày lập',
+        'Tổ chức, cá nhân chi trả', 'MST chi trả',
+        'Người nộp thuế (Cá nhân)', 'MST cá nhân', 'CCCD/CMND', 'Cư trú',
+        'Khoản thu nhập', 'Kỳ trả thu nhập',
+        'Thu nhập chịu thuế (VNĐ)', 'Các khoản giảm trừ (VNĐ)', 'Thu nhập tính thuế (VNĐ)',
+        'Thuế TNCN khấu trừ (VNĐ)', 'Thu nhập thực nhận (VNĐ)',
+        'Đơn vị ký số', 'Thời điểm ký', 'Tên file XML'
+      ];
+
+      const tncnRows = [];
+      tncnDocs.forEach((d, idx) => {
+        const sig = d.sigs?.[0] || {};
+        tncnRows.push([
+          idx + 1,
+          { text: d.soChungTu || '', isCenter: true },
+          { text: d.kyHieu || '', isCenter: true },
+          { text: d.mauSo || '', isCenter: true },
+          { text: fmtDateStr(d.ngayLap), isCenter: true },
+          d.toChuc?.ten || '',
+          { text: d.toChuc?.mst || '', isCenter: true },
+          d.caNhan?.hoTen || '',
+          { text: d.caNhan?.mst || '', isCenter: true },
+          { text: d.caNhan?.cccd || '', isCenter: true },
+          { text: d.caNhan?.cuTru || 'Có', isCenter: true },
+          d.khoanThuNhap || '',
+          { text: d.thoiDiemTraThuNhap || '', isCenter: true },
+          d.tongThuNhapChiuThue || 0,
+          d.khoanGiamTru || 0,
+          d.thuNhapTinhThue || 0,
+          d.soThueTNCNKhauTru || 0,
+          d.soThuNhapThucNhan || 0,
+          sig.cn || '',
+          sig.time || '',
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (tncnDocs.length > 1) {
+        const lastTncnRow = tncnDocs.length + 1;
+        tncnRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '', '', '', '', '', '', '',
+          { formula: `SUM(N2:N${lastTncnRow})`, isMoney: true },
+          { formula: `SUM(O2:O${lastTncnRow})`, isMoney: true },
+          { formula: `SUM(P2:P${lastTncnRow})`, isMoney: true },
+          { formula: `SUM(Q2:Q${lastTncnRow})`, isMoney: true },
+          { formula: `SUM(R2:R${lastTncnRow})`, isMoney: true },
+          '', '', ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Chứng từ Khấu trừ TNCN',
+        cols: tncnCols,
+        headers: tncnHeaders,
+        rows: tncnRows
+      });
+    }
+
+    // Sheet: Bảng kê Hồ sơ BHXH
+    if (bhxhDocs.length > 0) {
+      const bhxhCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Mã thủ tục
+        { width: 38 }, // Tên biểu mẫu
+        { width: 14 }, // Kỳ kê khai
+        { width: 12 }, // Ngày lập
+        { width: 34 }, // Tên đơn vị
+        { width: 14 }, // Mã đơn vị BHXH
+        { width: 15 }, // MST đơn vị
+        { width: 28 }, // Cơ quan BHXH
+        { width: 12 }, // Số lao động
+        { width: 18 }, // Tổng quỹ lương đóng
+        { width: 18 }, // Tiền đóng (32%) / Trợ cấp
+        { width: 28 }, // Người ký số
+        { width: 18 }, // Ngày ký
+        { width: 28 }  // Tên file XML
+      ];
+
+      const bhxhHeaders = [
+        'STT', 'Mã thủ tục', 'Tên biểu mẫu hồ sơ', 'Kỳ kê khai', 'Ngày lập',
+        'Tên đơn vị sử dụng lao động', 'Mã đơn vị BHXH', 'Mã số thuế',
+        'Cơ quan BHXH quản lý', 'Số lao động', 'Tổng quỹ lương đóng (VNĐ)',
+        'Tiền đóng / Đề nghị trợ cấp (VNĐ)', 'Người ký số', 'Thời điểm ký', 'Tên file XML'
+      ];
+
+      const bhxhRows = [];
+      bhxhDocs.forEach((d, idx) => {
+        const sig = d.sigs?.[0] || {};
+        const tienDong = d.tongTienDeNghi || d.tongTienDong || 0;
+        bhxhRows.push([
+          idx + 1,
+          { text: d.maThuTuc || '', isCenter: true },
+          d.tenBieuMau || '',
+          { text: d.kyKeKhai || '', isCenter: true },
+          { text: fmtDateStr(d.ngayLap), isCenter: true },
+          d.donVi?.ten || '',
+          { text: d.donVi?.ma || '', isCenter: true },
+          { text: d.donVi?.mst || '', isCenter: true },
+          d.donVi?.coQuanBHXH || '',
+          d.tongSoLaoDong || 0,
+          d.tongQuyLuong || 0,
+          tienDong,
+          sig.cn || '',
+          sig.time || '',
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (bhxhDocs.length > 1) {
+        const lastBhxhRow = bhxhDocs.length + 1;
+        bhxhRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '', '', '',
+          { formula: `SUM(J2:J${lastBhxhRow})`, isMoney: true },
+          { formula: `SUM(K2:K${lastBhxhRow})`, isMoney: true },
+          { formula: `SUM(L2:L${lastBhxhRow})`, isMoney: true },
+          '', '', ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Hồ sơ BHXH',
+        cols: bhxhCols,
+        headers: bhxhHeaders,
+        rows: bhxhRows
+      });
+
+      // Sheet phụ: Danh sách lao động BHXH
+      const ldCols = [
+        { width: 6 },  // STT
+        { width: 14 }, // Mã đơn vị
+        { width: 28 }, // Họ và tên
+        { width: 14 }, // Mã số BHXH
+        { width: 12 }, // Ngày sinh
+        { width: 8 },  // Giới tính
+        { width: 16 }, // Số CCCD
+        { width: 24 }, // Chức vụ / Công việc
+        { width: 16 }, // Mức lương đóng BH
+        { width: 10 }, // Tỷ lệ đóng
+        { width: 12 }, // Từ tháng
+        { width: 20 }, // Chế độ / Trợ cấp
+        { width: 16 }, // Số tiền trợ cấp
+        { width: 24 }  // Phương án / Ghi chú
+      ];
+
+      const ldHeaders = [
+        'STT', 'Mã đơn vị', 'Họ và tên lao động', 'Mã số BHXH',
+        'Ngày sinh', 'Phái', 'Số CCCD/CMND', 'Chức danh / Nghề nghiệp',
+        'Tiền lương đóng BH (VNĐ)', 'Tỷ lệ đóng', 'Từ tháng',
+        'Chế độ hưởng', 'Tiền trợ cấp (VNĐ)', 'Phương án điều chỉnh / Ghi chú'
+      ];
+
+      const ldRows = [];
+      let ldIdx = 1;
+      bhxhDocs.forEach(d => {
+        (d.dsLaoDong || []).forEach(l => {
+          ldRows.push([
+            ldIdx++,
+            { text: d.donVi?.ma || '', isCenter: true },
+            l.hoTen || '',
+            { text: l.maSoBHXH || '', isCenter: true },
+            { text: l.ngaySinh || '', isCenter: true },
+            { text: l.gioiTinh || '', isCenter: true },
+            { text: l.cccd || '', isCenter: true },
+            l.chucVu || '',
+            l.tienLuong || 0,
+            { text: l.tyLeDong ? l.tyLeDong + '%' : '32%', isCenter: true },
+            { text: l.tuThang || '', isCenter: true },
+            l.loaiCheDo || '',
+            l.tienDeNghi || 0,
+            l.ghiChu || ''
+          ]);
+        });
+      });
+
+      if (ldRows.length > 0) {
+        if (ldRows.length > 1) {
+          const lastLdRow = ldRows.length + 1;
+          ldRows.push([
+            { text: 'Tổng cộng', isBold: true },
+            '', '', '', '', '', '', '',
+            { formula: `SUM(I2:I${lastLdRow})`, isMoney: true },
+            '', '', '',
+            { formula: `SUM(M2:M${lastLdRow})`, isMoney: true },
+            ''
+          ]);
+        }
+        sheets.push({
+          name: 'Danh sách lao động BHXH',
+          cols: ldCols,
+          headers: ldHeaders,
+          rows: ldRows
+        });
+      }
+    }
+
+    // Sheet: Sổ phụ Ngân hàng
+    if (nhDocs.length > 0) {
+      const nhCols = [
+        { width: 6 },  // STT
+        { width: 28 }, // Ngân hàng
+        { width: 18 }, // Chi nhánh
+        { width: 18 }, // Số tài khoản
+        { width: 32 }, // Chủ tài khoản
+        { width: 10 }, // Đồng tiền
+        { width: 22 }, // Kỳ sao kê
+        { width: 18 }, // Số dư đầu kỳ
+        { width: 18 }, // Tổng phát sinh Có (+)
+        { width: 10 }, // Món Có
+        { width: 18 }, // Tổng phát sinh Nợ (-)
+        { width: 10 }, // Món Nợ
+        { width: 18 }, // Số dư cuối kỳ
+        { width: 28 }  // Tên file XML
+      ];
+
+      const nhHeaders = [
+        'STT', 'Tên Ngân hàng', 'Chi nhánh / PGD', 'Số tài khoản', 'Chủ tài khoản',
+        'Đồng tiền', 'Kỳ sao kê', 'Số dư đầu kỳ',
+        'Tổng phát sinh Có (+)', 'Món Có',
+        'Tổng phát sinh Nợ (-)', 'Món Nợ',
+        'Số dư cuối kỳ', 'Tên file XML'
+      ];
+
+      const nhRows = [];
+      nhDocs.forEach((d, idx) => {
+        nhRows.push([
+          idx + 1,
+          d.tenNganHang || '',
+          d.chiNhanh || '',
+          { text: d.soTaiKhoan || '', isCenter: true },
+          d.chuTaiKhoan || '',
+          { text: d.dongTien || 'VND', isCenter: true },
+          { text: d.ky || '', isCenter: true },
+          d.soDuDauKy || 0,
+          d.tongPhatSinhCo || 0,
+          d.soMonCo || 0,
+          d.tongPhatSinhNo || 0,
+          d.soMonNo || 0,
+          d.soDuCuoiKy || 0,
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (nhDocs.length > 1) {
+        const lastNhRow = nhDocs.length + 1;
+        nhRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '',
+          { formula: `SUM(H2:H${lastNhRow})`, isMoney: true },
+          { formula: `SUM(I2:I${lastNhRow})`, isMoney: true },
+          { formula: `SUM(J2:J${lastNhRow})`, isMoney: true },
+          { formula: `SUM(K2:K${lastNhRow})`, isMoney: true },
+          { formula: `SUM(L2:L${lastNhRow})`, isMoney: true },
+          { formula: `SUM(M2:M${lastNhRow})`, isMoney: true },
+          ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Sổ phụ Ngân hàng',
+        cols: nhCols,
+        headers: nhHeaders,
+        rows: nhRows
+      });
+
+      // Sheet phụ: Chi tiết giao dịch phát sinh
+      const gdCols = [
+        { width: 6 },  // STT
+        { width: 16 }, // Số tài khoản
+        { width: 12 }, // Ngày GD
+        { width: 18 }, // Số tham chiếu
+        { width: 12 }, // Loại GD
+        { width: 18 }, // Số tiền GD
+        { width: 18 }, // Số dư sau GD
+        { width: 18 }, // TK đối ứng
+        { width: 28 }, // Đối tác đối ứng
+        { width: 20 }, // Ngân hàng đối tác
+        { width: 45 }  // Diễn giải / Nội dung
+      ];
+
+      const gdHeaders = [
+        'STT', 'Số tài khoản', 'Ngày GD', 'Mã / Số tham chiếu',
+        'Loại GD', 'Số tiền giao dịch', 'Số dư sau GD',
+        'Tài khoản đối ứng', 'Tên người / Đơn vị đối tác', 'Ngân hàng đối tác',
+        'Nội dung chi tiết giao dịch'
+      ];
+
+      const gdRows = [];
+      let gdIdx = 1;
+      nhDocs.forEach(d => {
+        (d.giaoDich || []).forEach(g => {
+          const isCrdt = g.loaiGD === 'CRDT';
+          gdRows.push([
+            gdIdx++,
+            { text: d.soTaiKhoan || '', isCenter: true },
+            { text: g.ngayGD || '', isCenter: true },
+            { text: g.soThamChieu || '', isCenter: true },
+            { text: isCrdt ? 'GHI CÓ (+)' : 'GHI NỢ (-)', isCenter: true },
+            g.soTien || 0,
+            g.soDu || 0,
+            { text: g.tkDoiUng || '', isCenter: true },
+            g.tenDoiUng || '',
+            g.nhDoiUng || '',
+            g.noiDung || ''
+          ]);
+        });
+      });
+
+      if (gdRows.length > 0) {
+        sheets.push({
+          name: 'Giao dịch sao kê NH',
+          cols: gdCols,
+          headers: gdHeaders,
+          rows: gdRows
+        });
+      }
+    }
+
+    // Sheet: Hồ sơ Đấu thầu
+    if (thauDocs.length > 0) {
+      const thauCols = [
+        { width: 6 },  // STT
+        { width: 18 }, // Số TBMT
+        { width: 16 }, // Mã gói thầu
+        { width: 35 }, // Tên gói thầu
+        { width: 30 }, // Bên mời thầu / CDT
+        { width: 32 }, // Tên nhà thầu
+        { width: 15 }, // MST nhà thầu
+        { width: 18 }, // Tư cách tham dự
+        { width: 20 }, // Giá dự thầu (có VAT)
+        { width: 16 }, // Giảm giá
+        { width: 20 }, // Giá sau giảm giá
+        { width: 18 }, // Giá trị bảo lãnh
+        { width: 28 }, // Ngân hàng bảo lãnh
+        { width: 16 }, // Thời gian TH
+        { width: 28 }  // Tên file XML
+      ];
+
+      const thauHeaders = [
+        'STT', 'Mã số TBMT', 'Mã gói thầu', 'Tên gói thầu',
+        'Bên mời thầu / Chủ đầu tư', 'Tên nhà thầu tham dự', 'MST nhà thầu',
+        'Tư cách tham dự', 'Giá dự thầu (VNĐ)', 'Giá trị giảm giá (VNĐ)',
+        'Giá sau giảm giá (VNĐ)', 'Giá trị bảo lãnh (VNĐ)', 'Ngân hàng bảo lãnh',
+        'Thời gian thực hiện', 'Tên file XML'
+      ];
+
+      const thauRows = [];
+      thauDocs.forEach((d, idx) => {
+        thauRows.push([
+          idx + 1,
+          { text: d.maTBMT || '', isCenter: true },
+          { text: d.maGoiThau || '', isCenter: true },
+          d.tenGoiThau || '',
+          d.benMoiThau || '',
+          d.nhaThau?.ten || '',
+          { text: d.nhaThau?.mst || '', isCenter: true },
+          { text: d.nhaThau?.lienDanh || 'Độc lập', isCenter: true },
+          d.giaDuThau || 0,
+          d.giaGiamGia || 0,
+          d.giaDuThauSauGiamGia || 0,
+          d.baoLanh?.giaTri || 0,
+          d.baoLanh?.nganHang || '',
+          d.baoLanh?.thoiGianThucHien || '',
+          d.fileName || d.source || ''
+        ]);
+      });
+
+      if (thauDocs.length > 1) {
+        const lastThauRow = thauDocs.length + 1;
+        thauRows.push([
+          { text: 'Tổng cộng', isBold: true },
+          '', '', '', '', '', '', '',
+          { formula: `SUM(I2:I${lastThauRow})`, isMoney: true },
+          { formula: `SUM(J2:J${lastThauRow})`, isMoney: true },
+          { formula: `SUM(K2:K${lastThauRow})`, isMoney: true },
+          { formula: `SUM(L2:L${lastThauRow})`, isMoney: true },
+          '', '', ''
+        ]);
+      }
+
+      sheets.push({
+        name: 'Hồ sơ Đấu thầu',
+        cols: thauCols,
+        headers: thauHeaders,
+        rows: thauRows
+      });
+
+      // Sheet phụ: Biểu giá dự thầu chi tiết
+      const bgCols = [
+        { width: 6 },  // STT
+        { width: 18 }, // Số TBMT
+        { width: 28 }, // Tên nhà thầu
+        { width: 14 }, // Mã hiệu
+        { width: 42 }, // Hạng mục / Công việc
+        { width: 10 }, // ĐVT
+        { width: 12 }, // Khối lượng
+        { width: 16 }, // Đơn giá dự thầu
+        { width: 18 }, // Thành tiền
+        { width: 20 }  // Ghi chú
+      ];
+
+      const bgHeaders = [
+        'STT', 'Mã số TBMT', 'Tên nhà thầu', 'Mã hiệu',
+        'Nội dung công việc / Hạng mục', 'ĐVT', 'Khối lượng',
+        'Đơn giá dự thầu (VNĐ)', 'Thành tiền (VNĐ)', 'Ghi chú'
+      ];
+
+      const bgRows = [];
+      let bgIdx = 1;
+      thauDocs.forEach(d => {
+        (d.dsHangMuc || []).forEach(h => {
+          bgRows.push([
+            bgIdx++,
+            { text: d.maTBMT || '', isCenter: true },
+            d.nhaThau?.ten || '',
+            { text: h.maHieu || '', isCenter: true },
+            h.hangMuc || '',
+            { text: h.dvt || '', isCenter: true },
+            h.khoiLuong || 0,
+            h.donGia || 0,
+            h.thanhTien || 0,
+            h.ghiChu || ''
+          ]);
+        });
+      });
+
+      if (bgRows.length > 0) {
+        if (bgRows.length > 1) {
+          const lastBgRow = bgRows.length + 1;
+          bgRows.push([
+            { text: 'Tổng cộng', isBold: true },
+            '', '', '', '', '', '', '',
+            { formula: `SUM(I2:I${lastBgRow})`, isMoney: true },
+            ''
+          ]);
+        }
+        sheets.push({
+          name: 'Bảng giá dự thầu chi tiết',
+          cols: bgCols,
+          headers: bgHeaders,
+          rows: bgRows
         });
       }
     }

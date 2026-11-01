@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CTrTNCN xmlns="http://kekhaithue.gdt.gov.vn/TNCN/2022">
+  <TTChung>
+    <mauSo>01/TNCN</mauSo>
+    <kyHieu>01/TNCN-2025M</kyHieu>
+    <soChungTu>0000158</soChungTu>
+    <ngayLap>2025-04-15</ngayLap>
+  </TTChung>
+  <ToChucTraThuNhap>
+    <tenToChuc>CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG SAO KHUÊ</tenToChuc>
+    <mstToChuc>0108998877</mstToChuc>
+    <diaChiToChuc>Tầng 12, Tòa nhà Landmark 72, Đường Phạm Hùng, Phường Mễ Trì, Quận Nam Từ Liêm, TP. Hà Nội</diaChiToChuc>
+    <sdtToChuc>024.3788.9999</sdtToChuc>
+  </ToChucTraThuNhap>
+  <NguoiNopThue>
+    <hoTen>NGUYỄN VĂN AN</hoTen>
+    <mstCaNhan>8099881234</mstCaNhan>
+    <quocTich>Việt Nam</quocTich>
+    <cuTru>1</cuTru>
+    <soCCCD>001092012345</soCCCD>
+    <diaChiCaNhan>Số 18, Ngõ 42, Phố Trung Hòa, Phường Trung Hòa, Quận Cầu Giấy, TP. Hà Nội</diaChiCaNhan>
+    <email>an.nguyenvan@gmail.com</email>
+    <sdt>0912345678</sdt>
+  </NguoiNopThue>
+  <ThueTNCNKhauTru>
+    <khoanThuNhap>Tiền lương, tiền công từ hợp đồng lao động</khoanThuNhap>
+    <thoiDiemTraThuNhap>Từ tháng 01/2025 đến tháng 03/2025</thoiDiemTraThuNhap>
+    <tongThuNhapChiuThue>75000000</tongThuNhapChiuThue>
+    <khoanGiamTru>33000000</khoanGiamTru>
+    <thuNhapTinhThue>42000000</thuNhapTinhThue>
+    <soThueTNCNKhauTru>4200000</soThueTNCNKhauTru>
+    <soThuNhapThucNhan>70800000</soThuNhapThucNhan>
+    <soTienBangChu>Bốn triệu hai trăm nghìn đồng chẵn</soTienBangChu>
+  </ThueTNCNKhauTru>
+  <CKyDTu>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <SignedInfo>
+        <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+        <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      </SignedInfo>
+      <SignatureValue>MEQCIAgZ8V...</SignatureValue>
+      <KeyInfo>
+        <X509Data>
+          <X509SubjectName>CN=CÔNG TY CỔ PHẦN CÔNG NGHỆ VÀ TRUYỀN THÔNG SAO KHUÊ, MST:0108998877, C=VN</X509SubjectName>
+          <X509Certificate>MIIE3jCCA8agAwIBAgIQ...</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+      <Object>
+        <SigningTime>2025-04-15T10:30:00+07:00</SigningTime>
+      </Object>
+    </Signature>
+  </CKyDTu>
+</CTrTNCN>

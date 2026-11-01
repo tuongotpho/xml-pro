@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<E_HSDT xmlns="http://muasamcong.mpi.gov.vn/dau-thau/ehsdt">
+  <ThongTinGoiThau>
+    <maTBMT>IB2500012899-00</maTBMT>
+    <maGoiThau>GT-02/2025/CNTT</maGoiThau>
+    <tenGoiThau>Mua sắm, triển khai hệ thống máy chủ và giải pháp an toàn thông tin cơ sở dữ liệu năm 2025</tenGoiThau>
+    <tenDuAn>Hiện đại hóa hạ tầng công nghệ thông tin và chuyển đổi số giai đoạn 2024-2026</tenDuAn>
+    <chuDauTu>CỤC CHUYỂN ĐỔI SỐ QUỐC GIA</chuDauTu>
+    <benMoiThau>CỤC CHUYỂN ĐỔI SỐ QUỐC GIA</benMoiThau>
+    <diaChiBMT>Số 18 Nguyễn Du, Quận Hai Bà Trưng, TP. Hà Nội</diaChiBMT>
+    <hinhThucLCNT>Đấu thầu rộng rãi qua mạng</hinhThucLCNT>
+    <phuongThucLCNT>Một giai đoạn một túi hồ sơ</phuongThucLCNT>
+  </ThongTinGoiThau>
+  <ThongTinNhaThau>
+    <tenNhaThau>LIÊN DANH CÔNG NGHỆ BÁCH KHOA - THĂNG LONG</tenNhaThau>
+    <mstNhaThau>0106887766</mstNhaThau>
+    <diaChiNhaThau>Tầng 5, Tòa nhà BK-Innovation, Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</diaChiNhaThau>
+    <hinhThucThamDu>Nhà thầu liên danh</hinhThucThamDu>
+  </ThongTinNhaThau>
+  <TaiChinhDuThau>
+    <giaDuThau>4850000000</giaDuThau>
+    <giaDuThauChuaThue>4409090909</giaDuThauChuaThue>
+    <giaGiamGia>50000000</giaGiamGia>
+    <giaDuThauSauGiamGia>4800000000</giaDuThauSauGiamGia>
+    <BaoLanhDuThau>
+      <nganHangBaoLanh>Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV) - Chi nhánh Hà Thành</nganHangBaoLanh>
+      <giaTriBaoLanh>75000000</giaTriBaoLanh>
+      <hieuLucBaoLanh>120 ngày kể từ ngày đóng thầu</hieuLucBaoLanh>
+      <thoiGianThucHien>120 ngày</thoiGianThucHien>
+      <hieuLucHSDT>90 ngày kể từ ngày đóng thầu</hieuLucHSDT>
+    </BaoLanhDuThau>
+  </TaiChinhDuThau>
+  <BangGiaDuThau>
+    <HangMuc>
+      <stt>1</stt>
+      <maHieu>HW-SRV-01</maHieu>
+      <hangMuc>Hệ thống máy chủ Rack 2U Enterprise (Dual Intel Xeon Gold, 256GB RAM, 8x1.92TB NVMe SSD Enterprise)</hangMuc>
+      <dvt>Bộ</dvt>
+      <khoiLuong>4</khoiLuong>
+      <donGia>450000000</donGia>
+      <thanhTien>1800000000</thanhTien>
+      <ghiChu>Xuất xứ USA/EU, mới 100%</ghiChu>
+    </HangMuc>
+    <HangMuc>
+      <stt>2</stt>
+      <maHieu>HW-SAN-02</maHieu>
+      <hangMuc>Hệ thống lưu trữ chuyên dụng SAN All-Flash Storage (Dung lượng khả dụng 50TB, Dual Controller Active-Active)</hangMuc>
+      <dvt>Hệ thống</dvt>
+      <khoiLuong>1</khoiLuong>
+      <donGia>1650000000</donGia>
+      <thanhTien>1650000000</thanhTien>
+      <ghiChu>Bảo hành chính hãng 36 tháng</ghiChu>
+    </HangMuc>
+    <HangMuc>
+      <stt>3</stt>
+      <maHieu>SW-FW-03</maHieu>
+      <hangMuc>Giải pháp tường lửa thế hệ mới Next-Generation Firewall (NGFW) kèm bản quyền an toàn thông tin 03 năm</hangMuc>
+      <dvt>Cặp thiết bị</dvt>
+      <khoiLuong>1</khoiLuong>
+      <donGia>950000000</donGia>
+      <thanhTien>950000000</thanhTien>
+      <ghiChu>Chạy cấu hình HA Active-Passive</ghiChu>
+    </HangMuc>
+    <HangMuc>
+      <stt>4</stt>
+      <maHieu>SRV-INST-04</maHieu>
+      <hangMuc>Dịch vụ cài đặt, cấu hình, tối ưu hóa CSDL, chuyển đổi dữ liệu và đào tạo chuyển giao công nghệ</hangMuc>
+      <dvt>Gói</dvt>
+      <khoiLuong>1</khoiLuong>
+      <donGia>450000000</donGia>
+      <thanhTien>450000000</thanhTien>
+      <ghiChu>Triển khai tại Trung tâm Dữ liệu</ghiChu>
+    </HangMuc>
+  </BangGiaDuThau>
+  <CKyDTu>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <SignedInfo>
+        <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+        <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      </SignedInfo>
+      <SignatureValue>MEQCIAgZ8V...</SignatureValue>
+      <KeyInfo>
+        <X509Data>
+          <X509SubjectName>CN=LIÊN DANH CÔNG NGHỆ BÁCH KHOA - THĂNG LONG, MST:0106887766, C=VN</X509SubjectName>
+          <X509Certificate>MIIE3jCCA8agAwIBAgIQ...</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+      <Object>
+        <SigningTime>2025-05-02T14:20:00+07:00</SigningTime>
+      </Object>
+    </Signature>
+  </CKyDTu>
+</E_HSDT>

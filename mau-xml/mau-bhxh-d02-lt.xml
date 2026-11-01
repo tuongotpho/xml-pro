@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<D02-LT xmlns="http://bhxh.gov.vn/gddt/D02-LT">
+  <ThongTinChung>
+    <maThuTuc>600</maThuTuc>
+    <tenBieuMau>BÁO CÁO TÌNH HÌNH SỬ DỤNG LAO ĐỘNG VÀ DANH SÁCH LAO ĐỘNG THAM GIA BHXH, BHYT, BHTN</tenBieuMau>
+    <soHoSo>2025-600-001289</soHoSo>
+    <thangNam>04/2025</thangNam>
+    <ngayLap>2025-04-10</ngayLap>
+  </ThongTinChung>
+  <DonViSDLD>
+    <tenDonVi>CÔNG TY TNHH PHÁT TRIỂN CÔNG NGHỆ VÀ TRUYỀN THÔNG ĐÔNG NAM</tenDonVi>
+    <maDonVi>TA0988A</maDonVi>
+    <mstDonVi>0107889966</mstDonVi>
+    <diaChiDonVi>Tầng 8, Tòa tháp Golden Palm, 21 Lê Văn Lương, Nhân Chính, Thanh Xuân, Hà Nội</diaChiDonVi>
+    <coQuanBHXH>Bảo hiểm Xã hội Quận Thanh Xuân - TP. Hà Nội</coQuanBHXH>
+  </DonViSDLD>
+  <DanhSachLaoDong>
+    <LaoDong>
+      <stt>1</stt>
+      <hoTen>Trần Văn Hưng</hoTen>
+      <maSoBHXH>0120987654</maSoBHXH>
+      <ngaySinh>1988-06-15</ngaySinh>
+      <gioiTinh>1</gioiTinh>
+      <soCCCD>001088019922</soCCCD>
+      <chucVu>Giám đốc Kỹ thuật (CTO)</chucVu>
+      <tienLuong>32000000</tienLuong>
+      <tyLeDong>32</tyLeDong>
+      <tuThang>01/2025</tuThang>
+      <denThang>12/2025</denThang>
+      <ghiChu>Đang tham gia</ghiChu>
+    </LaoDong>
+    <LaoDong>
+      <stt>2</stt>
+      <hoTen>Lê Thị Thu Thảo</hoTen>
+      <maSoBHXH>7923456789</maSoBHXH>
+      <ngaySinh>1993-11-20</ngaySinh>
+      <gioiTinh>2</gioiTinh>
+      <soCCCD>079193005544</soCCCD>
+      <chucVu>Kế toán trưởng</chucVu>
+      <tienLuong>22500000</tienLuong>
+      <tyLeDong>32</tyLeDong>
+      <tuThang>01/2025</tuThang>
+      <denThang>12/2025</denThang>
+      <ghiChu>Đang tham gia</ghiChu>
+    </LaoDong>
+    <LaoDong>
+      <stt>3</stt>
+      <hoTen>Phạm Đức Minh</hoTen>
+      <maSoBHXH>0124567890</maSoBHXH>
+      <ngaySinh>1996-03-08</ngaySinh>
+      <gioiTinh>1</gioiTinh>
+      <soCCCD>001096008877</soCCCD>
+      <chucVu>Kỹ sư Lập trình Cấp cao (Senior Dev)</chucVu>
+      <tienLuong>26000000</tienLuong>
+      <tyLeDong>32</tyLeDong>
+      <tuThang>04/2025</tuThang>
+      <denThang>12/2025</denThang>
+      <ghiChu>Tăng mới từ 04/2025</ghiChu>
+    </LaoDong>
+    <LaoDong>
+      <stt>4</stt>
+      <hoTen>Vũ Hoài An</hoTen>
+      <maSoBHXH>0119876543</maSoBHXH>
+      <ngaySinh>1998-09-12</ngaySinh>
+      <gioiTinh>2</gioiTinh>
+      <soCCCD>001198003322</soCCCD>
+      <chucVu>Chuyên viên Marketing</chucVu>
+      <tienLuong>15000000</tienLuong>
+      <tyLeDong>32</tyLeDong>
+      <tuThang>04/2025</tuThang>
+      <denThang>09/2025</denThang>
+      <ghiChu>Nghỉ việc hưởng chế độ thai sản</ghiChu>
+    </LaoDong>
+  </DanhSachLaoDong>
+  <TongHop>
+    <tongSoLaoDong>4</tongSoLaoDong>
+    <tongQuyLuong>95500000</tongQuyLuong>
+    <tongTienDong>30560000</tongTienDong>
+  </TongHop>
+  <CKyDTu>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <SignedInfo>
+        <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+        <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      </SignedInfo>
+      <SignatureValue>MEQCIAgZ8V...</SignatureValue>
+      <KeyInfo>
+        <X509Data>
+          <X509SubjectName>CN=CÔNG TY TNHH PHÁT TRIỂN CÔNG NGHỆ VÀ TRUYỀN THÔNG ĐÔNG NAM, MST:0107889966, C=VN</X509SubjectName>
+          <X509Certificate>MIIE3jCCA8agAwIBAgIQ...</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+      <Object>
+        <SigningTime>2025-04-10T09:15:30+07:00</SigningTime>
+      </Object>
+    </Signature>
+  </CKyDTu>
+</D02-LT>

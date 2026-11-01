@@ -199,9 +199,88 @@
   .itax-sig-foot, .itax-sig-foot * { box-sizing: border-box; }
   .itax-sig-foot { clear: both; margin-top: 12px; }
 
-  /* Tag Hải quan & Y tế */
+  /* Tag Hải quan & Y tế & TNCN & BHXH & Ngân hàng & Đấu thầu */
   .tag.hq { background: #0369a1; color: #fff; }
   .tag.yte { background: #059669; color: #fff; }
+  .tag.tncn { background: #c2410c; color: #fff; }
+  .tag.bhxh { background: #0891b2; color: #fff; }
+  .tag.nh { background: #4338ca; color: #fff; }
+  .tag.thau { background: #7c3aed; color: #fff; }
+
+  /* Giao diện TNCN */
+  .tncn-paper { max-width: 920px; margin: 0 auto 20px; }
+  .tncn-head { display: grid; grid-template-columns: 1.2fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #c2410c; padding-bottom: 12px; margin-bottom: 16px; }
+  .tncn-nat { text-align: center; }
+  .tncn-nat .t-top { font-weight: 700; font-size: 11.5px; }
+  .tncn-nat .t-sub { font-weight: 700; font-size: 11px; margin-top: 2px; }
+  .tncn-nat .t-line { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .tncn-title-box { text-align: center; }
+  .tncn-title-box h2 { margin: 0; font-size: 16px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .tncn-title-box .sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-style: italic; }
+  .tncn-title-box .sub-date { font-size: 12px; color: #3c4650; margin-top: 2px; }
+  .tncn-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .tncn-sec { margin-bottom: 14px; }
+  .tncn-sec .sec-title { font-size: 12.5px; font-weight: 700; color: #c2410c; text-transform: uppercase; border-bottom: 1px solid #fed7aa; padding-bottom: 3px; margin-bottom: 8px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 12.5px; background: #fff7ed; padding: 10px 14px; border-radius: 8px; border: 1px solid #ffedd5; }
+  .grid-2 .span-2 { grid-column: span 2; }
+  .tag-mst { font-family: Consolas, monospace; letter-spacing: .5px; background: #fff; padding: 1px 6px; border-radius: 4px; border: 1px solid #fdba74; }
+
+  /* Giao diện BHXH */
+  .bhxh-paper { max-width: 960px; margin: 0 auto 20px; }
+  .bhxh-head { display: grid; grid-template-columns: 1.2fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #0891b2; padding-bottom: 12px; margin-bottom: 16px; }
+  .bhxh-brand h3 { margin: 0 0 4px; font-size: 13.5px; color: #0891b2; text-transform: uppercase; }
+  .bhxh-title-box { text-align: center; }
+  .bhxh-title-box h2 { margin: 0; font-size: 16px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .bhxh-title-box .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .bhxh-title-box .sub-date { font-size: 12px; color: #3c4650; margin-top: 2px; }
+  .bhxh-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .bhxh-sec { margin-bottom: 14px; }
+  .bhxh-sec .sec-title { font-size: 12.5px; font-weight: 700; color: #0891b2; text-transform: uppercase; border-bottom: 1px solid #a5f3fc; padding-bottom: 3px; margin-bottom: 8px; }
+  .bhxh-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+  .b-card { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .b-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #0f766e; margin-bottom: 3px; }
+  .b-val { font-size: 17px; font-weight: 800; font-family: "Segoe UI", sans-serif; }
+  .badge-chedo { background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .pa-note { font-size: 11px; color: var(--muted); }
+
+  /* Giao diện Ngân hàng */
+  .nh-paper { max-width: 960px; margin: 0 auto 20px; }
+  .nh-head { display: grid; grid-template-columns: 1.2fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #4338ca; padding-bottom: 12px; margin-bottom: 16px; }
+  .nh-brand h3 { margin: 0 0 4px; font-size: 14px; color: #4338ca; text-transform: uppercase; }
+  .nh-title-box { text-align: center; }
+  .nh-title-box h2 { margin: 0; font-size: 16.5px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .nh-title-box .sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .nh-title-box .sub-date { font-size: 12px; color: #3c4650; margin-top: 2px; }
+  .nh-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .nh-sec { margin-bottom: 14px; }
+  .nh-sec .sec-title { font-size: 12.5px; font-weight: 700; color: #4338ca; text-transform: uppercase; border-bottom: 1px solid #c7d2fe; padding-bottom: 3px; margin-bottom: 8px; }
+  .nh-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .nh-kpi-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .nh-kpi-card.in { background: #f0fdf4; border-color: #86efac; }
+  .nh-kpi-card.out { background: #fef2f2; border-color: #fca5a5; }
+  .nh-kpi-card.bal { background: #eff6ff; border-color: #93c5fd; }
+  .k-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; color: var(--muted); }
+  .k-val { font-size: 16px; font-weight: 800; font-family: "Segoe UI", sans-serif; }
+  .k-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .badge-ps { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; }
+  .badge-ps.in { background: #dcfce7; color: #15803d; }
+  .badge-ps.out { background: #fee2e2; color: #b91c1c; }
+
+  /* Giao diện Đấu thầu */
+  .thau-paper { max-width: 960px; margin: 0 auto 20px; }
+  .thau-head { display: grid; grid-template-columns: 1.2fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #7c3aed; padding-bottom: 12px; margin-bottom: 16px; }
+  .thau-brand h3 { margin: 0 0 4px; font-size: 13.5px; color: #7c3aed; text-transform: uppercase; }
+  .thau-title-box { text-align: center; }
+  .thau-title-box h2 { margin: 0; font-size: 16.5px; color: #0f172a; font-weight: 800; text-transform: uppercase; }
+  .thau-title-box .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .thau-title-box .sub-date { font-size: 12px; color: #3c4650; margin-top: 2px; }
+  .thau-meta { font-size: 12px; text-align: right; line-height: 1.6; }
+  .thau-sec { margin-bottom: 14px; }
+  .thau-sec .sec-title { font-size: 12.5px; font-weight: 700; color: #7c3aed; text-transform: uppercase; border-bottom: 1px solid #ddd6fe; padding-bottom: 3px; margin-bottom: 8px; }
+  .thau-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+  .t-card { background: #faf5ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .t-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #6d28d9; margin-bottom: 3px; }
+  .t-val { font-size: 17px; font-weight: 800; font-family: "Segoe UI", sans-serif; }
 
   /* Giao diện Hải quan */
   .hq-head { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 14px; align-items: start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; }
@@ -1650,6 +1729,10 @@
     if (r === 'HDon') d = parseInvoice(root, fileName);
     else if (window.NGANH_DOC && window.NGANH_DOC.isCustomsXml(root)) d = window.NGANH_DOC.parseCustoms(root, fileName, readSignatures);
     else if (window.NGANH_DOC && window.NGANH_DOC.isHealthcareXml(root)) d = window.NGANH_DOC.parseHealthcare(root, fileName, readSignatures);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isTncnXml(root)) d = window.NGANH_DOC.parseTncn(root, fileName, readSignatures);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isBhxhXml(root)) d = window.NGANH_DOC.parseBhxh(root, fileName, readSignatures);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isBankXml(root)) d = window.NGANH_DOC.parseBank(root, fileName, readSignatures);
+    else if (window.NGANH_DOC && window.NGANH_DOC.isProcurementXml(root)) d = window.NGANH_DOC.parseProcurement(root, fileName, readSignatures);
     else if (r === 'HSoThueDTu' && kid(root, 'HSoKhaiThue')) d = parseToKhai(root, fileName);
     else if (r === 'TBaoThueDTu' || r === 'TBaoThue' || r === 'TBao' || r === 'TBTNhan' || r === 'THONGBAO' || r === 'THONG_BAO' || r === 'TBAO_TKHOAN_NH' || r === 'TBAO_TKHOAN_NT' || r === 'TBAO_NGUNG') {
       d = parseThongBao(root, fileName);
@@ -1674,7 +1757,20 @@
     return d;
   }
 
-  const KIND = { tk: ['tk', 'Tờ khai'], nhap: ['', 'Nháp HTKK'], tb: ['tb', 'Thông báo'], ct: ['ct', 'Chứng từ'], hd: ['hd', 'Hoá đơn'], hq: ['hq', 'Hải quan'], yte: ['yte', 'Y tế / BHYT'], khac: ['', 'Khác'] };
+  const KIND = {
+    tk: ['tk', 'Tờ khai'],
+    nhap: ['', 'Nháp HTKK'],
+    tb: ['tb', 'Thông báo'],
+    ct: ['ct', 'Chứng từ'],
+    hd: ['hd', 'Hoá đơn'],
+    hq: ['hq', 'Hải quan'],
+    yte: ['yte', 'Y tế / BHYT'],
+    tncn: ['tncn', 'Thuế TNCN'],
+    bhxh: ['bhxh', 'BHXH'],
+    nh: ['nh', 'Ngân hàng'],
+    thau: ['thau', 'Đấu thầu'],
+    khac: ['', 'Khác']
+  };
 
   // ---------- Nạp file ----------
   let skipped = 0;
@@ -1799,6 +1895,10 @@
     : d.kind === 'hd' ? `HĐ ${d.kyHieu}-${d.so}`
     : d.kind === 'hq' ? `HQ ${d.soTKhai || ''}`
     : d.kind === 'yte' ? `KCB ${d.hoTen || d.maBN || ''}`
+    : d.kind === 'tncn' ? `TNCN ${d.soChungTu || ''}`
+    : d.kind === 'bhxh' ? `BHXH ${d.donVi?.ma || d.maThuTuc || ''}`
+    : d.kind === 'nh' ? `NH ${d.soTaiKhoan || ''}`
+    : d.kind === 'thau' ? `Thầu ${d.maTBMT || d.maGoiThau || ''}`
     : (d.title.replace(/\s*\(.*$/, '') + (d.ky ? ' · ' + d.ky.replace(/\s*\(.*$/, '') : ''));
   function renderTabs() {
     $('tabs').innerHTML = docs.map((d, i) => {
@@ -1844,7 +1944,12 @@
       if (q && !hay.includes(q)) return '';
       const [cls, lab] = KIND[d.kind];
       const warn = d.kind === 'hd' && d.notes.some(n => n[0] === 'warn');
-      const right = d.kind === 'hd' ? money(d.tong) : d.kind === 'ct' ? money(d.tong) : '';
+      const right = d.kind === 'hd' ? money(d.tong)
+        : d.kind === 'ct' ? money(d.tong)
+        : d.kind === 'tncn' ? (d.soThueTNCNKhauTru != null ? money(d.soThueTNCNKhauTru) : '')
+        : d.kind === 'nh' ? (d.soDuCuoiKy != null ? money(d.soDuCuoiKy) : '')
+        : d.kind === 'thau' ? (d.giaDuThau != null ? money(d.giaDuThau) : '')
+        : '';
       return `<div class="item ${i === selected ? 'sel' : ''}" data-i="${i}">
         <div class="l1"><span>${esc(d.title)}${warn ? ' <span style="color:var(--warn)">⚠</span>' : ''}</span><span class="tag ${cls}">${lab}</span></div>
         <div class="l2">${esc([d.ky || date(d.ngay), right, d.ten || d.mst].filter(Boolean).join(' · '))}</div>
@@ -1860,13 +1965,17 @@
     selected = i;
     renderList();
     const d = docs[i];
-    if (!d.error && d.kind !== 'hd' && d.kind !== 'hq' && d.kind !== 'yte' && d.kind !== 'nhap' && !d._itaxDone) {
+    if (!d.error && !['hd', 'hq', 'yte', 'tncn', 'bhxh', 'nh', 'thau', 'nhap'].includes(d.kind) && !d._itaxDone) {
       buildItaxSheets(d).then(sh => { if (sh && docs[selected] === d) select(selected); });
     }
     $('main').innerHTML = d.error ? `<div class="notes"><div class="note warn"><b>${esc(d.source)}</b><br>${esc(d.error)}</div></div>`
       : d.kind === 'hd' ? renderInvoice(d)
       : d.kind === 'hq' ? (window.NGANH_DOC ? window.NGANH_DOC.renderCustoms(d) : renderDoc(d))
       : d.kind === 'yte' ? (window.NGANH_DOC ? window.NGANH_DOC.renderHealthcare(d) : renderDoc(d))
+      : d.kind === 'tncn' ? (window.NGANH_DOC ? window.NGANH_DOC.renderTncn(d) : renderDoc(d))
+      : d.kind === 'bhxh' ? (window.NGANH_DOC ? window.NGANH_DOC.renderBhxh(d) : renderDoc(d))
+      : d.kind === 'nh' ? (window.NGANH_DOC ? window.NGANH_DOC.renderBank(d) : renderDoc(d))
+      : d.kind === 'thau' ? (window.NGANH_DOC ? window.NGANH_DOC.renderProcurement(d) : renderDoc(d))
       : renderDoc(d);
     $('main').scrollTop = 0;
     const p = $('printBtn'); if (p) p.onclick = () => window.print();
