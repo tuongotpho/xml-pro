@@ -27,125 +27,168 @@
   // 1. CẤU TRÚC DỮ LIỆU CÂY THƯ MỤC (FOLDER TREE ENGINE)
   // =========================================================================
 
+  // Trạng thái đóng/mở được giữ qua các lần dựng lại cây (key = đường dẫn thư mục)
+  const trangThaiMo = new Map();
+
   class TreeNode {
     constructor(name, path, isRoot = false) {
-      this.name = name;
-      this.path = path;
+      this.name = name;          // tên hiển thị (có thể gộp "A › B › C")
+      this.path = path;          // đường dẫn đầy đủ dùng để lọc
       this.isRoot = isRoot;
       this.children = new Map();
-      this.docIndices = [];     // Các file nằm trực tiếp trong thư mục này
-      this.allDocIndices = [];  // Toàn bộ file trong thư mục này và tất cả thư mục con
-      this.kindCounts = {};
+      this.docIndices = [];      // file nằm trực tiếp trong thư mục
+      this.allDocIndices = [];   // file trong thư mục và mọi thư mục con
       this.dominantDomain = 'tonghop';
       this.isExpanded = true;
     }
   }
 
+  // Đường dẫn tương đối của file (bỏ ổ đĩa, đổi \ thành /)
+  function duongDanFile(d) {
+    return (d.relPath || d.duongDan || d.source || '').replace(/^[A-Za-z]:[\\/]/, '').replace(/\\/g, '/').replace(/\s*›\s*/g, '/');
+  }
+
   function tachDuongDan(d) {
-    let raw = d.relPath || d.duongDan || d.source || '';
-    raw = raw.replace(/^[A-Za-z]:[\\/]/, '').replace(/\\/g, '/');
-    const parts = raw.split('/').filter(p => p && p !== '.');
-    if (parts.length > 1) {
-      const fileName = parts.pop();
-      return { folders: parts, fileName };
-    }
-    return { folders: ['(Thư mục gốc)'], fileName: parts[0] || 'file.xml' };
+    const parts = duongDanFile(d).split('/').filter(p => p && p !== '.');
+    if (parts.length > 1) { const fileName = parts.pop(); return { folders: parts, fileName }; }
+    return { folders: [], fileName: parts[0] || 'file.xml' };
   }
 
   function buildFolderTree(docs) {
-    const root = new TreeNode('Tất cả thư mục', '', true);
-
+    const root = new TreeNode('Tất cả file đang mở', '', true);
     docs.forEach((d, idx) => {
-      if (d.error) return;
       const { folders } = tachDuongDan(d);
-      let cur = root;
-      let curPath = '';
-
-      folders.forEach((fName, i) => {
+      let cur = root, curPath = '';
+      root.allDocIndices.push(idx);
+      for (const fName of folders) {
         curPath = curPath ? `${curPath}/${fName}` : fName;
-        if (!cur.children.has(fName)) {
-          cur.children.set(fName, new TreeNode(fName, curPath));
-        }
+        if (!cur.children.has(fName)) cur.children.set(fName, new TreeNode(fName, curPath));
         cur = cur.children.get(fName);
         cur.allDocIndices.push(idx);
-      });
-
+      }
       cur.docIndices.push(idx);
-      root.allDocIndices.push(idx);
     });
 
-    function phanTichNode(node) {
-      node.kindCounts = {};
-      node.allDocIndices.forEach(i => {
-        const d = docs[i];
-        if (!d) return;
-        const k = d.kind || 'khac';
-        node.kindCounts[k] = (node.kindCounts[k] || 0) + 1;
-      });
-
-      // Xác định ngành chủ đạo
-      node.dominantDomain = detectDominantDomain(node.allDocIndices.map(i => docs[i]));
-
-      for (const child of node.children.values()) {
-        phanTichNode(child);
+    // Gộp chuỗi thư mục chỉ có đúng 1 thư mục con và không có file trực tiếp (BAN-RA › HD-DIEN-TU › XML)
+    function gop(node) {
+      for (const [k, ch] of Array.from(node.children.entries())) {
+        let c = ch;
+        while (c.children.size === 1 && c.docIndices.length === 0) {
+          const only = c.children.values().next().value;
+          only.name = `${c.name} › ${only.name}`;
+          c = only;
+        }
+        node.children.set(k, c);
+        gop(c);
       }
     }
+    gop(root);
 
-    phanTichNode(root);
-    return root;
+    // Chỉ có đúng 1 thư mục tổng và không có file lẻ: lấy luôn thư mục đó làm gốc
+    let goc = root;
+    if (root.children.size === 1 && root.docIndices.length === 0) {
+      goc = root.children.values().next().value;
+      goc.isRoot = true;
+    }
+
+    function phanTich(node, level) {
+      node.dominantDomain = detectDominantDomain(node.allDocIndices.map(i => docs[i]));
+      node.isExpanded = trangThaiMo.has(node.path) ? trangThaiMo.get(node.path) : level <= 1;
+      for (const ch of node.children.values()) phanTich(ch, level + 1);
+    }
+    phanTich(goc, 0);
+    return goc;
+  }
+
+  const daVe = new Map(); // trạng thái đóng/mở lần vẽ gần nhất
+  function toggleNode(path) {
+    const cur = trangThaiMo.has(path) ? trangThaiMo.get(path) : (daVe.has(path) ? daVe.get(path) : true);
+    trangThaiMo.set(path, !cur);
+  }
+
+  function nhomNganh(kind) {
+    if (kind === 'tk' || kind === 'ct' || kind === 'tb' || kind === 'nhap') return 'hd';
+    if (kind === 'tncn' || kind === 'bhxh') return 'nhansu';
+    if (DOMAIN_INFO[kind]) return kind;
+    return 'khac';
+  }
+
+  function demTheoNganh(folderDocs) {
+    const counts = {};
+    for (const d of folderDocs || []) {
+      if (!d || d.error) continue;
+      const k = nhomNganh(d.kind);
+      counts[k] = (counts[k] || 0) + 1;
+    }
+    return counts;
   }
 
   function detectDominantDomain(folderDocs) {
-    if (!folderDocs || !folderDocs.length) return 'tonghop';
-    const counts = {};
-    for (const d of folderDocs) {
-      if (!d || d.error) continue;
-      let k = d.kind;
-      if (k === 'tk' || k === 'ct' || k === 'tb') k = 'hd';
-      if (k === 'tncn' || k === 'bhxh') k = 'nhansu';
-      counts[k] = (counts[k] || 0) + 1;
-    }
-
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    if (!total) return 'tonghop';
-
+    const counts = demTheoNganh(folderDocs);
+    delete counts.khac;
     const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    const [topKind, topCount] = entries[0];
-
-    if (entries.length === 1 || topCount / total >= 0.55) {
-      return topKind;
-    }
-    return 'tonghop';
+    if (!entries.length) return 'tonghop';
+    const total = entries.reduce((a, e) => a + e[1], 0);
+    return (entries.length === 1 || entries[0][1] / total >= 0.55) ? entries[0][0] : 'tonghop';
   }
 
   // =========================================================================
-  // 2. GIAO DIỆN CÂY THƯ MỤC BÊN THANH SIDEBAR
+  // 2. GIAO DIỆN CÂY THƯ MỤC BÊN THANH SIDEBAR (thư mục + file bên trong như Explorer)
   // =========================================================================
 
-  function renderTreeHtml(node, selectedPath, level = 0) {
-    const isSelected = (node.path === selectedPath) || (node.isRoot && !selectedPath);
-    const hasChildren = node.children.size > 0;
+  function nhanFile(d) {
+    if (d.error) return '⚠ ' + (d.source || '').split('/').pop();
+    if (d.kind === 'hd') return `HĐ ${d.kyHieu || ''}-${d.so || ''} · ${d.ban?.Ten || d.ten || ''}`;
+    if (d.kind === 'hq') return `HQ ${d.soTKhai || ''} · ${d.maLH || ''}`;
+    if (d.kind === 'yte') return `KCB ${d.hoTen || ''} (${d.maBN || ''})`;
+    if (d.kind === 'nh') return `NH ${d.tenNganHang || ''} · ${d.soTaiKhoan || ''}`;
+    if (d.kind === 'tncn') return `TNCN ${d.soChungTu || ''} · ${d.caNhan?.hoTen || ''}`;
+    if (d.kind === 'bhxh') return `BHXH ${d.maThuTuc || ''} · ${d.kyKeKhai || ''}`;
+    if (d.kind === 'thau') return `HSDT ${d.maTBMT || ''} · ${d.nhaThau?.ten || ''}`;
+    return d.title || d.fileName || 'Tài liệu XML';
+  }
+  function soTienFile(d) {
+    if (d.error) return '';
+    const v = d.kind === 'hd' || d.kind === 'ct' ? (d.tong != null ? d.tong : (d.tongTruocThue || 0) + (d.tongThue || 0))
+      : d.kind === 'yte' ? d.tongChi
+      : d.kind === 'hq' ? d.tongTienThue
+      : d.kind === 'nh' ? (d.soDuCuoiKy ?? d.tongPhatSinhCo)
+      : d.kind === 'tncn' ? d.soThueTNCNKhauTru
+      : d.kind === 'bhxh' ? d.tongTienDong
+      : d.kind === 'thau' ? (d.giaDuThau || d.giaDuThauSauGiamGia) : null;
+    return v != null ? money(v) : '';
+  }
+
+  function renderTreeHtml(node, selectedPath, level = 0, docs = [], selectedDoc = -1) {
+    // mở sẵn các thư mục cha của thư mục đang chọn
+    if (selectedPath && node.path && selectedPath.startsWith(node.path + '/')) {
+      node.isExpanded = true; trangThaiMo.set(node.path, true);
+    }
+    daVe.set(node.path, node.isExpanded);
+
+    const isSelected = node.isRoot ? !selectedPath || selectedPath === node.path : node.path === selectedPath;
+    const coNoiDung = node.children.size > 0 || node.docIndices.length > 0;
     const info = DOMAIN_INFO[node.dominantDomain] || DOMAIN_INFO.tonghop;
-    const indent = level * 14;
+    const pad = level * 14 + 6;
 
-    let html = `
-      <div class="tree-node ${isSelected ? 'sel' : ''}" data-path="${esc(node.path)}" style="padding-left:${indent + 6}px">
-        <span class="tree-toggle ${hasChildren ? '' : 'leaf'}" data-path="${esc(node.path)}">${hasChildren ? (node.isExpanded ? '▾' : '▸') : '•'}</span>
-        <span class="tree-icon">${node.isRoot ? '🗂️' : (hasChildren ? (node.isExpanded ? '📂' : '📁') : '📄')}</span>
-        <span class="tree-name" title="${esc(node.path || node.name)}">${esc(node.name)}</span>
+    let html = `<div class="tree-node ${isSelected ? 'sel' : ''}" data-path="${esc(node.isRoot && node.path === '' ? '' : node.path)}" style="padding-left:${pad}px" title="${esc((node.path || node.name) + ' — bấm để xem Bảng điều hành')}">
+        <span class="tree-toggle ${coNoiDung ? '' : 'leaf'}" data-path="${esc(node.path)}">${coNoiDung ? (node.isExpanded ? '▾' : '▸') : ''}</span>
+        <span class="tree-icon">${node.isRoot ? '🗂️' : (node.isExpanded ? '📂' : '📁')}</span>
+        <span class="tree-name">${esc(node.name)}</span>
         <span class="tree-tag" style="background:${info.bg};color:${info.color}" title="${esc(info.name)}">${info.icon} ${node.allDocIndices.length}</span>
-      </div>
-    `;
+      </div>`;
 
-    if (hasChildren && node.isExpanded) {
-      for (const child of node.children.values()) {
-        html += renderTreeHtml(child, selectedPath, level + 1);
+    if (node.isExpanded) {
+      for (const child of node.children.values()) html += renderTreeHtml(child, selectedPath, level + 1, docs, selectedDoc);
+      for (const i of node.docIndices) {
+        const d = docs[i]; if (!d) continue;
+        const pl = d.kind === 'hd' && d.phanLoai === 'ban' ? '<span class="tag-pl ban">BÁN</span>' : d.kind === 'hd' && d.phanLoai === 'mua' ? '<span class="tag-pl mua">MUA</span>' : '';
+        html += `<div class="tree-file ${i === selectedDoc ? 'sel' : ''} ${d.error ? 'err' : ''}" data-i="${i}" style="padding-left:${pad + 28}px" title="${esc(d.source || '')}">
+          <span class="tree-fname">${esc(nhanFile(d))}</span>${pl}<span class="tree-money">${esc(soTienFile(d))}</span></div>`;
       }
     }
-
     return html;
   }
-
   // =========================================================================
   // 3. CÁC MODULE DASHBOARD ĐỘNG THEO CHUYÊN NGÀNH
   // =========================================================================
@@ -160,10 +203,30 @@
     const nhaCungCapMap = {};
     const warnList = [];
 
+    const pFolder = (path || folderTitle || '').toLowerCase();
+    const folderIsBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output)(?:$|[_\W])/i.test(pFolder);
+    const folderIsMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input)(?:$|[_\W])/i.test(pFolder);
+
     docs.forEach((d, idx) => {
       if (d.kind !== 'hd') return;
-      const isBan = d.phanLoai === 'ban';
-      const isMua = d.phanLoai === 'mua';
+      let isBan = d.phanLoai === 'ban';
+      let isMua = d.phanLoai === 'mua';
+
+      if (!isBan && !isMua) {
+        if (folderIsBan && !folderIsMua) {
+          isBan = true;
+        } else if (folderIsMua && !folderIsBan) {
+          isMua = true;
+        } else {
+          const pFile = (d.relPath || d.duongDan || d.source || '').toLowerCase();
+          const pBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output)(?:$|[_\W])/i.test(pFile);
+          const pMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input)(?:$|[_\W])/i.test(pFile);
+          if (pBan && !pMua) isBan = true;
+          else if (pMua && !pBan) isMua = true;
+          else isBan = true;
+        }
+      }
+
       const tienHang = d.tongTruocThue || d.tong || 0;
       const tienThue = d.tongThue || 0;
 
@@ -172,13 +235,13 @@
         tienBan += tienHang;
         thueBan += tienThue;
         const tenMua = d.mua?.Ten || d.mua?.MST || 'Khách vãng lai';
-        khachHangMap[tenMua] = (khachHangMap[tenMua] || 0) + (d.tong || tienHang);
+        khachHangMap[tenMua] = (khachHangMap[tenMua] || 0) + (d.tong || (tienHang + tienThue));
       } else if (isMua) {
         countMua++;
         tienMua += tienHang;
         thueMua += tienThue;
         const tenBan = d.ban?.Ten || d.ban?.MST || 'Nhà cung cấp khác';
-        nhaCungCapMap[tenBan] = (nhaCungCapMap[tenBan] || 0) + (d.tong || tienHang);
+        nhaCungCapMap[tenBan] = (nhaCungCapMap[tenBan] || 0) + (d.tong || (tienHang + tienThue));
       }
 
       // Thuế suất
@@ -300,8 +363,8 @@
     docs.forEach(d => {
       if (d.kind !== 'hq') return;
       const luong = (d.luong?.code || '').toLowerCase();
-      if (luong === 'xanh' || (d.luong?.name || '').includes('XANH')) xanh++;
-      else if (luong === 'do' || (d.luong?.name || '').includes('ĐỎ')) doCount++;
+      if (luong === 'xanh' || (d.luong?.name || '').includes('XANH') || luong === '1') xanh++;
+      else if (luong === 'do' || (d.luong?.name || '').includes('ĐỎ') || luong === '3') doCount++;
       else vang++;
 
       tongThueXNK += (d.tongThueXNK || 0);
@@ -390,13 +453,14 @@
 
     docs.forEach(d => {
       if (d.kind !== 'yte') return;
-      if (d.loaiKcb === 'Nội trú' || (d.soNgayDtri && Number(d.soNgayDtri) > 0)) noiTru++;
+      const isNoiTru = (d.tenLoaiKCB && d.tenLoaiKCB.toLowerCase().includes('nội trú')) || d.maLoaiKCB === '03' || (Number(d.soNgayDt) > 1);
+      if (isNoiTru) noiTru++;
       else ngoaiTru++;
 
-      tongChiPhi += (d.tongChiPhi || 0);
-      tongBhyt += (d.tienBhyt || 0);
-      tongNguoiBenh += (d.tienBntt || 0);
-      tongNgoaiDs += (d.tienNgoaiDs || 0);
+      tongChiPhi += (d.tongChi || 0);
+      tongBhyt += (d.bhytChi || 0);
+      tongNguoiBenh += (d.cungChiTra || 0);
+      tongNgoaiDs += (d.tuTra || 0);
 
       const benh = d.tenBenh ? `${d.maBenh || ''} - ${d.tenBenh}` : (d.maBenh || 'Khác');
       icdMap[benh] = (icdMap[benh] || 0) + 1;
@@ -465,14 +529,21 @@
       if (d.kind !== 'nh') return;
       soDuDau += (d.soDuDauKy || 0);
       soDuCuoi += (d.soDuCuoiKy || 0);
-      (d.giaoDich || []).forEach(tx => {
-        const amt = Math.abs(tx.soTien || 0);
-        if (tx.loai === 'CRDT' || tx.soTien > 0) {
-          tongThu += amt; soMonThu++;
-        } else {
-          tongChi += amt; soMonChi++;
-        }
-      });
+      if (d.tongPhatSinhCo != null || d.tongPhatSinhNo != null) {
+        tongThu += (d.tongPhatSinhCo || 0);
+        tongChi += (d.tongPhatSinhNo || 0);
+        soMonThu += (d.soMonCo || 0);
+        soMonChi += (d.soMonNo || 0);
+      } else {
+        (d.giaoDich || []).forEach(tx => {
+          const amt = Math.abs(tx.soTien || 0);
+          if (tx.loai === 'CRDT' || tx.soTien > 0) {
+            tongThu += amt; soMonThu++;
+          } else {
+            tongChi += amt; soMonChi++;
+          }
+        });
+      }
     });
 
     const netFlow = tongThu - tongChi;
@@ -580,7 +651,7 @@
     docs.forEach(d => {
       if (d.kind === 'thau') {
         tongGiaDuThau += (d.giaDuThau || 0);
-        tongBaoLanh += (d.giaTriBaoLanh || 0);
+        tongBaoLanh += (d.baoLanh?.giaTri || d.giaTriBaoLanh || 0);
       }
     });
 
@@ -701,6 +772,8 @@
     renderTreeHtml,
     detectDominantDomain,
     renderExecutiveDashboard,
+    toggleNode,
     DOMAIN_INFO
   };
 })();
+

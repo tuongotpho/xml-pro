@@ -394,6 +394,53 @@
   .tree-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tree-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 99px; white-space: nowrap; }
 
+  /* File bên trong cây thư mục */
+  .tree-file {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px 3px 4px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 11.5px;
+    color: #334155;
+    border-bottom: 1px solid #f8fafc;
+    border-left: 2px solid transparent;
+    transition: background 0.12s;
+  }
+  .tree-file:hover { background: #f1f5f9; color: #0f172a; }
+  .tree-file.sel {
+    background: #e0f2fe;
+    color: #0284c7;
+    font-weight: 600;
+    border-left-color: #0284c7;
+  }
+  .tree-file.err { color: #dc2626; }
+  .tree-fname {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tree-money {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #059669;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .tag-pl {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+  .tag-pl.ban { background: #dcfce7; color: #15803d; }
+  .tag-pl.mua { background: #fef3c7; color: #b45309; }
+
   /* Thanh báo thư mục đang chọn */
   .folder-filter-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: #e0f2fe; border-bottom: 1px solid #bae6fd; font-size: 11.5px; color: #0369a1; gap: 6px; }
   .btn-xs-dash { background: #0284c7; color: #fff; border: none; border-radius: 4px; padding: 2px 7px; font-size: 11px; cursor: pointer; font-weight: 600; white-space: nowrap; }
@@ -661,6 +708,28 @@
 
   const cleanMst = s => String(s || '').replace(/[^0-9A-Za-z]/g, '').trim().toUpperCase();
 
+  function phanLoaiTuDuongDan(str) {
+    if (!str) return null;
+    const raw = String(str).replace(/^[A-Za-z]:[\\/]/, '').replace(/\\/g, '/');
+    const parts = raw.split(/[\/\s*›\s*]+/).filter(Boolean);
+    const folderParts = (parts.length > 1 && parts[parts.length - 1].toLowerCase().endsWith('.xml'))
+      ? parts.slice(0, -1)
+      : parts;
+    
+    for (let i = folderParts.length - 1; i >= 0; i--) {
+      const seg = folderParts[i].toLowerCase();
+      const hasMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input|inbound)(?:$|[_\W])/i.test(seg);
+      const hasBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output|outbound)(?:$|[_\W])/i.test(seg);
+      if (hasMua && hasBan) continue;
+      if (hasBan) return 'ban';
+      if (hasMua) return 'mua';
+    }
+    const fileName = parts[parts.length - 1] || '';
+    if (/^(ban[-_]|xuat[-_]|output[-_])/i.test(fileName)) return 'ban';
+    if (/^(mua[-_]|nhap[-_]|input[-_])/i.test(fileName)) return 'mua';
+    return null;
+  }
+
   function xacDinhPhanLoai(d) {
     if (d.kind === 'hd') {
       const banMst = cleanMst(d.ban?.MST);
@@ -670,12 +739,34 @@
         if (banMst === cMst) return 'ban';
         if (muaMst === cMst) return 'mua';
       }
-      const src = (d.duongDan || d.source || '').toLowerCase();
-      if (/(?:^|[\/\\_ -])(mua|dau[-_ ]*vao|input|inbound|in|nhap)(?:[\/\\_ -]|$)/i.test(src)) return 'mua';
-      if (/(?:^|[\/\\_ -])(ban|dau[-_ ]*ra|output|outbound|out|xuat)(?:[\/\\_ -]|$)/i.test(src)) return 'ban';
+      const plPath = phanLoaiTuDuongDan(d.relPath || d.duongDan || d.source || '');
+      if (plPath) return plPath;
       return 'khac';
     }
     return d.kind;
+  }
+
+  function tuDongNhanDienMst() {
+    if (cleanMst(myMst)) return;
+    const candidateCounts = {};
+    for (const d of docs) {
+      if (d.kind !== 'hd') continue;
+      if (d.phanLoai === 'ban') {
+        const m = cleanMst(d.ban?.MST);
+        if (m) candidateCounts[m] = (candidateCounts[m] || 0) + 2;
+      } else if (d.phanLoai === 'mua') {
+        const m = cleanMst(d.mua?.MST);
+        if (m) candidateCounts[m] = (candidateCounts[m] || 0) + 2;
+      }
+    }
+    const entries = Object.entries(candidateCounts).sort((a, b) => b[1] - a[1]);
+    if (entries.length && entries[0][1] >= 2) {
+      myMst = entries[0][0];
+      for (const d of docs) {
+        if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
+      }
+      capNhatUiMst();
+    }
   }
 
   function rutGonTen(ten) {
@@ -2081,6 +2172,7 @@
         ghiLichSu(f.duongDan, docs[i], docs.length - truoc);
       }
     }
+    tuDongNhanDienMst();
     renderList();
     if (dau >= 0) select(dau); else if (selected < 0 && docs.length) select(0);
   }
@@ -2092,7 +2184,9 @@
       const d = parseAny(text, fileName);
       d.source = source;
       d.fileName = fileName;
+      d.relPath = source;
       d.rawXml = text;
+      if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
       docs.push(d);
       return docs.length - 1;
     } catch (e) { return pushError(source, e.message); }
@@ -2195,7 +2289,20 @@
     renderTabs();
 
     const fDocs = layDanhSachTheoThuMuc().filter(d => !d.error);
-    const fTitle = selectedFolder ? selectedFolder.split('/').pop() : 'Tất cả tài liệu';
+    let fTitle = 'Tất cả tài liệu';
+    if (selectedFolder && folderTreeRoot) {
+      function timNode(n) {
+        if (n.path === selectedFolder) return n.name;
+        for (const ch of n.children.values()) {
+          const res = timNode(ch);
+          if (res) return res;
+        }
+        return null;
+      }
+      fTitle = timNode(folderTreeRoot) || selectedFolder.split('/').pop();
+    } else if (selectedFolder) {
+      fTitle = selectedFolder.split('/').pop();
+    }
     if (window.DASHBOARD_DONG) {
       $('main').innerHTML = window.DASHBOARD_DONG.renderExecutiveDashboard(fDocs, fTitle, selectedFolder);
       $('main').scrollTop = 0;
@@ -2214,7 +2321,7 @@
     if (!window.DASHBOARD_DONG) return;
     folderTreeRoot = window.DASHBOARD_DONG.buildFolderTree(docs);
     $('summary').innerHTML = `Cây thư mục: <b>${docs.length}</b> file trong <b>${demSoThuMuc(folderTreeRoot)}</b> nhánh.`;
-    $('list').innerHTML = window.DASHBOARD_DONG.renderTreeHtml(folderTreeRoot, selectedFolder);
+    $('list').innerHTML = window.DASHBOARD_DONG.renderTreeHtml(folderTreeRoot, selectedFolder, 0, docs, selected);
   }
 
   const tenTab = d => d.error ? 'Lỗi: ' + d.source.split(/[\\/›]/).pop().trim()
@@ -2476,7 +2583,10 @@
 
   // ---------- Sự kiện ----------
   const drop = $('drop');
-  const handleXuatExcel = () => { if (window.xuatExcel) window.xuatExcel(docs); };
+  const handleXuatExcel = () => {
+    const docsToExport = selectedFolder ? layDanhSachTheoThuMuc() : docs;
+    if (window.xuatExcel) window.xuatExcel(docsToExport);
+  };
   $('btnXuatExcel').onclick = handleXuatExcel;
   document.addEventListener('click', e => {
     if (e.target && e.target.closest('.btn-xuat-excel')) handleXuatExcel();
@@ -2495,21 +2605,26 @@
   $('list').onclick = e => {
     if (cheDo === 'cay') {
       const toggle = e.target.closest('.tree-toggle');
-      if (toggle && folderTreeRoot) {
-        const path = toggle.dataset.path;
-        function timVaDao(node) {
-          if (node.path === path) { node.isExpanded = !node.isExpanded; return true; }
-          for (const ch of node.children.values()) { if (timVaDao(ch)) return true; }
-          return false;
+      if (toggle) {
+        e.stopPropagation();
+        const p = toggle.dataset.path;
+        if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.toggleNode) {
+          window.DASHBOARD_DONG.toggleNode(p);
         }
-        timVaDao(folderTreeRoot);
         return renderCayThuMuc();
+      }
+      const fileEl = e.target.closest('.tree-file');
+      if (fileEl) {
+        const i = Number(fileEl.dataset.i);
+        if (!isNaN(i) && docs[i]) select(i);
+        return;
       }
       const nodeEl = e.target.closest('.tree-node');
       if (nodeEl) {
         const path = nodeEl.dataset.path;
         selectedFolder = path || '';
         moDashboard(selectedFolder);
+        renderCayThuMuc();
         return;
       }
     }
@@ -2814,7 +2929,7 @@ Read-Host
 
   // Cửa để kiểm thử tự động
   if (location.hash === '#gioithieu') $('about').click();
-  window.__xemXmlThue = {
+  window.__xemXmlThue = window._xemXmlThue = {
     addFiles, addText, parseAny, docs, select, renderBody, dongTab, moLai, docLs,
     capNhatPhanLoaiToanBo, xacDinhPhanLoai, taoTenFileMoi, moDlgDoiTen, moDlgMst,
     setMyMst: m => { myMst = cleanMst(m); capNhatPhanLoaiToanBo(); },
