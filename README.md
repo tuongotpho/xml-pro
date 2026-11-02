@@ -6,7 +6,26 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
-## 🚀 Tính Năng Mới Cho Kế Toán Doanh Nghiệp (Phiên bản v1.4.0)
+## 🚀 Tính Năng Đột Phá Mới (Phiên bản v1.5.0)
+
+### 1. Duyệt Cây Thư Mục Thông Minh (Folder Tree View)
+* **Nạp cả cây thư mục 1-chạm:** Chọn hoặc kéo thả thư mục tổng (chứa hàng trăm thư mục con các tháng, các phòng ban).
+* **Sidebar dạng Explorer:** Tab `[📁 Cây thư mục]` trực quan với icon phân cấp `📂`, đóng/mở từng nhánh, hiển thị số lượng file và icon phân loại ngành của từng thư mục.
+* **Lọc theo thư mục linh hoạt:** Click vào bất kỳ thư mục nhánh nào để lọc ngay danh sách file và cập nhật Dashboard theo đúng phạm vi thư mục đó. Thanh breadcrumb cho phép quay lại xem toàn bộ thư mục chỉ với 1 click `✖`.
+
+### 2. Dashboard Động Thích Ứng Theo Ngữ Cảnh Chuyên Ngành (Adaptive Dashboard)
+Tự động nhận diện loại chứng từ chiếm đa số trong thư mục đang duyệt để "biến hình" giao diện Dashboard phù hợp 100%:
+* **Thư mục Hóa đơn & Thuế (`hd`):** Dashboard Doanh thu bán ra vs Chi phí mua vào, Thuế GTGT tạm tính (Phải nộp/Khấu trừ), Cơ cấu thuế suất ($0\%, 5\%, 8\%, 10\%$), Top 5 Khách hàng & Top 5 Nhà cung cấp, Hóa đơn cảnh báo rủi ro.
+* **Thư mục Hải quan & XNK (`hq`):** Dashboard Phân luồng kiểm tra (🟢 Luồng Xanh, 🟡 Luồng Vàng, 🔴 Luồng Đỏ), Tổng kim ngạch XNK, Nghĩa vụ thuế XNK và GTGT, Thống kê theo Chi cục & Loại hình XNK.
+* **Thư mục Bệnh viện & BHYT (`yte`):** Dashboard Quỹ BHYT chi trả vs Bệnh nhân cùng chi trả vs Ngoài danh mục, Tỷ lệ Nội trú / Ngoại trú, Top nhóm bệnh ICD-10.
+* **Thư mục Ngân hàng (`nh`):** Dashboard Sổ phụ & Dòng tiền, Dòng tiền ròng (Net Cashflow), Tổng thu (Ghi Có $+$) vs Tổng chi (Ghi Nợ $-$), Số dư đầu kỳ & cuối kỳ.
+* **Thư mục Nhân sự (`bhxh`, `tncn`):** Dashboard Lao động tham gia BHXH, Quỹ lương đóng bảo hiểm 32%, Thu nhập chịu thuế chi trả & Thuế TNCN đã khấu trừ.
+* **Thư mục Đấu thầu (`thau`):** Dashboard Gói thầu E-HSDT, Tổng giá dự thầu, Hạn mức thư bảo lãnh ngân hàng.
+* **Thư mục Tổng hợp Đa ngành:** Thẻ thống kê tổng quan các lĩnh vực và bảng tài liệu liên ngành.
+
+---
+
+## 🚀 Tính Năng Cho Kế Toán Doanh Nghiệp (Phiên bản v1.4.0)
 
 Dành riêng cho các chuyên viên kế toán xử lý hàng nghìn hóa đơn đầu vào - đầu ra mỗi tháng:
 
@@ -121,7 +140,7 @@ Tạo file `.xlsx` thật 100% trong tích tắc ngay trên máy, tương thích
 Bấm đúp file `index.html` để mở bằng Microsoft Edge hoặc Google Chrome. Kéo thả file XML/ZIP vào và xem/xuất Excel ngay lập tức.
 
 ### Cách 2: Cài đặt vào Windows (Bấm đúp file XML là tự mở)
-1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XemXmlThue-1.4.0.exe`.
+1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XemXmlThue-1.5.0.exe`.
 2. Bấm **Có** để cài đặt vào `%LOCALAPPDATA%\Programs\XemXmlThue` (không cần quyền Admin).
 3. Đặt làm ứng dụng mặc định cho đuôi file `.xml` khi được Windows hỏi.
 
