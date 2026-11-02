@@ -6,6 +6,15 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
+## Phiên bản 2.0.2 — tờ khai mở từng thẻ như iTax Viewer
+
+Chi tiết ở [04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md](04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md).
+
+* **Sửa lỗi nặng của 2.0.0:** tờ khai / BCTC không dựng được theo mẫu iTax (lỗi `ITAX is not defined`), mọi tờ khai rơi về danh sách mã chỉ tiêu thô.
+* **Mỗi biểu một thẻ** (tờ khai chính, từng phụ lục) như iTax Viewer: thanh thẻ dính đầu trang khi cuộn, `Ctrl + PageUp / PageDown` để chuyển biểu, nút "In biểu này" và "In tất cả N biểu" (mỗi biểu sang trang mới).
+* **Bộ mẫu iTax cập nhật tới XSLT 3.0.9** (trích từ iTax Viewer cài trên máy ngày 02/11/2026): có BCTC TT99/2025 và TT58/2026. Mẫu nào bộ iTax chưa có thì vẫn có đủ thẻ, dựng dự phòng theo mã chỉ tiêu và ghi rõ là dự phòng.
+* Tờ khổ cố định tự co cho vừa khung (trước bị cắt mép phải trên màn hình hẹp). Chế độ tối hết chỗ chữ trắng trên nền trắng.
+
 ## Phiên bản 2.0.1 — sửa lỗi của 2.0.0
 
 Chi tiết lỗi và cách đo ở [01-BAO-CAO-RA-SOAT-TOAN-DIEN-V2.md](01-BAO-CAO-RA-SOAT-TOAN-DIEN-V2.md), kế hoạch ở [02](02-BAO-CAO-KE-HOACH-SUA-LOI-V2.md), kết quả ở [03](03-BAO-CAO-KET-QUA-SUA-LOI-V2.md).

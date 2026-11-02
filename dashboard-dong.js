@@ -543,7 +543,7 @@
 
                   return sorted.slice(0, 150).map((d, i) => {
                     const pl = layPhanLoai(d);
-                    const plTag = pl === 'ban' ? '<span class="tag-pl ban">BÁN RA</span>' : pl === 'mua' ? '<span class="tag-pl mua">MUA VÀO</span>' : '<span class="tag-pl" style="background:#fef3c7;color:#92400e">CHƯA RÕ</span>';
+                    const plTag = pl === 'ban' ? '<span class="tag-pl ban">BÁN RA</span>' : pl === 'mua' ? '<span class="tag-pl mua">MUA VÀO</span>' : '<span class="tag-pl khac">CHƯA RÕ</span>';
                     const doiTac = (pl === 'ban' ? (d.mua?.Ten || d.mua?.ten) : (d.ban?.Ten || d.ban?.ten)) || d.ten || 'Chưa rõ';
                     const mst = (pl === 'ban' ? (d.mua?.MST || d.mua?.mst) : (d.ban?.MST || d.ban?.mst)) || d.mst || '';
                     const warns = (d.notes || []).filter(n => n[0] === 'warn');
@@ -554,7 +554,7 @@
                     return `
                       <tr class="dash-doc-click" data-doc-src="${esc(d.source)}">
                         <td>${i + 1}</td>
-                        <td>${plTag}${d.isDuplicate ? ' <span class="tag-pl dup" style="background:#fee2e2;color:#b91c1c;border:1px solid #f87171" title="Phát hiện trùng lặp">TRÙNG</span>' : ''}</td>
+                        <td>${plTag}${d.isDuplicate ? ' <span class="tag-pl dup" title="Phát hiện trùng lặp">TRÙNG</span>' : ''}</td>
                         <td><b>${esc(d.so || '')}</b></td>
                         <td><code>${esc(d.kyHieu || '')}</code></td>
                         <td>${esc(dateVN(d.ngay))}</td>

@@ -190,6 +190,52 @@ def main():
                   return { banGhiPhien: dem, lichSu: localStorage.getItem('xemxmlthue.lichSu') }; })()''')
             danh_gia('B4: bấm Xoá → IndexedDB rỗng, lịch sử rỗng', r['banGhiPhien'] == 0 and not r['lichSu'], J(r))
 
+        print('=== 3b. Tờ khai / BCTC nhiều biểu: mở từng thẻ như iTax Viewer (báo cáo 04) ===')
+        ev('''window.__loi = []; addEventListener('error', e => __loi.push(e.message));
+              addEventListener('unhandledrejection', e => __loi.push(String(e.reason))); true''')
+        for ten_mau in ('mau-bctc-tt200.xml', 'mau-bctc-tt99.xml'):
+            vb = open(os.path.join(MAU, ten_mau), encoding='utf-8-sig').read()
+            r = ev('''(async () => { const A = window.__xemXmlThue; const i = A.addText(%s, %s, 'the/' + %s); A.select(i);
+                  const choLucDau = !!document.querySelector('.itax-cho');
+                  for (let k = 0; k < 200 && !A.docs[i]._itaxDone; k++) await new Promise(r => setTimeout(r, 50));
+                  await new Promise(r => setTimeout(r, 100));
+                  const d = A.docs[i], sh = d._itaxSheets || [];
+                  const the = [...document.querySelectorAll('.itax-tabs button')];
+                  const kq = { choLucDau, soBieu: sh.length, duPhong: sh.filter(s => s.duPhong).length, soNut: the.length,
+                               bieuHien: document.querySelectorAll('.itax-sheet').length };
+                  if (the[1]) { the[1].click(); await new Promise(r => setTimeout(r, 100)); }
+                  kq.sauBamThe2 = { dangChon: document.querySelector('.itax-tabs button.on')?.dataset.sh, bieuHien: document.querySelectorAll('.itax-sheet').length };
+                  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', ctrlKey: true, bubbles: true }));
+                  await new Promise(r => setTimeout(r, 100));
+                  kq.sauCtrlPgDn = document.querySelector('.itax-tabs button.on')?.dataset.sh;
+                  d._inTatCa = true; A.select(i); kq.inTatCa = document.querySelectorAll('.itax-sheet').length; d._inTatCa = false; A.select(i);
+                  const sht = document.querySelector('.itax-sheet'), main = document.getElementById('main');
+                  kq.vuaKhung = Math.round(sht.getBoundingClientRect().width) <= main.clientWidth;
+                  return kq; })()''' % (J(vb), J(ten_mau), J(ten_mau)))
+            dat = (r['choLucDau'] and r['soBieu'] >= 3 and r['duPhong'] == 0 and r['soNut'] == r['soBieu'] and r['bieuHien'] == 1
+                   and r['sauBamThe2'] == {'dangChon': '1', 'bieuHien': 1} and r['sauCtrlPgDn'] == '2'
+                   and r['inTatCa'] == r['soBieu'] and r['vuaKhung'])
+            danh_gia(f'iTax: {ten_mau} — đủ biểu chuẩn mẫu, 1 thẻ / lần, bấm thẻ + Ctrl+PgDn, in tất cả, vừa khung', dat, J(r))
+        r = ev('window.__loi')
+        danh_gia('iTax: không có lỗi JavaScript khi dựng biểu (lỗi "ITAX is not defined" của 2.0.0)', not r, J(r, ensure_ascii=False))
+
+        # Chế độ tối: chữ trên nút / bảng ngoài tờ giấy phải đọc được (tương phản >= 3:1)
+        r = ev(r'''(async () => { const A = window.__xemXmlThue;
+              const rgb = s => (s.match(/[\d.]+/g) || []).map(Number);
+              const lum = ([r, g, b]) => { const f = c => { c /= 255; return c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+              const nen = el => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.backgroundImage !== 'none') return null;
+                  const c = rgb(cs.backgroundColor); if (c.length >= 3 && (c.length < 4 || c[3] > .5)) return c; } return [255, 255, 255]; };
+              const st = document.createElement('style'); st.textContent = '*{transition:none!important}'; document.head.appendChild(st);
+              A.apDungTheme('dark'); const loi = [];
+              for (const i of [A.docs.length - 1, -2]) { A.select(i); await new Promise(r => setTimeout(r, 400));
+                document.querySelectorAll('body *').forEach(el => {
+                  if (!el.offsetParent || el.closest('.itax-sheet, .paper, dialog') || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+                  const b = nen(el); if (!b) return; const a = lum(rgb(getComputedStyle(el).color)), c = lum(b);
+                  const tl = (Math.max(a, c) + .05) / (Math.min(a, c) + .05);
+                  if (tl < 3) loi.push(tl.toFixed(1) + ' ' + el.tagName + '.' + el.className + ' "' + el.textContent.trim().slice(0, 20) + '"'); }); }
+              A.apDungTheme('light'); st.remove(); return [...new Set(loi)]; })()''')
+        danh_gia('Giao diện tối: không còn chữ khó đọc (tương phản < 3:1) ở danh sách, thẻ, Dashboard', not r, J(r[:8], ensure_ascii=False))
+
         print('=== 4. Script đổi tên .ps1 với tên file tiếng Việt có dấu ===')
         r = ev('''(async () => { const A = window.__xemXmlThue; const i = A.addText(%s, %s, 'kt/ps1');
               let blob = null; const goc = URL.createObjectURL; URL.createObjectURL = b => { blob = b; return goc.call(URL, b); };

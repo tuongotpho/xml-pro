@@ -4,7 +4,9 @@ Mở `index.html` bằng Chrome/Edge (bấm đúp). Không cần cài, không c�
 
 - Kéo thả file `.xml`, file `.zip`, hoặc cả thư mục vào khung bên trái (hoặc bấm "Chọn file…" / "Chọn thư mục…").
 - Đọc được: tờ khai/BCTC HTKK (`HSoThueDTu`, kể cả file lưu trong `HTKK\DataFiles`), thông báo thuế (`TBaoThue`), chứng từ nộp tiền (`CHUNGTU`), hoá đơn điện tử (`HDon`).
-- Nút "In / Lưu PDF" ở góc trên bên phải → chọn máy in "Lưu dưới dạng PDF".
+- Tờ khai / BCTC có nhiều biểu (tờ khai chính, các phụ lục): mỗi biểu một **thẻ** như iTax Viewer, bấm thẻ để xem; `Ctrl + PageDown` / `Ctrl + PageUp` để sang biểu sau / trước. Thẻ chữ nghiêng là biểu dựng dự phòng (bộ mẫu iTax chưa có mẫu đó).
+- Nút "In / Lưu PDF biểu này" in biểu đang xem; "In tất cả N biểu" in cả bộ, mỗi biểu một trang mới → chọn máy in "Lưu dưới dạng PDF".
+- Khi Tổng cục Thuế ra iTax Viewer mới: cài iTax Viewer bản mới rồi chạy `python -I cong-cu\tao-mau-itax.py "C:\Program Files (x86)\iTax Viewer" mau-itax.js` và đóng gói lại.
 - Chữ ký số: app kiểm ngay trên máy (vân tay dữ liệu + chữ ký trong chứng thư) và gắn nhãn ✔ hợp lệ / ✖ dữ liệu bị sửa đổi sau khi ký / ⓘ không kiểm tra được. **Không** kiểm chứng thư có bị thu hồi (cần mạng) — muốn chắc chắn thì tra trên cổng thuế điện tử.
 - Đổi tên hàng loạt (nút "Đổi tên"): tải tệp .ZIP đã đổi tên, hoặc tải script `.ps1` → chép vào thư mục chứa hoá đơn → chuột phải → Run with PowerShell. Script không ghi đè tệp trùng tên. Windows chặn tệp tải về thì chuột phải → Properties → Unblock.
 - Dữ liệu lưu trên máy: phiên làm việc gần nhất và lịch sử tệp đã mở. Xoá bằng nút "🗑 Xoá dữ liệu phiên" trong hộp Giới thiệu.
