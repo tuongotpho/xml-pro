@@ -67,6 +67,7 @@ static class XemXmlThue
                 var psi = new ProcessStartInfo(edge,
                     "--app=\"" + url + "\" --user-data-dir=\"" + hoSo + "\" --no-first-run --no-default-browser-check --disable-sync" +
                     " --allow-file-access-from-files --disable-background-mode" +
+                    " --start-maximized --window-position=0,0 --disable-pinch --overscroll-history-navigation=0" +
                     // Giao diện trình duyệt tiếng Việt trùng ngôn ngữ trang + tắt tính năng dịch: không còn hỏi "Dịch trang này?"
                     " --lang=vi --disable-features=Translate,TranslateUI,msEdgeTranslate,msEdgeSidebarV2");
                 psi.UseShellExecute = false;
@@ -114,7 +115,7 @@ static class XemXmlThue
         {
             if (!IsWindowVisible(h)) return true;
             var t = new StringBuilder(256); GetWindowText(h, t, 256);
-            if (t.ToString() != Chung.TenApp) return true;
+            if (!t.ToString().StartsWith(Chung.TenApp)) return true;
             var c = new StringBuilder(64); GetClassName(h, c, 64);
             if (!c.ToString().StartsWith("Chrome_WidgetWin")) return true;
             thay = h; return false;
@@ -124,6 +125,7 @@ static class XemXmlThue
     static void DuaLenTruoc(IntPtr h)
     {
         if (IsIconic(h)) ShowWindow(h, 9); // SW_RESTORE
+        ShowWindow(h, 3); // SW_MAXIMIZE
         SetForegroundWindow(h);
     }
 

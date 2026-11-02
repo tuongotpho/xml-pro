@@ -445,7 +445,7 @@
               <button type="button" id="btnResetDateFilter" class="btn-dash-sm alt">Tất cả ngày</button>
             </div>
           </div>
-          <div style="max-height:480px;overflow-y:auto">
+          <div style="max-height:480px;overflow-y:auto;overflow-x:auto;width:100%;box-sizing:border-box">
             <table class="dash-tbl sortable-tbl">
               <thead>
                 <tr>

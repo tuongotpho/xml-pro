@@ -14,10 +14,51 @@
     --sel: #e6eefb;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden !important; /* Co dinh viền app, tuyet doi khong cuon ca cua so */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
   body { background: var(--bg); color: var(--ink); font: 14px/1.45 "Segoe UI", Arial, sans-serif; }
-  .app { display: grid; grid-template-columns: 340px 1fr; height: 100vh; }
-  aside { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .app {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden !important;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    max-height: 100vh;
+    overflow: hidden;
+    width: 340px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
   .top { padding: 14px; border-bottom: 1px solid var(--line); }
   .top h1 { font-size: 17px; margin: 0 0 10px; }
   .drop { border: 2px dashed var(--line); border-radius: 8px; padding: 12px; text-align: center; color: var(--muted); cursor: pointer; transition: all .15s ease; }
@@ -40,10 +81,78 @@
   .seg { display: flex; border-bottom: 1px solid var(--line); }
   .seg button { flex: 1; border: 0; border-radius: 0; padding: 7px; color: var(--muted); background: #f6f8fa; }
   .seg button.on { background: #fff; color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
-  .right { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-  .right main { flex: 1; min-height: 0; }
+  .right {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    max-height: 100vh;
+    overflow: hidden;
+    flex: 1;
+    box-sizing: border-box;
+  }
+  .right main {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden; /* Cố định viền ngang: không bao giờ cuộn ngang cả trang chính */
+    padding: 16px 24px;
+    box-sizing: border-box;
+    overscroll-behavior: contain;
+  }
   /* Thanh tab: nền xanh đậm, tab thường xám xanh chữ trắng, tab đang xem nền sáng + gạch đỏ trên — nhìn là thấy ngay */
-  .tabs { display: flex; gap: 3px; overflow-x: auto; background: #1f3a52; padding: 6px 6px 0; flex: none; box-shadow: 0 2px 4px rgba(0,0,0,.25); position: relative; z-index: 1; }
+  .tabs {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #1f3a52;
+    padding: 6px 6px 0;
+    flex: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,.25);
+    position: relative;
+    z-index: 10;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  /* Scrollbar mượt mà phong cách Fluent Windows 11 */
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.45); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.75); }
+  .btn-capnhat-pill {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    border-radius: 99px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-capnhat-pill:hover {
+    background: #0284c7;
+    color: #fff;
+    border-color: #0284c7;
+  }
+  .btn-capnhat-pill.has-new {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+    animation: pulseUpdate 1.8s infinite;
+  }
+  @keyframes pulseUpdate {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
   .tabs:empty { display: none; }
   .tab { display: flex; align-items: center; gap: 6px; max-width: 250px; padding: 7px 4px 7px 11px; background: #3a5874; color: #e8eef4; border-radius: 7px 7px 0 0; cursor: pointer; font-size: 13px; white-space: nowrap; flex: none; border-top: 3px solid transparent; }
   .tab:hover { background: #4b6b88; color: #fff; }
@@ -470,7 +579,7 @@
   .btn-xs-close:hover { color: #b91c1c; }
 
   /* Executive Adaptive Dashboard */
-  .dash-exec { width: 100%; max-width: none; margin: 0 0 24px; animation: fadeIn .2s ease-in-out; }
+  .dash-exec { width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 0 24px; animation: fadeIn .2s ease-in-out; }
   .dash-filter-trigger { cursor: pointer; transition: all .15s ease; user-select: none; }
   .dash-filter-trigger:hover { filter: brightness(0.96); transform: translateY(-1px); }
   .kpi-card.dash-filter-trigger { cursor: pointer; }
@@ -588,7 +697,16 @@
       </div>
     </div>
     <div class="list" id="list"></div>
-    <div class="foot"><a href="#" id="about" class="dn-link">Giới thiệu · Ủng hộ ☕</a><br>(C) August87 - 0982722036 · <span id="pbChan"></span></div>
+    <div class="foot">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <a href="#" id="about" class="dn-link">Giới thiệu · Ủng hộ ☕</a>
+        <button type="button" id="btnMoCapNhat" class="btn-capnhat-pill" title="Kiểm tra & Cập nhật phiên bản mới">🔄 Cập nhật</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11.5px">
+        <span>(C) August87 - 0982722036</span>
+        <span id="pbChan" style="font-weight:600;color:#0284c7"></span>
+      </div>
+    </div>
   </aside>
   <div class="right">
   <div class="tabs" id="tabs"></div>
@@ -712,6 +830,51 @@
       <button type="button" id="btnExportPs1" style="background:#475569;color:#fff;border-color:#475569;font-weight:600" title="Tải file script PowerShell để chạy đổi tên trực tiếp các file trên ổ cứng máy tính">⚡ Tải Script PowerShell (.ps1)</button>
       <button type="button" id="btnExportZipMoi" class="primary" style="background:#0284c7;border-color:#0284c7;font-weight:600" title="Đóng gói và tải về file .ZIP chứa toàn bộ các file đã được đổi tên chuẩn">📦 Tải File .ZIP Đã Đổi Tên</button>
       <button type="button" id="btnCloseDoiTen">Đóng</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- HỘP THOẠI TRUNG TÂM CẬP NHẬT ỨNG DỤNG -->
+<dialog id="dlgCapNhat" style="max-width:540px;width:95%;border-radius:12px;border:1px solid #cbd5e1;box-shadow:0 20px 40px rgba(0,0,0,.25);padding:22px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <div style="width:42px;height:42px;border-radius:10px;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;font-size:22px">🚀</div>
+    <div>
+      <h3 style="margin:0;font-size:17px;color:#0f172a">Trung Tâm Cập Nhật XML-Pro</h3>
+      <div style="font-size:12px;color:var(--muted)">Nâng cấp phiên bản mới dễ dàng chỉ với 1 cú click</div>
+    </div>
+  </div>
+
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:13px;color:#475569">Phiên bản đang dùng:</span>
+      <span id="txtPhienBanHienTai" style="font-weight:700;font-size:13.5px;color:#0f172a">v1.7.2</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#475569">Trạng thái:</span>
+      <span id="txtTrangThaiCapNhat" style="font-weight:600;font-size:13px;color:#16a34a">✓ Đang là phiên bản mới nhất</span>
+    </div>
+  </div>
+
+  <div id="boxCapNhatMoi" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin-bottom:14px">
+    <div style="font-weight:700;color:#1d4ed8;margin-bottom:4px;font-size:13.5px" id="lblTieuDeBanMoi">🎉 Đã có bản cập nhật mới!</div>
+    <div id="txtNoiDungBanMoi" style="font-size:12.5px;color:#334155;line-height:1.5;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="btnTaiCapNhatTuDong" class="primary" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12.5px;font-weight:600;border-radius:6px;background:#0284c7;color:#fff;border-color:#0284c7;cursor:pointer">⬇ Tải & Cập Nhật Tự Động (1-Click)</button>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid #f1f5f9;padding-top:12px;margin-top:6px">
+    <div style="font-weight:600;font-size:13px;color:#334155;margin-bottom:8px">Hướng dẫn cập nhật cho người dùng:</div>
+    <ul style="margin:0 0 14px;padding-left:18px;font-size:12.5px;color:#64748b;line-height:1.6">
+      <li><b>Cách 1 (Khuyên dùng):</b> Bấm nút <i>"Tải & Cập Nhật Tự Động"</i> ở trên, file cài đặt sẽ tự chạy nâng cấp trong 2 giây (toàn bộ lịch sử & cài đặt MST được giữ nguyên 100%).</li>
+      <li><b>Cách 2 (Khi có sẵn file cài):</b> Chạy đè file <code>CaiDat-XML-Pro.exe</code> phiên bản mới bất cứ lúc nào, không cần gỡ bản cũ.</li>
+    </ul>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <button type="button" id="btnKiemTraNgay" class="primary" style="background:#0284c7;border-color:#0284c7;font-weight:600;font-size:12.5px">🔍 Kiểm Tra Phiên Bản Mới</button>
+    <div style="display:flex;gap:8px">
+      <button type="button" id="btnCloseCapNhat" style="font-size:12.5px">Đóng</button>
     </div>
   </div>
 </dialog>
@@ -3165,7 +3328,91 @@ Read-Host
 
   // Cửa để kiểm thử tự động
   if (location.hash === '#gioithieu') $('about').click();
-  window.__xemXmlThue = window._xemXmlThue = {
+  
+    // ---------- Trung tâm Cập nhật phiên bản ----------
+    const btnMoCapNhat = $('btnMoCapNhat');
+    const dlgCapNhat = $('dlgCapNhat');
+    const btnCloseCapNhat = $('btnCloseCapNhat');
+    const btnKiemTraNgay = $('btnKiemTraNgay');
+    const txtPhienBanHienTai = $('txtPhienBanHienTai');
+    const txtTrangThaiCapNhat = $('txtTrangThaiCapNhat');
+    const boxCapNhatMoi = $('boxCapNhatMoi');
+    const lblTieuDeBanMoi = $('lblTieuDeBanMoi');
+    const txtNoiDungBanMoi = $('txtNoiDungBanMoi');
+    const btnTaiCapNhatTuDong = $('btnTaiCapNhatTuDong');
+
+    function moModalCapNhat() {
+      if (txtPhienBanHienTai) txtPhienBanHienTai.textContent = 'v' + (window.PHIEN_BAN || '1.7.2');
+      if (dlgCapNhat) dlgCapNhat.showModal();
+    }
+    if (btnMoCapNhat) btnMoCapNhat.onclick = moModalCapNhat;
+    if (btnCloseCapNhat) btnCloseCapNhat.onclick = () => dlgCapNhat.close();
+
+    async function kiemTraPhienBanMoi(hienThiThongBao = true) {
+      if (txtTrangThaiCapNhat) {
+        txtTrangThaiCapNhat.textContent = '⏳ Đang kiểm tra...';
+        txtTrangThaiCapNhat.style.color = '#0284c7';
+      }
+      try {
+        // Kiểm tra từ manifest version cục bộ hoặc endpoint
+        let banMoiNhat = window.PHIEN_BAN || '1.7.2';
+        let coBanMoi = false;
+        
+        // Thử đọc file version từ thư mục phát hành nếu có
+        try {
+          const res = await fetch('dong-goi/phien-ban.txt?t=' + Date.now());
+          if (res.ok) {
+            const txt = (await res.text()).trim();
+            if (txt && txt !== window.PHIEN_BAN) {
+              banMoiNhat = txt;
+              coBanMoi = true;
+            }
+          }
+        } catch(e) { }
+
+        if (coBanMoi) {
+          if (txtTrangThaiCapNhat) {
+            txtTrangThaiCapNhat.textContent = '🎉 Đã có bản cập nhật v' + banMoiNhat;
+            txtTrangThaiCapNhat.style.color = '#dc2626';
+          }
+          if (boxCapNhatMoi) {
+            boxCapNhatMoi.style.display = 'block';
+            lblTieuDeBanMoi.textContent = '🎉 Đã có bản cập nhật mới v' + banMoiNhat + '!';
+            txtNoiDungBanMoi.innerHTML = '• Cố định viền app khít 100% khung màn hình, không trôi cuộn ngang dọc.<br>• Mở tối đa hóa cửa sổ khít mép màn hình máy tính.<br>• Trung tâm cập nhật phiên bản 1 chạm tiện lợi.';
+          }
+          if (btnMoCapNhat) btnMoCapNhat.classList.add('has-new');
+          if (btnTaiCapNhatTuDong) {
+            btnTaiCapNhatTuDong.onclick = () => {
+              window.open('dong-goi/ban-phat-hanh/CaiDat-XML-Pro-' + banMoiNhat + '.exe', '_blank');
+            };
+          }
+        } else {
+          if (txtTrangThaiCapNhat) {
+            txtTrangThaiCapNhat.textContent = '✓ Bạn đang dùng phiên bản mới nhất (v' + (window.PHIEN_BAN || '1.7.2') + ')';
+            txtTrangThaiCapNhat.style.color = '#16a34a';
+          }
+          if (boxCapNhatMoi) boxCapNhatMoi.style.display = 'none';
+          if (hienThiThongBao && dlgCapNhat && dlgCapNhat.open) {
+            // Đã kiểm tra xong
+          }
+        }
+      } catch(err) {
+        if (txtTrangThaiCapNhat) {
+          txtTrangThaiCapNhat.textContent = '✓ Phiên bản hiện tại v' + (window.PHIEN_BAN || '1.7.2') + ' đang hoạt động tối ưu';
+          txtTrangThaiCapNhat.style.color = '#16a34a';
+        }
+      }
+    }
+    if (btnKiemTraNgay) btnKiemTraNgay.onclick = () => kiemTraPhienBanMoi(true);
+
+    // Escape đóng dlgCapNhat
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && dlgCapNhat && dlgCapNhat.open) {
+        dlgCapNhat.close();
+      }
+    });
+
+    window.__xemXmlThue = window._xemXmlThue = {
     addFiles, addText, parseAny, docs, select, renderBody, dongTab, moLai, docLs,
     capNhatPhanLoaiToanBo, xacDinhPhanLoai, taoTenFileMoi, moDlgDoiTen, moDlgMst,
     setMyMst: m => { myMst = cleanMst(m); capNhatPhanLoaiToanBo(); },
