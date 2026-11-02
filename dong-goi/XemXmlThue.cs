@@ -108,24 +108,41 @@ static class XemXmlThue
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int c);
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
 
+    [DllImport("user32.dll")] static extern void SwitchToThisWindow(IntPtr h, bool fAltTab);
+
     static IntPtr TimCuaSo()
     {
         IntPtr thay = IntPtr.Zero;
         EnumWindows(delegate (IntPtr h, IntPtr l)
         {
             if (!IsWindowVisible(h)) return true;
-            var t = new StringBuilder(256); GetWindowText(h, t, 256);
-            if (!t.ToString().StartsWith(Chung.TenApp)) return true;
-            var c = new StringBuilder(64); GetClassName(h, c, 64);
-            if (!c.ToString().StartsWith("Chrome_WidgetWin")) return true;
-            thay = h; return false;
+            var t = new StringBuilder(512); GetWindowText(h, t, 512);
+            string title = t.ToString();
+            if (string.IsNullOrEmpty(title)) return true;
+
+            var c = new StringBuilder(128); GetClassName(h, c, 128);
+            string cls = c.ToString();
+            if (!cls.StartsWith("Chrome_WidgetWin")) return true;
+
+            // Kiểm tra tiêu đề: chứa XML-Pro hoặc Xem XML hoặc Bảng Điều Hành
+            if (title.IndexOf(Chung.TenApp, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                title.IndexOf("XML-Pro", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                title.IndexOf("Xem XML", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                title.IndexOf("Bảng Điều Hành", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                thay = h;
+                return false;
+            }
+            return true;
         }, IntPtr.Zero);
         return thay;
     }
+
     static void DuaLenTruoc(IntPtr h)
     {
         if (IsIconic(h)) ShowWindow(h, 9); // SW_RESTORE
         ShowWindow(h, 3); // SW_MAXIMIZE
+        SwitchToThisWindow(h, true);
         SetForegroundWindow(h);
     }
 
