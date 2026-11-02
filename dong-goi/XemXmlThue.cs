@@ -175,6 +175,7 @@ static class XemXmlThue
             return 1;
         Chung.HuyDangKy();
         try { File.Delete(Chung.LoiTat); } catch { }
+        try { File.Delete(Chung.LoiTatDesktop); } catch { }
         try { Directory.Delete(Chung.ThuMucDuLieu, true); } catch { }
         // Tệp đang chạy không tự xoá được: nhờ cmd xoá thư mục cài sau 2 giây.
         // Chỉ xoá khi đang chạy từ đúng thư mục cài (tránh xoá nhầm thư mục khác).

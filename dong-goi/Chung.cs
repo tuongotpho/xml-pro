@@ -35,6 +35,10 @@ static class Chung
     {
         get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), TenApp + ".lnk"); }
     }
+    public static string LoiTatDesktop
+    {
+        get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), TenApp + ".lnk"); }
+    }
 
     public static void DangKy(string exe)
     {

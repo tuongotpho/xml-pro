@@ -38,6 +38,7 @@ if ($LASTEXITCODE) { throw 'Biên dịch XemXmlThue.exe lỗi' }
 
 $nhung = @("/resource:$ra\XemXmlThue.exe,XemXmlThue.exe",
            "/resource:$app\index.html,index.html",
+           "/resource:$app\dashboard-dong.js,dashboard-dong.js",
            "/resource:$app\phien-ban.js,phien-ban.js",
            "/resource:$app\jszip.min.js,jszip.min.js",
            "/resource:$app\xuat-excel.js,xuat-excel.js",

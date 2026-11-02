@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 static class CaiDat
 {
-    static readonly string[] Tep = { "XemXmlThue.exe", "index.html", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
+    static readonly string[] Tep = { "XemXmlThue.exe", "index.html", "dashboard-dong.js", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
 
     [STAThread]
     static int Main(string[] args)
@@ -40,6 +40,7 @@ static class CaiDat
             string exe = Path.Combine(dich, Chung.TenExe);
             Chung.DangKy(exe);
             Chung.TaoLoiTat(Chung.LoiTat, exe);
+            Chung.TaoLoiTat(Chung.LoiTatDesktop, exe);
         }
         catch (Exception e)
         {
