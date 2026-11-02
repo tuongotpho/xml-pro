@@ -1,6 +1,8 @@
 # XML-Pro — hướng dẫn nhanh
 
-Mở `index.html` bằng Chrome/Edge (bấm đúp). Không cần cài, không cần mạng, không gửi dữ liệu đi đâu.
+Cách dùng chính: cài `CaiDat-XML-Pro-<phiên bản>.exe` rồi mở **XML-Pro** (menu Start / Desktop), bấm đúp tệp .xml, hoặc **chuột phải một thư mục → "Mở bằng XML-Pro"**. Từ bản 3.0.0 đây là cửa sổ phần mềm riêng (WebView2): chọn tệp / thư mục bằng hộp thoại Windows, không có popup hỏi quyền. Không cần mạng, không gửi dữ liệu đi đâu.
+Không cài cũng được: mở `index.html` bằng Chrome/Edge (khi đó nút "Chọn thư mục…" sẽ có popup hỏi quyền của trình duyệt — kéo thả thư mục thì không).
+Lưu ý khi lên 3.0.0 từ bản cũ: MST đã cài, lịch sử tệp, phiên làm việc của bản cũ nằm trong hồ sơ Edge riêng nên không chuyển sang — cài lại MST một lần.
 
 - Kéo thả file `.xml`, file `.zip`, hoặc cả thư mục vào khung bên trái (hoặc bấm "Chọn file…" / "Chọn thư mục…").
 - Đọc được: tờ khai/BCTC HTKK (`HSoThueDTu`, kể cả file lưu trong `HTKK\DataFiles`), thông báo thuế (`TBaoThue`), chứng từ nộp tiền (`CHUNGTU`), hoá đơn điện tử (`HDon`).

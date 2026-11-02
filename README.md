@@ -6,6 +6,16 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
+## Phiên bản 3.0.0 — phần mềm Windows thật (WebView2)
+
+Chi tiết ở [07-BAO-CAO-VO-WEBVIEW2-V3.md](07-BAO-CAO-VO-WEBVIEW2-V3.md). Bản 2.0.4 (cửa sổ Edge) vẫn giữ ở thẻ git `v2.0.4`.
+
+* `XML-Pro.exe` là cửa sổ Windows riêng nhúng **WebView2** (nhân Edge có sẵn trong Windows 10/11). Trang chạy ở địa chỉ nội bộ `https://xml-pro.example` (chỉ trỏ vào thư mục cài, không ra mạng) — **không còn chữ "file:///" và không còn popup hỏi quyền** khi chọn thư mục.
+* "Chọn file…" / "Chọn thư mục…" dùng hộp thoại của Windows; trang chỉ đọc được đúng những tệp người dùng đã chọn, bấm đúp hoặc "Mở bằng".
+* Chuột phải thư mục (hoặc vùng trống trong thư mục) → **"Mở bằng XML-Pro"**: nạp mọi .xml, .zip bên trong, giữ cấu trúc thư mục cho Explorer.
+* Một cửa sổ duy nhất: mở thêm tệp / thư mục lúc nào cũng vào cửa sổ đang mở, thành tab mới. Xuất Excel / XML / .ps1: hộp "Lưu thành" của Windows. Liên kết ra ngoài (tra cứu trên cổng thuế) mở bằng trình duyệt mặc định.
+* Máy chưa có WebView2 thì tự mở bằng cửa sổ Edge như 2.0.4. Bộ cài tăng 857 KB (3 thư viện WebView2 có chữ ký số của Microsoft).
+
 ## Phiên bản 2.0.4 — lập tờ khai 01/GTGT tháng / quý từ hoá đơn
 
 Chi tiết ở [06-BAO-CAO-LAP-TO-KHAI-01GTGT.md](06-BAO-CAO-LAP-TO-KHAI-01GTGT.md).

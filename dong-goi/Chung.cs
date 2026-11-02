@@ -67,6 +67,14 @@ static class Chung
             k.SetValue("Icon", bieuTuong);
             using (var c = k.CreateSubKey("command")) c.SetValue("", lenh);
         }
+        // Chuột phải một thư mục (hoặc vùng trống trong thư mục) → "Mở bằng XML-Pro": nạp mọi .xml, .zip bên trong
+        foreach (string loai in new[] { @"Software\Classes\Directory\shell\XMLPro", @"Software\Classes\Directory\Background\shell\XMLPro" })
+            using (var k = Registry.CurrentUser.CreateSubKey(loai))
+            {
+                k.SetValue("", "Mở bằng " + TenApp);
+                k.SetValue("Icon", bieuTuong);
+                using (var c = k.CreateSubKey("command")) c.SetValue("", "\"" + exe + "\" \"" + (loai.Contains("Background") ? "%V" : "%1") + "\"");
+            }
         // Để Windows liệt kê app trong Cài đặt > Ứng dụng mặc định
         using (var k = Registry.CurrentUser.CreateSubKey(KhoaApp + @"\Capabilities"))
         {
@@ -96,6 +104,8 @@ static class Chung
         XoaKhoa(@"Software\Classes\" + ProgId);
         XoaKhoa(@"Software\Classes\Applications\" + TenExe);
         XoaKhoa(@"Software\Classes\SystemFileAssociations\.xml\shell\XemXmlThue");
+        XoaKhoa(@"Software\Classes\Directory\shell\XMLPro");
+        XoaKhoa(@"Software\Classes\Directory\Background\shell\XMLPro");
         XoaKhoa(KhoaApp);
         XoaKhoa(KhoaGoCai);
         XoaGiaTri(@"Software\Classes\.xml\OpenWithProgids", ProgId);

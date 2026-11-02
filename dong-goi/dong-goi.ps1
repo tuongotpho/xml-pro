@@ -33,10 +33,22 @@ Get-ChildItem $ra -Filter "CaiDat-XML-Pro-$moi.exe" | Remove-Item -Force
 $chung = @('/nologo', '/target:winexe', '/codepage:65001', '/optimize+', "/win32icon:$dg\XemXmlThue.ico",
            '/r:System.Windows.Forms.dll', '/r:System.Core.dll')
 
-& $csc @chung "/out:$ra\XML-Pro.exe" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
+# XML-Pro 3: vỏ WebView2 (VoWebView2.cs) + cách mở dự phòng bằng cửa sổ Edge (XemXmlThue.cs).
+# Thư viện WebView2 của Microsoft (có chữ ký số) nằm ở dong-goi\webview2, chép cạnh XML-Pro.exe.
+$wv = Join-Path $dg 'webview2'
+$tepWv = @('Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll')
+foreach ($t in $tepWv) {
+  if ((Get-AuthenticodeSignature (Join-Path $wv $t)).Status -ne 'Valid') { throw "Thư viện $t không còn chữ ký số hợp lệ của Microsoft" }
+  Copy-Item (Join-Path $wv $t) $ra -Force
+}
+& $csc @chung '/platform:x64' "/r:$wv\Microsoft.Web.WebView2.Core.dll" "/r:$wv\Microsoft.Web.WebView2.WinForms.dll" '/r:System.Web.Extensions.dll' '/r:System.Drawing.dll' `
+  "/out:$ra\XML-Pro.exe" "$dg\VoWebView2.cs" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
 if ($LASTEXITCODE) { throw 'Biên dịch XML-Pro.exe lỗi' }
 
 $nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
+           "/resource:$wv\Microsoft.Web.WebView2.Core.dll,Microsoft.Web.WebView2.Core.dll",
+           "/resource:$wv\Microsoft.Web.WebView2.WinForms.dll,Microsoft.Web.WebView2.WinForms.dll",
+           "/resource:$wv\WebView2Loader.dll,WebView2Loader.dll",
            "/resource:$app\index.html,index.html",
            "/resource:$app\dashboard-dong.js,dashboard-dong.js",
            "/resource:$app\phien-ban.js,phien-ban.js",

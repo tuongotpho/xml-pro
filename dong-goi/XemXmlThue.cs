@@ -1,3 +1,5 @@
+// Cách mở DỰ PHÒNG của XML-Pro 3 (giữ nguyên như bản 2.0.4): dùng khi máy chưa có WebView2 Runtime.
+// Vỏ chính nằm ở VoWebView2.cs. Bên dưới là mô tả gốc của cách mở bằng cửa sổ Edge.
 // XemXmlThue.exe — bấm đúp tệp .xml thì chạy chương trình này.
 // Chỉ dùng MỘT cửa sổ: tệp cần mở được ghi vào hàng chờ %LOCALAPPDATA%\XemXmlThue\mo\hang\<số>.js
 // (số tăng dần). Cửa sổ "Xem XML thuế" đang mở thì nó tự đọc hàng chờ và mở thành tab mới;
@@ -13,10 +15,9 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-static class XemXmlThue
+static class KhoiDongEdge
 {
-    [STAThread]
-    static int Main(string[] args)
+    public static int Chay(string[] args)
     {
         string thuMuc = AppDomain.CurrentDomain.BaseDirectory;
         if (args.Length > 0 && args[0].Equals("/uninstall", StringComparison.OrdinalIgnoreCase))
@@ -251,7 +252,7 @@ static class XemXmlThue
         return null;
     }
 
-    static int GoCai(string thuMuc, bool imLang)
+    public static int GoCai(string thuMuc, bool imLang)
     {
         if (!imLang && MessageBox.Show("Gỡ " + Chung.TenApp + " khỏi máy?", Chung.TenApp, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             return 1;

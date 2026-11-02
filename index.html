@@ -2,7 +2,7 @@
 <html lang="vi" translate="no">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://tep.xml-pro.example; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>XML-Pro</title>
 <meta name="google" content="notranslate">
@@ -3109,6 +3109,35 @@
   }
   function pushError(source, message) { docs.push({ error: message, fileName: source, source }); return docs.length - 1; }
 
+  // ---------- Vỏ phần mềm XML-Pro 3 (WebView2) ----------
+  // Chạy trong XML-Pro.exe thì chọn tệp / thư mục bằng hộp thoại Windows của vỏ (không còn popup hỏi quyền của trình duyệt),
+  // và vỏ gửi sang danh sách tệp kèm địa chỉ nội bộ https://tep.xml-pro.example/<mã> để trang tải nội dung.
+  // Mở bằng trình duyệt thường (bấm đúp index.html) thì VO = null và mọi thứ chạy như cũ.
+  const VO = window.chrome && window.chrome.webview ? window.chrome.webview : null;
+  async function nhanTepTuVo(m) {
+    const ds = Array.isArray(m.ds) ? m.ds : [];
+    const files = new Array(ds.length);
+    let tiep = 0;
+    const tai = async () => {
+      while (tiep < ds.length) {
+        const i = tiep++, x = ds[i];
+        try {
+          const r = await fetch(x.url);
+          if (!r.ok) continue;
+          const f = new File([await r.blob()], x.ten);
+          f.relPath = x.relPath; f.duongDan = x.duongDan;
+          files[i] = f;
+        } catch (e) { }
+      }
+    };
+    await Promise.all([tai(), tai(), tai(), tai(), tai(), tai()]);
+    const co = files.filter(Boolean);
+    if (!co.length) return;
+    if (m.nguon === 'mo') cheDo = 'mo';
+    await addFiles(co);
+    if (docs.length) select(docs.length - 1);
+  }
+
   // ---------- Lịch sử đường dẫn file đã mở (lưu trong trình duyệt của app, chỉ trên máy này) ----------
   const KHOA_LS = 'xemxmlthue.lichSu';
   const docLs = () => { try { return JSON.parse(localStorage.getItem(KHOA_LS)) || []; } catch (e) { return []; } };
@@ -3126,6 +3155,7 @@
       select(cu);
       return;
     }
+    if (VO) { VO.postMessage({ lenh: 'moLai', duongDan }); return; }
     const url = 'file:///' + duongDan.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/').replace(/^([A-Za-z])%3A/, '$1:');
     const x = new XMLHttpRequest();
     x.open('GET', url); x.responseType = 'arraybuffer';
@@ -3761,6 +3791,7 @@
   });
 
   async function chonTep() {
+    if (VO) { VO.postMessage({ lenh: 'chonTep' }); return; }
     if (window.showOpenFilePicker) {
       try {
         const handles = await window.showOpenFilePicker({
@@ -3790,6 +3821,7 @@
   }
 
   async function chonThuMuc() {
+    if (VO) { VO.postMessage({ lenh: 'chonThuMuc' }); return; }
     if (window.showDirectoryPicker) {
       try {
         const dirHandle = await window.showDirectoryPicker();
@@ -4448,6 +4480,16 @@ Read-Host
 
   // Khởi động giao diện MST ban đầu
   capNhatUiMst();
+
+  if (VO) {
+    VO.addEventListener('message', e => {
+      const m = e.data || {};
+      if (m.loai === 'tep') nhanTepTuVo(m);
+      else if (m.loai === 'loiMo') baoLoiMo(m.duongDan || '');
+      else if (m.loai === 'thongBao') alert(m.noiDung);
+    });
+    VO.postMessage({ lenh: 'sanSang' });
+  }
 
   // ---------- Nhận file từ chương trình cài trên máy (XemXmlThue.exe) ----------
   // Mỗi lần bấm đúp tệp .xml, exe ghi tệp vào hàng chờ %LOCALAPPDATA%\XemXmlThue\mo\hang\<số>.js

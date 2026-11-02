@@ -1,6 +1,6 @@
 # [00] Mục lục báo cáo — thư mục `F:\AI\7.xml-pro`
 
-> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `07-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
+> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `08-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
 
 | Số | Báo cáo | Ngày | Tiếp nối | Nguồn dữ liệu chính | Kết luận một câu |
 |---|---|---|---|---|---|
@@ -10,3 +10,4 @@
 | 04 | [Rà soát giao diện, làm lại thẻ tờ khai kiểu iTax, nghiên cứu thị trường](04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md) | 02/11/2026 | 03 | Chạy app trong trình duyệt với 8 tờ khai/BCTC; iTax Viewer trên máy (XSLT 3.0.9); bản gốc `6.chrome-ex`; tìm kiếm web | Hiển thị tờ khai theo mẫu iTax hỏng từ 2.0.0 (`ITAX is not defined`) → đã sửa, mỗi biểu một thẻ, in tất cả; cập nhật bộ mẫu có BCTC TT99/TT58; sửa tờ bị cắt mép và chế độ tối; test 19/19; đề xuất 6 nâng cấp offline, đứng đầu là đối chiếu HĐ ↔ tờ khai |
 | 05 | [Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền](05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md) | 02/11/2026 | 04 (mục D số 1) | Thư mục `HD-TK` (dữ liệu thật quý 3/2026, không lên git); quy tắc `gtgt.ts` của app khai thuế; 6 HĐ mẫu | Làm xong đối chiếu nhiều công ty, tháng/quý: dữ liệu thật quý 3 khớp 100% với phép cộng Python độc lập, đã nộp đủ [40]; 2 ca lệch giả lập đều chỉ đúng hoá đơn gây lệch; test 23/23; bộ cài 2.0.3 |
 | 06 | [Lập tờ khai 01/GTGT tháng / quý từ hoá đơn](06-BAO-CAO-LAP-TO-KHAI-01GTGT.md) | 02/11/2026 | 05 | `gtgt.ts` + `xml.ts` của app khai thuế; HD-TK (tờ khai quý 3 thật, không lên git); 6 HĐ mẫu | Chuyển xong sang XML-Pro, thêm kỳ tháng, nhiều MST; lập lại quý 3 thật trùng 109/109 ô (chỉ khác thứ tự dòng phụ lục); test 27/27; bộ cài 2.0.4; cần anh nạp thử vào HTKK/eTax |
+| 07 | [XML-Pro 3.0.0 — vỏ WebView2](07-BAO-CAO-VO-WEBVIEW2-V3.md) | 02/11/2026 | 06 | Lịch sử git; WebView2 Runtime 156 + 3 thư viện Microsoft có chữ ký (lấy từ máy); chạy thật XML-Pro.exe 3.0.0; HD-TK | Bản 2.0 của Gemini không có WebView2; 3.0.0 là cửa sổ Windows thật, hết popup "file:///", chỉ đọc tệp đã chọn; +857 KB; test vỏ 9/9, trang 27/27; phát hiện tờ khai quý 1, quý 2 thật lệch hoá đơn |
