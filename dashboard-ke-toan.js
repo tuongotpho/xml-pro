@@ -151,6 +151,7 @@
         <div class="ktt-mo-ta">${g.moTa.map(x => `<div>${esc(x)}</div>`).join('')}</div>
         <div class="ktt-so-lieu"><span>Bán ra <b>${so(g.banV)}</b></span><span>Mua vào <b>${so(g.muaV)}</b></span><span>Thuế ra − vào <b>${so(g.banT - g.muaT)}</b></span>${g.dc ? `<span>Phải nộp [40] <b>${so(g.dc.tk.ct.ct40)}</b></span>` : ''}<span>${g.nBan + g.nMua} hoá đơn</span></div>
         <div class="ktt-hanh-dong">${g.tkDoc ? `<button type="button" class="ktt-nut" data-mo-doc="${docs.indexOf(g.tkDoc)}">Xem tờ khai và đối chiếu</button>` : khacKieu ? '' : `<button type="button" class="ktt-nut ktt-chinh" data-lap-tk="${esc(JSON.stringify({ mst, ky: kyLap(g.k) }))}">Lập tờ khai ${tenKy(g.k).toLowerCase()}</button>`}
+          ${g.tkDoc && (g.loai === 'loi' || g.loai === 'xem') ? `<button type="button" class="ktt-nut" data-khbs="${docs.indexOf(g.tkDoc)}">Lập tờ khai bổ sung</button>` : ''}
           ${g.hdMo ? `<button type="button" class="ktt-nut" data-mo-doc="${g.hdMo.idx}">Mở ${esc(docs[g.hdMo.idx].kyHieu + '-' + docs[g.hdMo.idx].so)}</button>` : ''}</div>
       </div></div>`;
 

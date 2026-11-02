@@ -1,1 +1,1 @@
-window.PHIEN_BAN = "3.0.1";
+window.PHIEN_BAN = "3.0.2";

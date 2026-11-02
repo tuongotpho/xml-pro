@@ -1,6 +1,6 @@
 # [00] Mục lục báo cáo — thư mục `F:\AI\7.xml-pro`
 
-> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `09-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
+> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `10-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
 
 | Số | Báo cáo | Ngày | Tiếp nối | Nguồn dữ liệu chính | Kết luận một câu |
 |---|---|---|---|---|---|
@@ -12,3 +12,4 @@
 | 06 | [Lập tờ khai 01/GTGT tháng / quý từ hoá đơn](06-BAO-CAO-LAP-TO-KHAI-01GTGT.md) | 02/11/2026 | 05 | `gtgt.ts` + `xml.ts` của app khai thuế; HD-TK (tờ khai quý 3 thật, không lên git); 6 HĐ mẫu | Chuyển xong sang XML-Pro, thêm kỳ tháng, nhiều MST; lập lại quý 3 thật trùng 109/109 ô (chỉ khác thứ tự dòng phụ lục); test 27/27; bộ cài 2.0.4; cần anh nạp thử vào HTKK/eTax |
 | 07 | [XML-Pro 3.0.0 — vỏ WebView2](07-BAO-CAO-VO-WEBVIEW2-V3.md) | 02/11/2026 | 06 | Lịch sử git; WebView2 Runtime 156 + 3 thư viện Microsoft có chữ ký (lấy từ máy); chạy thật XML-Pro.exe 3.0.0; HD-TK | Bản 2.0 của Gemini không có WebView2; 3.0.0 là cửa sổ Windows thật, hết popup "file:///", chỉ đọc tệp đã chọn; +857 KB; test vỏ 9/9, trang 27/27; phát hiện tờ khai quý 1, quý 2 thật lệch hoá đơn |
 | 08 | [Dashboard kế toán mới (ghép C + A)](08-BAO-CAO-DASHBOARD-KE-TOAN.md) | 02/11/2026 | 07 | 3 mẫu thiết kế HTML; HD-TK (không lên git); 6 HĐ mẫu | Dashboard mới (thẻ theo kỳ + sổ theo kỳ), sửa lỗi Dashboard cũ cộng cả HĐ bị thay thế (dư 89.656.000), đối chiếu chỉ thẳng "kê cả HĐ đã bị thay thế"; test 29/29; bộ cài 3.0.1; tự khai: test vỏ gửi nhầm tệp mẫu vào app anh đang mở — đã chặn |
+| 09 | [Tờ khai bổ sung 01/GTGT (KHBS), 04/GTGT, sửa nhận nhầm 05/KK-TNCN](09-BAO-CAO-KHBS-04GTGT-TNCN.md) | 03/11/2026 | 08 | 4 tờ khai bổ sung 05/KK-TNCN thật của HTKK (khuôn KHBS); mẫu iTax KHBS + 04/GTGT; HD-TK (không lên git); 6 HĐ mẫu | 05/KK-TNCN hết bị coi là tờ khai GTGT / ngành hoá đơn (nhận theo mã mẫu); lập được tờ khai bổ sung kèm 01/KHBS, 01-1/KHBS (quý 1 thật: [40] 0 → 401.941, bản bổ sung khớp hoá đơn) và 04/GTGT; test 36/36; bộ cài 3.0.2; chưa nạp thử HTKK, test vỏ chưa chạy vì app anh đang mở |

@@ -1044,8 +1044,8 @@
         </button>
       </div>
       <div class="kt-tools">
-        <button id="btnLapTk" class="btn-kt" title="Lập tờ khai thuế GTGT 01/GTGT (tháng hoặc quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">
-          📝 Lập tờ khai 01/GTGT từ hoá đơn
+        <button id="btnLapTk" class="btn-kt" title="Lập tờ khai thuế GTGT 01/GTGT hoặc 04/GTGT (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">
+          📝 Lập tờ khai GTGT từ hoá đơn
         </button>
       </div>
     </div>
@@ -1146,9 +1146,11 @@
 
 <!-- HỘP THOẠI CÀI ĐẶT MST DOANH NGHIỆP -->
 <dialog id="dlgLapTk" class="lt-dlg">
-  <h3 style="margin:0 0 4px">📝 Lập tờ khai 01/GTGT từ hoá đơn đã nạp</h3>
-  <div class="lt-ghi">Mẫu 01/GTGT (TT80/2021), phương pháp khấu trừ, khai lần đầu. App cộng hoá đơn mua vào / bán ra của MST trong kỳ theo đúng quy tắc của phần đối chiếu. File XML xuất ra <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
+  <h3 style="margin:0 0 4px" id="ltTieuDe">📝 Lập tờ khai 01/GTGT từ hoá đơn đã nạp</h3>
+  <div class="lt-ghi" id="ltMoTa01">Mẫu 01/GTGT (TT80/2021), phương pháp khấu trừ, khai lần đầu. App cộng hoá đơn mua vào / bán ra của MST trong kỳ theo đúng quy tắc của phần đối chiếu. File XML xuất ra <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
+  <div class="lt-ghi" id="ltMoTa04" hidden>Mẫu 04/GTGT (TT80/2021), phương pháp trực tiếp trên doanh thu, khai lần đầu. Thuế = doanh thu (giá thanh toán trên hoá đơn bán ra) × tỷ lệ % theo nhóm ngành: 1% phân phối hàng hoá, 5% dịch vụ, 3% sản xuất / vận tải / xây dựng có bao thầu vật liệu, 2% hoạt động khác. File XML <b>chưa ký số</b>.</div>
   <div class="lt-hang">
+    <label>Mẫu<select id="ltMau"><option value="01">01/GTGT — khấu trừ</option><option value="04">04/GTGT — trực tiếp trên doanh thu</option></select></label>
     <label>Doanh nghiệp (MST)<select id="ltMst"></select></label>
     <label>Kỳ<select id="ltKieu"><option value="Q">Quý</option><option value="M">Tháng</option></select></label>
     <label>Số<select id="ltSo"></select></label>
@@ -1169,7 +1171,14 @@
       <label>Người ký<input data-dn="nguoiKy"></label>
     </div>
   </details>
-  <details class="lt-khoi" open><summary>Chỉ tiêu không có trong hoá đơn (kế toán tự nhập)</summary>
+  <details class="lt-khoi" open id="lt04Khoi" hidden><summary>Nhóm ngành của doanh thu</summary>
+    <div class="lt-luoi">
+      <label style="grid-column:1/-1">Nhóm mặc định cho mọi hoá đơn<select id="lt04Nhom"></select></label>
+    </div>
+    <div class="lt-ghi">Hoá đơn nào thuộc nhóm khác thì chọn lại ở cột "Nhóm" bên dưới. Phần hàng không chịu thuế / thuế suất 0% ghi trên hoá đơn tự vào [21].</div>
+    <div id="lt04Ds" style="max-height:260px;overflow:auto;margin-top:6px"></div>
+  </details>
+  <details class="lt-khoi" open id="ltKhoiNhap"><summary>Chỉ tiêu không có trong hoá đơn (kế toán tự nhập)</summary>
     <div class="lt-luoi">
       <label class="lt-chk"><input type="checkbox" id="ltCt21"> [21] Không phát sinh hoạt động mua, bán trong kỳ</label>
       <label>[22] Thuế còn được khấu trừ kỳ trước chuyển sang<input data-nt="ct22"><span id="ltNguon22" class="lt-ghi"></span></label>
@@ -1187,6 +1196,23 @@
     <button type="button" id="ltDong">Đóng</button>
     <button type="button" id="ltTai">⬇ Tải file XML</button>
     <button type="button" id="ltLap" class="primary">Lập &amp; mở tờ khai</button>
+  </div>
+</dialog>
+
+<dialog id="dlgKhbs" class="lt-dlg">
+  <h3 style="margin:0 0 4px">📝 Lập tờ khai bổ sung 01/GTGT</h3>
+  <div class="lt-ghi">Tính lại tờ khai từ hoá đơn đang nạp, giữ nguyên các chỉ tiêu kế toán tự nhập ([22], [37], [38]…) của tờ khai cũ. File xuất ra gồm tờ khai đã điều chỉnh, phụ lục <b>01/KHBS</b> và <b>01-1/KHBS</b>, <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
+  <div id="kbDau" class="lt-dem"></div>
+  <div class="lt-luoi">
+    <label>Ngày lập<input id="kbNgayLap" type="date"></label>
+    <label>Tính tiền chậm nộp đến ngày<input id="kbNgayTinh" type="date"><span class="lt-ghi">thường là ngày dự kiến nộp tiền</span></label>
+    <label style="grid-column:1/-1">Lý do điều chỉnh (ghi vào cột (8) bảng 01-1/KHBS)<input id="kbLyDo"></label>
+  </div>
+  <div id="kbXemTruoc"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+    <button type="button" id="kbDong">Đóng</button>
+    <button type="button" id="kbTai">⬇ Tải file XML</button>
+    <button type="button" id="kbLap" class="primary">Lập &amp; mở tờ khai bổ sung</button>
   </div>
 </dialog>
 
@@ -3629,6 +3655,8 @@
       : `<div>✔ Đúng cả ${k.noiBo.length} công thức (${esc(k.noiBo.map(r => r.bt.split(' =')[0]).join(', '))}).</div>`);
     if (k.dauKy) body += `<div class="dc-h">Đầu kỳ – cuối kỳ</div><div class="${k.dauKy.khop ? '' : 'dc-goiy'}">${k.dauKy.khop ? '✔' : '✖'} [22] kỳ này = ${so(k.dauKy.ct22)} · [43] tờ khai lần đầu ${moDoc(k.dauKy.idx, k.dauKy.ky)} = ${so(k.dauKy.ct43Truoc)}${k.dauKy.khop ? '' : ' — cơ quan thuế sẽ không chấp nhận khi [22] khác [43] kỳ trước'}</div>`;
     if (k.daNop) body += `<div class="dc-h">Nộp thuế</div><div class="${k.daNop.khop ? '' : 'dc-goiy'}">${k.daNop.khop ? '✔' : '✖'} Phải nộp [40] = ${so(k.daNop.phaiNop)} · Đã nộp (tiểu mục 1701, ${esc(tk.kyTen)}) = ${so(k.daNop.daNop)} theo ${k.daNop.chungTu.map(c => moDoc(c.idx, 'chứng từ ' + c.so + ' ngày ' + c.ngay)).join(', ')}</div>`;
+    if (k.trangThai === 'lech' && window.LAP_TO_KHAI) body += `<div style="margin:10px 0 2px"><button type="button" class="primary" data-khbs="${docs.indexOf(d)}">📝 Lập tờ khai bổ sung theo hoá đơn</button>
+      <span class="lt-ghi">tính lại tờ khai từ hoá đơn đang nạp, kèm 01/KHBS và 01-1/KHBS — xem trước rồi mới lập</span></div>`;
     body += `<div class="dc-ghichu">Lệch chưa chắc là sai: hoá đơn có thể được kê ở kỳ sau, hoá đơn không đủ điều kiện khấu trừ bị loại, hoặc thư mục còn thiếu tệp. App chỉ chỉ ra chỗ lệch và hoá đơn nghi ngờ — kế toán quyết định.</div>`;
     return `<details class="dc-panel"${k.trangThai === 'khop' ? '' : ' open'}><summary><b>🔎 Đối chiếu với hoá đơn đã nạp</b> ${chipDoiChieu(k)}
       <span style="color:var(--muted)">${esc(tk.kyTen)} · MST ${esc(tk.mst)} · ${k.soMua} HĐ mua vào, ${k.soBan} HĐ bán ra${tk.lanDau ? '' : ` · tờ khai bổ sung lần ${tk.soLan}`}</span></summary>
@@ -3672,10 +3700,36 @@
     $('ltNguon22').textContent = c22 ? `= [43] tờ khai lần đầu ${c22.ky} đang nạp` : 'Chưa nạp tờ khai kỳ trước — tự nhập (= [43] tờ khai lần đầu kỳ trước)';
     ltTinhLai();
   }
-  let _ltKq = null;
+  let _ltKq = null, _lt04Nhom = {};
+  const la04 = () => $('ltMau').value === '04';
+  function ltDoiMau() {
+    const m4 = la04();
+    $('ltTieuDe').textContent = `📝 Lập tờ khai ${m4 ? '04/GTGT' : '01/GTGT'} từ hoá đơn đã nạp`;
+    $('ltMoTa01').hidden = m4; $('ltMoTa04').hidden = !m4;
+    $('lt04Khoi').hidden = !m4; $('ltKhoiNhap').hidden = m4;
+  }
+  function ltTinh04() {
+    const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
+    _ltKq = L.tinh04(docs, mst, ky, $('lt04Nhom').value, _lt04Nhom);
+    const k = _ltKq, c = k.ct, so = v => money(v) || '0';
+    $('ltDem').textContent = `${k.ky.ten} (${k.ky.tuVN} → ${k.ky.denVN}): ${k.hd.length} hoá đơn bán ra`;
+    const chon = r => `<select data-nhom-hd="${r.idx}">${L.NHOM_04.map(n => `<option value="${n.ma}"${n.ma === r.nhom ? ' selected' : ''}>${n.tyLe}% — ${esc(n.ten)}</option>`).join('')}</select>`;
+    $('lt04Ds').innerHTML = k.hd.length ? `<table class="dc-tbl"><thead><tr><th>Hoá đơn</th><th>Người mua</th><th class="so">Doanh thu</th><th>Nhóm</th></tr></thead><tbody>
+      ${k.hd.map(r => `<tr><td><a class="dc-mo" data-mo-doc="${r.idx}">${esc(r.kyHieu + '-' + r.so)}</a><div class="lt-ghi">${esc(date(r.ngay))}</div></td><td>${esc(r.ten)}</td><td class="so">${so(r.doanhThu)}${r.khongChiu ? `<div class="lt-ghi">+ ${so(r.khongChiu)} vào [21]</div>` : ''}</td><td>${chon(r)}</td></tr>`).join('')}
+      </tbody></table>` : '';
+    const dong = [['[21]', 'Doanh thu không chịu thuế / thuế suất 0%', c.ct21], ['[22]', 'Phân phối hàng hoá — doanh thu', c.ct22], ['[23]', 'thuế 1%', c.ct23],
+      ['[24]', 'Dịch vụ, xây dựng không bao thầu vật liệu — doanh thu', c.ct24], ['[25]', 'thuế 5%', c.ct25],
+      ['[26]', 'Sản xuất, vận tải, xây dựng có bao thầu vật liệu — doanh thu', c.ct26], ['[27]', 'thuế 3%', c.ct27],
+      ['[28]', 'Hoạt động kinh doanh khác — doanh thu', c.ct28], ['[29]', 'thuế 2%', c.ct29],
+      ['[30]', 'Cộng doanh thu chịu thuế', c.ct30], ['[31]', 'Thuế GTGT phải nộp', c.ct31], ['[32]', 'Tổng doanh thu', c.ct32]];
+    $('ltXemTruoc').innerHTML = `<div class="dc-h">Xem trước</div>
+      <table class="dc-tbl"><tbody>${dong.filter(r => r[2] || ['[30]', '[31]', '[32]'].includes(r[0])).map(r => `<tr><td><b>${r[0]}</b> ${esc(r[1])}</td><td class="so">${so(r[2])}</td></tr>`).join('')}</tbody></table>
+      ${k.canhBao.map(b => `<div class="${b.muc === 'loi' ? 'dc-goiy' : 'lt-ghi'}" style="margin-top:4px">${b.muc === 'loi' ? '✖' : '⚠'} ${esc(b.noiDung)}</div>`).join('')}`;
+  }
   function ltTinhLai() {
     const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
     if (!mst || !ky.nam) { $('ltXemTruoc').innerHTML = ''; return; }
+    if (la04()) return ltTinh04();
     _ltKq = L.tinhGTGT(docs, mst, ky, ltNhapTay());
     const k = _ltKq, c = k.ct, so = v => money(v) || '0';
     $('ltDem').textContent = `${k.ky.ten} (${k.ky.tuVN} → ${k.ky.denVN}): ${k.mua.length} hoá đơn mua vào, ${k.ban.length} hoá đơn bán ra`;
@@ -3692,6 +3746,7 @@
     const L = window.LAP_TO_KHAI, ky = ltKy(), dn = ltDn();
     if (!_ltKq) ltTinhLai();
     try { localStorage.setItem(KHOA_DN(dn.mst), JSON.stringify(dn)); } catch (e) { }
+    if (la04()) return { xml: L.xml04(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst, L.MAU_04.maFile) };
     return { xml: L.xmlGTGT(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst) };
   }
   function moDlgLapTk(dat) {
@@ -3726,6 +3781,10 @@
     }
     document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { i.value = '0'; });
     $('ltCt21').checked = false;
+    if (!$('lt04Nhom').options.length) $('lt04Nhom').innerHTML = window.LAP_TO_KHAI.NHOM_04.map(n => `<option value="${n.ma}">${n.tyLe}% — ${esc(n.ten)}</option>`).join('');
+    $('ltMau').value = dat.mau === '04' ? '04' : '01';
+    _lt04Nhom = {};
+    ltDoiMau();
     ltNapMstKy();
     $('dlgLapTk').showModal();
   }
@@ -3737,6 +3796,18 @@
   $('ltSo').onchange = ltNapMstKy;
   $('ltNam').onchange = ltNapMstKy;
   $('dlgLapTk').addEventListener('input', e => { if (e.target.matches('[data-nt], #ltCt21')) ltTinhLai(); });
+  $('ltMau').onchange = () => { ltDoiMau(); ltTinhLai(); };
+  $('lt04Nhom').onchange = () => { _lt04Nhom = {}; ltTinhLai(); };
+  $('dlgLapTk').addEventListener('change', e => {
+    const s = e.target.closest('[data-nhom-hd]');
+    if (s) { _lt04Nhom[s.dataset.nhomHd] = s.value; ltTinhLai(); }
+  });
+  // Bấm số hoá đơn trong danh sách 04/GTGT: đóng hộp thoại, mở hoá đơn
+  $('lt04Ds').addEventListener('click', e => {
+    const a = e.target.closest('[data-mo-doc]');
+    if (!a) return;
+    e.preventDefault(); $('dlgLapTk').close(); select(Number(a.dataset.moDoc));
+  });
   $('ltTai').onclick = () => {
     const { xml, ten } = ltXml();
     const url = URL.createObjectURL(new Blob([xml], { type: 'application/xml;charset=utf-8' }));
@@ -3750,6 +3821,74 @@
     renderList();
     select(i);
   };
+
+  // ---------- Tờ khai bổ sung 01/GTGT + 01/KHBS + 01-1/KHBS (lap-to-khai.js) ----------
+  let _kbDoc = null, _kbKq = null;
+  const isoNgay = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  function kbTinhLai() {
+    const L = window.LAP_TO_KHAI;
+    _kbKq = L.tinhKHBS(docs, _kbDoc, { ngayLap: $('kbNgayLap').value, ngayTinhChamNop: $('kbNgayTinh').value || $('kbNgayLap').value, lyDo: $('kbLyDo').value.trim() });
+    const k = _kbKq, so = v => money(v) || '0', dau = v => (v > 0 ? '+' : '') + so(v);
+    $('kbDau').textContent = `${k.cu.ten} · MST ${k.cu.mst} · ${k.cu.kyTen} · điều chỉnh từ ${k.cu.lanDau ? 'tờ khai lần đầu' : 'tờ khai bổ sung lần ' + k.cu.soLan} → bổ sung lần ${k.soLan} · ${k.moi.mua.length} HĐ mua vào, ${k.moi.ban.length} HĐ bán ra`;
+    $('kbXemTruoc').innerHTML = !k.dong.length ? '' : `<div class="dc-h">Chỉ tiêu điều chỉnh (bảng 01-1/KHBS)</div>
+      <table class="dc-tbl"><thead><tr><th>Chỉ tiêu</th><th class="so">Đã kê khai</th><th class="so">Điều chỉnh</th><th class="so">Chênh lệch</th></tr></thead><tbody>
+        ${k.dong.map(r => `<tr class="${r.nhom ? 'lech' : ''}"><td><b>${r.ma}</b> ${esc(r.ten)}</td><td class="so">${so(r.cu)}</td><td class="so">${so(r.moi)}</td><td class="so">${dau(r.lech)}</td></tr>`).join('')}
+      </tbody></table>
+      <div class="dc-h">Phụ lục 01/KHBS</div>
+      <table class="dc-tbl"><tbody>
+        <tr><td>Số thuế phải nộp điều chỉnh tăng/giảm [10] (tiểu mục 1701)</td><td class="so"><b>${dau(k.dPhaiNop)}</b></td></tr>
+        <tr><td>Tiền chậm nộp: ${k.soNgayCham ? `${k.soNgayCham} ngày (hạn nộp ${date(k.han)} → ${date(k.ngayTinh)}) × 0,03%` : 'không phát sinh'}</td><td class="so">${so(k.chamNop)}</td></tr>
+        <tr><td>Số thuế được khấu trừ điều chỉnh tăng/giảm [12]</td><td class="so">${dau(k.dKhauTru)}</td></tr>
+        ${k.dHoan ? `<tr><td>Số thuế đề nghị hoàn điều chỉnh [13]</td><td class="so">${dau(k.dHoan)}</td></tr>` : ''}
+      </tbody></table>
+      ${k.chamNop ? '<div class="lt-ghi">Tiền chậm nộp là số ước tính để tham khảo: tính trên số thuế tăng thêm, 0,03%/ngày từ ngày sau hạn nộp. Số chính xác cơ quan thuế tính theo ngày thực nộp.</div>' : ''}`
+      + k.canhBao.map(b => `<div class="${b.muc === 'loi' ? 'dc-goiy' : 'lt-ghi'}" style="margin-top:4px">${b.muc === 'loi' ? '✖' : '⚠'} ${esc(b.noiDung)}</div>`).join('');
+    $('kbTai').disabled = $('kbLap').disabled = !k.dong.length;
+  }
+  function kbXml() {
+    const L = window.LAP_TO_KHAI;
+    if (!_kbKq) kbTinhLai();
+    const dn = L.thongTinDN(docs, _kbKq.cu.mst);
+    return { xml: L.xmlKHBS(_kbKq, dn), ten: L.tenFile(_kbKq.ky, dn.mst, undefined, _kbKq.soLan) };
+  }
+  function moDlgKhbs(idx) {
+    const L = window.LAP_TO_KHAI, DC = window.DOI_CHIEU;
+    const d = docs[idx];
+    if (!L || !DC || !d || !DC.laToKhaiGTGT(d)) return;
+    const t = DC.docToKhai(d);
+    const ky = t.kieuKy === 'Q' ? { kieu: 'Q', quy: t.quy, nam: t.nam } : { kieu: 'M', thang: t.thang, nam: t.nam };
+    const moiNhat = L.toKhaiMoiNhat(docs, t.mst, ky);
+    if (moiNhat && moiNhat !== d && DC.docToKhai(moiNhat).soLan > t.soLan
+      && !confirm(`Đang nạp cả tờ khai bổ sung lần ${DC.docToKhai(moiNhat).soLan} của ${t.kyTen}. Tờ khai bổ sung mới phải điều chỉnh từ bản đó.\n\nBấm OK để lập từ bản bổ sung lần ${DC.docToKhai(moiNhat).soLan}, Cancel để thôi.`)) return;
+    _kbDoc = moiNhat || d;
+    const nay = isoNgay(new Date());
+    $('kbNgayLap').value = nay; $('kbNgayTinh').value = nay;
+    $('kbLyDo').value = 'Điều chỉnh theo hoá đơn điện tử thực tế';
+    kbTinhLai();
+    $('dlgKhbs').showModal();
+  }
+  $('kbDong').onclick = () => $('dlgKhbs').close();
+  $('dlgKhbs').addEventListener('input', e => { if (e.target.matches('#kbNgayLap, #kbNgayTinh, #kbLyDo')) kbTinhLai(); });
+  $('kbTai').onclick = () => {
+    const { xml, ten } = kbXml();
+    const url = URL.createObjectURL(new Blob([xml], { type: 'application/xml;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = ten; document.body.appendChild(a); a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
+  };
+  $('kbLap').onclick = () => {
+    const { xml, ten } = kbXml();
+    const i = addText(xml, ten, 'Lập từ hoá đơn/' + ten + ' (' + new Date().toLocaleTimeString('vi-VN') + ')');
+    $('dlgKhbs').close();
+    renderList();
+    select(i);
+  };
+  // Nút "Lập tờ khai bổ sung" trong khung đối chiếu và trên thẻ kỳ của Dashboard
+  $('main').addEventListener('click', e => {
+    const b = e.target.closest('[data-khbs]');
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    moDlgKhbs(Number(b.dataset.khbs));
+  }, true);
 
   // Bấm tên hoá đơn / chứng từ / tờ khai trong khung đối chiếu thì mở tài liệu đó
   $('main').addEventListener('click', e => {

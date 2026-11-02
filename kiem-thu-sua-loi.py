@@ -389,6 +389,116 @@ def kiem_tncn(ev, J, hd):
              not any('2026' in t and 'Quý 1' in t for t in r['the']) and '0100000001' not in r['cty'], J(r, ensure_ascii=False))
 
 
+def kiem_khbs(ev, J, hd):
+    print('=== 9. Tờ khai bổ sung 01/GTGT + 01/KHBS + 01-1/KHBS (báo cáo 09) ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    kq = cong_hoa_don(hd, MST, '2026-10-01', '2026-10-31')
+    v8 = sum(v for ts, (v, _) in kq['ban'].items() if ts in ('8%', '10%'))
+    t8 = sum(t for ts, (_, t) in kq['ban'].items() if ts in ('8%', '10%'))
+    _, so_quen, lts_quen = kq['hd'][2]
+    v_q = sum(v for _, v, _ in lts_quen); t_q = sum(t for _, _, t in lts_quen)
+    phai = t8 - t_q - kq['mua_T']
+    assert phai > 0, 'mẫu hoá đơn đổi — sửa lại test'
+    # Tờ khai lần đầu quên 1 hoá đơn bán ra (giống mục 5)
+    ct = {'ct22': 0, 'ct23': kq['mua_V'], 'ct24': kq['mua_T'], 'ct23a': 0, 'ct24a': 0, 'ct25': kq['mua_T'], 'ct26': 0, 'ct27': v8 - v_q, 'ct28': t8 - t_q, 'ct29': 0,
+          'ct30': 0, 'ct31': 0, 'ct32': v8 - v_q, 'ct33': t8 - t_q, 'ct32a': 0, 'ct34': v8 - v_q, 'ct35': t8 - t_q, 'ct36': phai, 'ct37': 0, 'ct38': 0, 'ct39a': 0,
+          'ct40a': phai, 'ct40b': 0, 'ct40': phai, 'ct41': 0, 'ct42': 0, 'ct43': 0}
+    tk_quen = to_khai_gtgt(MST, 'Công ty mẫu', 'M', '10/2026', '01/10/2026', '31/10/2026', ct, kq['pl_mua'], kq['pl_ban'])
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'bs/' + ten);
+          const iTk = A.addText(%s, 'tk-quen.xml', 'bs/tk-quen');
+          const kb = L.tinhKHBS(A.docs, A.docs[iTk], { ngayLap: '2026-12-20' });
+          A.select(iTk);
+          for (let n = 0; n < 200 && !document.querySelector('.dc-panel [data-khbs]'); n++) await new Promise(r => setTimeout(r, 50));
+          const nut = document.querySelector('.dc-panel [data-khbs]'); nut && nut.click(); await new Promise(r => setTimeout(r, 300));
+          const hop = document.getElementById('dlgKhbs').open;
+          document.getElementById('kbNgayLap').value = '2026-12-20'; document.getElementById('kbNgayTinh').value = '2026-12-20';
+          document.getElementById('kbNgayTinh').dispatchEvent(new Event('input', { bubbles: true }));
+          document.getElementById('kbLap').click();
+          const i = A.docs.length - 1;
+          for (let n = 0; n < 200 && !A.docs[i]._itaxDone; n++) await new Promise(r => setTimeout(r, 50));
+          await new Promise(r => setTimeout(r, 300));
+          const x = new DOMParser().parseFromString(A.docs[i].rawXml, 'application/xml'), g = t => x.getElementsByTagNameNS('*', t)[0]?.textContent;
+          const dc = window.DOI_CHIEU.choToKhai(A.docs, A.docs[i]);
+          return { dong: kb.dong.map(r => [r.ma, r.lech, r.nhom]), soLan: kb.soLan, dPN: kb.dPhaiNop, ngay: kb.soNgayCham, cham: kb.chamNop, hop,
+                   ten: A.docs[i].fileName, loai: g('loaiTKhai'), soLanXml: g('soLan'), tc10: g('tongCong_ct10'), tc7: g('tongCong_7'), ct3b: g('ct3b'),
+                   tab: [...document.querySelectorAll('.itax-tabs button')].map(b => b.textContent.trim()), dc: dc && dc.trangThai }; })()'''
+           % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), J(tk_quen)))
+    lech = {m: (l, n) for m, l, n in r['dong']}
+    cham = round(round(t_q) * 0.0003 * 30)  # hạn nộp tháng 10/2026 là 20/11/2026 → 20/12/2026: 30 ngày
+    dat = (r['soLan'] == 1 and lech.get('[32]', (0,))[0] == round(v_q) and lech.get('[33]', (0,))[0] == round(t_q)
+           and tuple(lech.get('[40]', ())) == (round(t_q), 'phaiNop') and r['dPN'] == round(t_q) and r['ngay'] == 30 and r['cham'] == cham)
+    danh_gia(f'KHBS: tờ khai quên HĐ {so_quen} → điều chỉnh [32] +{round(v_q):,}, [33]/[40] +{round(t_q):,}, chậm nộp 30 ngày = {cham:,} (Python độc lập)',
+             dat, J({k: r[k] for k in ('dong', 'soLan', 'dPN', 'ngay', 'cham')}, ensure_ascii=False))
+    danh_gia('KHBS: nút trong khung đối chiếu mở hộp thoại; file L01 loại B lần 1 có 01/KHBS + 01-1/KHBS, mẫu iTax dựng thẻ "Tờ khai bổ sung", app đối chiếu lại → KHỚP',
+             r['hop'] and r['ten'] == f'{MST}000-01_GTGT_TT80-M102026-L01.xml' and r['loai'] == 'B' and r['soLanXml'] == '1'
+             and r['tc10'] == str(round(t_q)) and r['tc7'] == str(round(t_q)) and r['ct3b'] == str(cham)
+             and 'Tờ khai bổ sung' in r['tab'] and 'Bản giải trình khai bổ sung' in r['tab'] and r['dc'] == 'khop',
+             J({k: r[k] for k in ('hop', 'ten', 'loai', 'soLanXml', 'tc10', 'tc7', 'ct3b', 'tab', 'dc')}, ensure_ascii=False))
+
+    that = os.path.join(APP, 'HD-TK')
+    if not os.path.isdir(that):
+        that = os.environ.get('XMLPRO_HD_TK', that)
+    if not os.path.isdir(that):
+        print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
+        return
+    nap_lai_trang(ev)
+    tep = [os.path.join(that, f) for f in sorted(os.listdir(that)) if f.lower().endswith(('.xml', '.zip'))]
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI, DC = window.DOI_CHIEU;
+          const files = %s.map(([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); });
+          await A.addFiles(files);
+          const q1 = A.docs.find(d => DC.laToKhaiGTGT(d) && DC.docToKhai(d).quy === 1 && DC.docToKhai(d).nam === 2026);
+          const kb = L.tinhKHBS(A.docs, q1, { ngayLap: '2026-11-03' });
+          const i = A.addText(L.xmlKHBS(kb, L.thongTinDN(A.docs, '2601102955')), 'q1-bs.xml', 'bs/q1-bs.xml');
+          return { dong: Object.fromEntries(kb.dong.map(r => [r.ma, [r.cu, r.moi]])), dPN: kb.dPhaiNop, dKT: kb.dKhauTru, dc: DC.choToKhai(A.docs, A.docs[i]).trangThai }; })()'''
+           % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
+    d = r['dong']
+    hieu = lambda m: d.get(m, [0, 0])[0] - d.get(m, [0, 0])[1]
+    danh_gia('KHBS dữ liệu thật quý 1/2026: bỏ HĐ C26TKL-18 đã bị thay thế → [23] −89.656.000, [24] −7.172.480, [40] 0 → 401.941, [43] 6.770.539 → 0; bản bổ sung KHỚP hoá đơn',
+             hieu('[23]') == 89656000 and hieu('[24]') == 7172480 and d.get('[40]') == [0, 401941] and d.get('[43]') == [6770539, 0]
+             and r['dPN'] == 401941 and r['dKT'] == -6770539 and r['dc'] == 'khop', J(r, ensure_ascii=False))
+
+
+def kiem_04(ev, J, hd):
+    print('=== 10. Lập tờ khai 04/GTGT (trực tiếp trên doanh thu) từ hoá đơn bán ra (báo cáo 09) ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    ban = []
+    for f in hd:
+        dl = etree.parse(f).getroot().find('DLHDon')
+        if dl.findtext('NDHDon/NBan/MST') == MST and '2026-10-01' <= dl.findtext('TTChung/NLap') <= '2026-10-31':
+            ban.append((dl.findtext('TTChung/NLap'), dl.findtext('TTChung/KHHDon') + '-' + dl.findtext('TTChung/SHDon'), float(dl.findtext('NDHDon/TToan/TgTTTBSo'))))
+    ban.sort()
+    tong = round(sum(t for _, _, t in ban)); dau = round(ban[0][2])
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'g4/' + ten);
+          A.moDlgLapTk({ mst: '%s', ky: { kieu: 'M', thang: 10, nam: 2026 }, mau: '04' }); await new Promise(r => setTimeout(r, 300));
+          const tieuDe = document.getElementById('ltTieuDe').textContent, an01 = document.getElementById('ltKhoiNhap').hidden;
+          const ct1 = { ...L.tinh04(A.docs, '%s', { kieu: 'M', thang: 10, nam: 2026 }, 'pp').ct };
+          const s = document.querySelector('#lt04Ds [data-nhom-hd]'); s.value = 'dv'; s.dispatchEvent(new Event('change', { bubbles: true }));
+          await new Promise(r => setTimeout(r, 200));
+          document.getElementById('ltLap').click();
+          const i = A.docs.length - 1;
+          for (let n = 0; n < 200 && !A.docs[i]._itaxDone; n++) await new Promise(r => setTimeout(r, 50));
+          await new Promise(r => setTimeout(r, 300));
+          const x = new DOMParser().parseFromString(A.docs[i].rawXml, 'application/xml'), g = t => x.getElementsByTagNameNS('*', t)[0]?.textContent;
+          const s0 = [...document.querySelectorAll('.itax-sheet')].find(e => e.offsetParent);
+          return { tieuDe, an01, ct1, ten: A.docs[i].fileName, mtk: A.docs[i].mtk, itax: !!A.docs[i]._itaxDone, duPhong: (A.docs[i]._itaxSheets || []).filter(s => s.duPhong).length,
+                   x: { ct22: g('ct22'), ct23: g('ct23'), ct24: g('ct24'), ct25: g('ct25'), ct30: g('ct30'), ct31: g('ct31'), ct32: g('ct32') },
+                   chu: s0 ? s0.innerText : '' }; })()'''
+           % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), MST, MST))
+    c1, x = r['ct1'], r['x']
+    danh_gia(f'04/GTGT: {len(ban)} HĐ bán ra tháng 10/2026, doanh thu = cộng TgTTTBSo bằng Python {tong:,}, thuế 1% = {round(tong * 0.01):,}',
+             r['tieuDe'].endswith('04/GTGT từ hoá đơn đã nạp') and r['an01'] and c1['ct22'] == tong and c1['ct23'] == round(tong * 0.01)
+             and c1['ct30'] == tong and c1['ct31'] == c1['ct23'] and c1['ct32'] == tong and c1['ct21'] == 0, J(c1))
+    mong = {'ct22': tong - dau, 'ct23': round((tong - dau) * 0.01), 'ct24': dau, 'ct25': round(dau * 0.05)}
+    danh_gia(f'04/GTGT: đổi HĐ {ban[0][1]} sang nhóm dịch vụ 5% → file XML mã 847 đúng số, mẫu iTax 04/GTGT dựng được',
+             all(x[k] == str(v) for k, v in mong.items()) and x['ct31'] == str(mong['ct23'] + mong['ct25']) and r['mtk'] == '847'
+             and r['ten'] == f'{MST}000-04_GTGT_TT80-M102026-L00.xml' and r['itax'] and r['duPhong'] == 0 and 'Mẫu số: 04/GTGT' in r['chu'],
+             J({'x': x, 'mong': mong, 'ten': r['ten'], 'mtk': r['mtk'], 'duPhong': r['duPhong']}, ensure_ascii=False))
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -570,6 +680,8 @@ def main():
         kiem_lap_to_khai(ev, J, hd)
         kiem_dashboard(ev, J, hd)
         kiem_tncn(ev, J, hd)
+        kiem_khbs(ev, J, hd)
+        kiem_04(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

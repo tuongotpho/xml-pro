@@ -168,7 +168,8 @@
 
   const homNay = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 
-  function xmlGTGT(tk, ky, dn, ngayLap = homNay()) {
+  /** bs (tờ khai bổ sung): { soLan, plKhbs } — plKhbs là XML hai phụ lục 01/KHBS + 01-1/KHBS (xmlPhuLucKHBS) */
+  function xmlGTGT(tk, ky, dn, ngayLap = homNay(), bs = null) {
     const k = khoangKy(ky), c = tk.ct;
     const so = key => `<${key}>${c[key]}</${key}>`;
     const nnt = [
@@ -210,8 +211,8 @@ ${the('maTKhai', MAU.maTKhai)}
 ${the('tenTKhai', MAU.tenTKhai)}
 ${the('moTaBMau', MO_TA)}
 ${the('pbanTKhaiXML', MAU.pban)}
-<loaiTKhai>C</loaiTKhai>
-<soLan>0</soLan>
+<loaiTKhai>${bs ? 'B' : 'C'}</loaiTKhai>
+<soLan>${bs ? bs.soLan : 0}</soLan>
 <KyKKhaiThue>
 <kieuKy>${ky.kieu}</kieuKy>
 ${the('kyKKhai', k.kyKKhai)}
@@ -284,13 +285,14 @@ ${so('ct35')}
 </TongDThuVaThueGTGTHHDVBRa>
 ${['ct36', 'ct37', 'ct38', 'ct39a', 'ct40a', 'ct40b', 'ct40', 'ct41', 'ct42', 'ct43'].map(so).join('\n')}
 </CTieuTKhaiChinh>
-${coPhuLuc ? `<PLuc>
-<PL_NQ142_GTGT>
+${coPhuLuc || bs ? `<PLuc>
+${bs ? bs.plKhbs : ''}
+${coPhuLuc ? `<PL_NQ142_GTGT>
 ${[plMua, plBan].filter(Boolean).join('\n')}
 <ChenhLech>
 <ct9>${tk.ct9}</ct9>
 </ChenhLech>
-</PL_NQ142_GTGT>
+</PL_NQ142_GTGT>` : ''}
 </PLuc>` : '<PLuc/>'}`;
     return dinhDang(`<?xml version="1.0" encoding="UTF-8"?>
 <HSoThueDTu xmlns="http://kekhaithue.gdt.gov.vn/TKhaiThue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -301,8 +303,356 @@ ${body}
 `);
   }
 
-  /** Tên tệp theo cách HTKK đặt: <MST>000-01_GTGT_TT80-Q32026-L00.xml (kỳ tháng: -M102026-) */
-  const tenFile = (ky, mst) => `${String(mst).replace(/[^0-9-]/g, '')}000-${MAU.maFile}-${ky.kieu === 'Q' ? 'Q' + ky.quy : 'M' + pad(ky.thang)}${ky.nam}-L00.xml`;
+  // ---------- Tờ khai bổ sung 01/GTGT (loaiTKhai B) + 01/KHBS + 01-1/KHBS ----------
+  // Khuôn phụ lục theo tệp bổ sung thật xuất từ HTKK (PL01_KHBS / PL01_1_KHBS) và mẫu iTax PLuc_01KHBS_TT80, PLuc_01_1_KHBS_TT80.
+  const TEN_CT = {
+    ct22: 'Thuế GTGT còn được khấu trừ kỳ trước chuyển sang', ct23: 'Giá trị của hàng hóa, dịch vụ mua vào', ct24: 'Thuế GTGT của hàng hóa, dịch vụ mua vào',
+    ct23a: 'Giá trị hàng hóa, dịch vụ nhập khẩu', ct24a: 'Thuế GTGT hàng hóa, dịch vụ nhập khẩu', ct25: 'Tổng số thuế GTGT được khấu trừ kỳ này',
+    ct26: 'Hàng hóa, dịch vụ bán ra không chịu thuế GTGT', ct27: 'Hàng hóa, dịch vụ bán ra chịu thuế GTGT - giá trị', ct28: 'Hàng hóa, dịch vụ bán ra chịu thuế GTGT - thuế',
+    ct29: 'Hàng hóa, dịch vụ bán ra chịu thuế suất 0%', ct30: 'Hàng hóa, dịch vụ bán ra chịu thuế suất 5% - giá trị', ct31: 'Hàng hóa, dịch vụ bán ra chịu thuế suất 5% - thuế',
+    ct32: 'Hàng hóa, dịch vụ bán ra chịu thuế suất 10% - giá trị', ct33: 'Hàng hóa, dịch vụ bán ra chịu thuế suất 10% - thuế',
+    ct32a: 'Hàng hóa, dịch vụ bán ra không phải kê khai, tính nộp thuế GTGT', ct34: 'Tổng doanh thu hàng hóa, dịch vụ bán ra', ct35: 'Tổng số thuế GTGT của hàng hóa, dịch vụ bán ra',
+    ct36: 'Thuế GTGT phát sinh trong kỳ', ct37: 'Điều chỉnh giảm', ct38: 'Điều chỉnh tăng', ct39a: 'Thuế GTGT nhận bàn giao được khấu trừ / đã nộp ở địa phương khác',
+    ct40a: 'Thuế GTGT phải nộp của hoạt động sản xuất kinh doanh trong kỳ', ct40b: 'Thuế GTGT mua vào của dự án đầu tư được bù trừ', ct40: 'Thuế GTGT còn phải nộp trong kỳ',
+    ct41: 'Thuế GTGT chưa khấu trừ hết kỳ này', ct42: 'Thuế GTGT đề nghị hoàn', ct43: 'Thuế GTGT còn được khấu trừ chuyển kỳ sau'
+  };
+  const THU_TU_CT = ['ct22', 'ct23', 'ct24', 'ct23a', 'ct24a', 'ct25', 'ct26', 'ct27', 'ct28', 'ct29', 'ct30', 'ct31', 'ct32', 'ct33', 'ct32a', 'ct34', 'ct35',
+    'ct36', 'ct37', 'ct38', 'ct39a', 'ct40a', 'ct40b', 'ct40', 'ct41', 'ct42', 'ct43'];
+  const TIEU_MUC = { ma: '1701', ten: 'Thuế GTGT hàng sản xuất, kinh doanh trong nước' };
+  const LAI_CHAM_NOP = 0.0003; // 0,03%/ngày (Luật Quản lý thuế 38/2019/QH14, Điều 59)
 
-  window.LAP_TO_KHAI = { tinhGTGT, xmlGTGT, khoangKy, kyTruoc, timCt22, thongTinDN, tenFile, NHAP_TAY_TRONG };
+  /** Hạn nộp tờ khai: quý → ngày cuối tháng đầu quý sau; tháng → ngày 20 tháng sau (TT80, Luật QLT Điều 44) */
+  function hanNop(ky) {
+    if (ky.kieu === 'Q') { const t = ky.quy * 3 + 1, n = ky.nam + (t > 12 ? 1 : 0), th = t > 12 ? 1 : t; return `${n}-${pad(th)}-${pad(new Date(n, th, 0).getDate())}`; }
+    const n = ky.nam + (ky.thang === 12 ? 1 : 0), th = ky.thang === 12 ? 1 : ky.thang + 1;
+    return `${n}-${pad(th)}-20`;
+  }
+  const soNgay = (tu, den) => Math.round((Date.parse(den + 'T00:00:00Z') - Date.parse(tu + 'T00:00:00Z')) / 86400000);
+
+  /** Tờ khai đang nạp có số lần cao nhất của cùng MST và kỳ — tờ khai bổ sung phải điều chỉnh từ bản này */
+  function toKhaiMoiNhat(docs, mst, ky) {
+    const DC = window.DOI_CHIEU;
+    mst = DC.sachMst(mst);
+    const ds = docs.filter(x => DC.laToKhaiGTGT(x) && (() => { const t = DC.docToKhai(x); return t.mst === mst && cungKy(t, ky); })());
+    return ds.sort((a, b) => DC.docToKhai(b).soLan - DC.docToKhai(a).soLan)[0] || null;
+  }
+
+  /**
+   * Tính tờ khai bổ sung cho tờ khai tkDoc từ hoá đơn đang nạp.
+   * Chỉ tiêu nhập tay ([21], [22], [23a], [24a], [37]–[39a], [40b], [42]) giữ nguyên như tờ khai cũ — chỉ phần lấy từ hoá đơn được tính lại.
+   * opt: { ngayLap, ngayTinhChamNop, lyDo }
+   */
+  function tinhKHBS(docs, tkDoc, opt = {}) {
+    const DC = window.DOI_CHIEU;
+    const cu = DC.docToKhai(tkDoc);
+    const ky = cu.kieuKy === 'Q' ? { kieu: 'Q', quy: cu.quy, nam: cu.nam } : { kieu: 'M', thang: cu.thang, nam: cu.nam };
+    const c0 = cu.ct, g = k => Number(c0[k]) || 0;
+    const nhap = { ct21: !!g('ct21'), ct22: g('ct22'), ct23a: g('ct23a'), ct24a: g('ct24a'), ct37: g('ct37'), ct38: g('ct38'), ct39a: g('ct39a'), ct40b: g('ct40b'), ct42: g('ct42') };
+    const moi = tinhGTGT(docs, cu.mst, ky, nhap);
+    const ngayLap = opt.ngayLap || homNay();
+    const lyDo = opt.lyDo || 'Điều chỉnh theo hoá đơn điện tử thực tế';
+    const dong = THU_TU_CT.map(k => {
+      const a = g(k), b = Number(moi.ct[k]) || 0;
+      return { k, ma: '[' + k.slice(2) + ']', ten: TEN_CT[k], cu: a, moi: b, lech: b - a,
+        // Cột (7) "Điều chỉnh tăng/giảm nghĩa vụ thuế": chỉ các chỉ tiêu là nghĩa vụ — phải nộp [40], khấu trừ chuyển kỳ sau [43], đề nghị hoàn [42]
+        nhom: k === 'ct40' ? 'phaiNop' : k === 'ct43' ? 'khauTru' : k === 'ct42' ? 'hoan' : '' };
+    }).filter(r => r.lech !== 0);
+    const dPhaiNop = moi.ct.ct40 - g('ct40'), dKhauTru = moi.ct.ct43 - g('ct43'), dHoan = moi.ct.ct42 - g('ct42');
+    const han = hanNop(ky), ngayTinh = opt.ngayTinhChamNop || ngayLap;
+    const soNgayCham = dPhaiNop > 0 ? Math.max(soNgay(han, ngayTinh), 0) : 0;
+    const chamNop = Math.round(dPhaiNop * LAI_CHAM_NOP * soNgayCham);
+    const canhBao = [...moi.canhBao];
+    if (!dong.length) canhBao.unshift({ muc: 'chu_y', noiDung: `Tính lại từ hoá đơn ra đúng như tờ khai ${cu.lanDau ? 'lần đầu' : 'bổ sung lần ' + cu.soLan} — không có gì để khai bổ sung.` });
+    if (dKhauTru) canhBao.push({ muc: 'loi', noiDung: `[43] chuyển kỳ sau đổi ${tienVN(g('ct43'))} → ${tienVN(moi.ct.ct43)} đ. Tờ khai các kỳ sau đã lấy [22] = [43] cũ thì cũng phải xem lại — app không tự sửa các kỳ đó.` });
+    const pl0 = cu.plMua || [], pl0b = cu.plBan || [];
+    const tongPl = a => a.reduce((s, r) => s + (r.thue || r.giam || 0), 0);
+    if (Math.round(tongPl(pl0)) !== moi.tongPlMua.thue || Math.round(tongPl(pl0b)) !== moi.tongPlBan.thueGiam)
+      canhBao.push({ muc: 'chu_y', noiDung: 'Phụ lục giảm thuế NQ142 cũng thay đổi: tờ khai bổ sung đã lập lại phụ lục theo hoá đơn, nhưng bảng 01-1/KHBS chỉ liệt kê chỉ tiêu của tờ khai chính.' });
+    return { cu, moi, ky, dong, dPhaiNop, dKhauTru, dHoan, han, ngayTinh, soNgayCham, chamNop, lyDo, ngayLap,
+      soLan: (cu.lanDau ? 0 : cu.soLan) + 1, canhBao };
+  }
+
+  function xmlPhuLucKHBS(kb, dn) {
+    const k = khoangKy(kb.ky);
+    const header = `<Header>
+${the('maTKhai', MAU.maTKhai)}
+<tenTKhai>Tờ khai thuế GTGT (01/GTGT)(TT80/2021)</tenTKhai>
+<maGiaoDich/>
+<KyKKhaiThue>
+<kieuKy>${kb.ky.kieu}</kieuKy>
+${the('kyKKhai', k.kyKKhai)}
+${the('kyKKhaiTuNgay', k.tuVN)}
+${the('kyKKhaiDenNgay', k.denVN)}
+<kyKKhaiTuThang/>
+<kyKKhaiDenThang/>
+</KyKKhaiThue>
+<soLan>${kb.soLan}</soLan>
+${the('mst', dn.mst)}
+${the('tenNNT', dn.tenNNT)}
+<mstDLyThue xsi:nil="true"/>
+<tenDLyThue/>
+<soHDongDLyThue/>
+<ngayKyHDDLyThue xsi:nil="true"/>
+</Header>
+<ma_DonViTien>VND</ma_DonViTien>
+<ten_DonViTien>Đồng Việt Nam</ten_DonViTien>`;
+    const tieuMuc = (v, tong) => `<ChiTiet id="ID_1">
+${v ? the('ct2_ma', TIEU_MUC.ma) : '<ct2_ma/>'}
+${v ? the('ct2_ten', TIEU_MUC.ten) : '<ct2_ten/>'}
+<ct3>${v}</ct3>
+</ChiTiet>
+<${tong}>${v}</${tong}>`;
+    const pl01 = `<PL01_KHBS>
+${header}
+<Muc_A>
+<Muc_I>
+<Muc_1>
+${tieuMuc(kb.dPhaiNop, 'tongCong_ct10')}
+</Muc_1>
+<Muc_2>
+<DSachPLuc>
+<BKePLuc id="ID_1">
+<ma_PLuc/>
+<ten_PLuc/>
+<CTietPLuc>
+<ChiTiet id="ID_1">
+<ct2_ma/>
+<ct2_ten/>
+<ct3_ma/>
+<ct3_ten/>
+<ma_Xa/>
+<ten_Xa/>
+<ct04_ma/>
+<ct04_ten/>
+<ct05_ma/>
+<ct05_ten/>
+<ct06_ma/>
+<ct06_ten/>
+<ct7>0</ct7>
+</ChiTiet>
+</CTietPLuc>
+</BKePLuc>
+<tongCong_ct11>0</tongCong_ct11>
+</DSachPLuc>
+</Muc_2>
+<Muc_3>
+${kb.soNgayCham ? the('ct3a_1', ngayVN(kb.ngayTinh)) : '<ct3a_1 xsi:nil="true"/>'}
+<ct3a_2>${kb.soNgayCham}</ct3a_2>
+<ct3b>${kb.chamNop}</ct3b>
+</Muc_3>
+</Muc_I>
+<Muc_II>
+${tieuMuc(kb.dKhauTru, 'tongCong_ct12')}
+</Muc_II>
+<Muc_III>
+${tieuMuc(kb.dHoan, 'tongCong_ct13')}
+</Muc_III>
+</Muc_A>
+<Muc_B>
+<Muc_I>
+<ct_1>0</ct_1>
+<ct_2_so/>
+<ct_2_ngay xsi:nil="true"/>
+<ct_2_CQT_ma/>
+<ct_2_CQT_ten/>
+<ct_3_so/>
+<ct_3_ngay xsi:nil="true"/>
+</Muc_I>
+<Muc_II>
+<ct_1>0</ct_1>
+<ct_2>0</ct_2>
+</Muc_II>
+</Muc_B>
+</PL01_KHBS>`;
+    const tong = n => kb.dong.filter(r => r.nhom === n).reduce((s, r) => s + r.lech, 0);
+    const pl011 = `<PL01_1_KHBS>
+${header}
+<Muc_A>
+<DSachHSo>
+<BKeHSo id="ID_1">
+<ma_HSo>0001</ma_HSo>
+<ten_HSo>01/GTGT</ten_HSo>
+<CTietHSo>
+${kb.dong.map((r, i) => `<ChiTiet id="ID_${i + 1}">
+<ct2_ma/>
+<ct2_ten/>
+${the('ct3_ma', r.ma)}
+${the('ct3_ten', r.ten)}
+<ct3_1_ma/>
+<ct3_1_ten/>
+<ct3_2_ma/>
+<ct3_2_ten/>
+<ct04>${r.cu}</ct04>
+<ct05>${r.moi}</ct05>
+<ct06>${r.lech}</ct06>
+<ct7>${r.nhom ? r.lech : 0}</ct7>
+${the('ct8', kb.lyDo)}
+</ChiTiet>`).join('\n')}
+</CTietHSo>
+</BKeHSo>
+<TongCong>
+<tongCong_7>${tong('phaiNop')}</tongCong_7>
+<tongCong_8>${tong('khauTru')}</tongCong_8>
+<tongCong_9>${tong('hoan')}</tongCong_9>
+</TongCong>
+</DSachHSo>
+</Muc_A>
+<Muc_B>
+<CTietTaiLieu id="ID_1">
+<ma_TLieu/>
+<ten_TLieu/>
+</CTietTaiLieu>
+</Muc_B>
+</PL01_1_KHBS>`;
+    return pl01 + '\n' + pl011;
+  }
+
+  function xmlKHBS(kb, dn) {
+    return xmlGTGT(kb.moi, kb.ky, dn, kb.ngayLap, { soLan: kb.soLan, plKhbs: xmlPhuLucKHBS(kb, dn) });
+  }
+
+  // ---------- Tờ khai 04/GTGT (TT80, mã 847) — phương pháp trực tiếp trên doanh thu ----------
+  const MAU_04 = { maTKhai: '847', tenTKhai: 'TỜ KHAI THUẾ GIÁ TRỊ GIA TĂNG (Mẫu số 04/GTGT)', pban: '2.7.4', maFile: '04_GTGT_TT80' };
+  /** Nhóm ngành theo tỷ lệ % trên doanh thu (TT80 / TT219 Điều 13) */
+  const NHOM_04 = [
+    { ma: 'pp', ten: 'Phân phối, cung cấp hàng hoá', tyLe: 1, dt: 'ct22', thue: 'ct23', the: 'PPhoiCCapHHoa' },
+    { ma: 'dv', ten: 'Dịch vụ, xây dựng không bao thầu nguyên vật liệu', tyLe: 5, dt: 'ct24', thue: 'ct25', the: 'DVuXDungKoBaoThauNVL' },
+    { ma: 'sx', ten: 'Sản xuất, vận tải, dịch vụ có gắn với hàng hoá, xây dựng có bao thầu nguyên vật liệu', tyLe: 3, dt: 'ct26', thue: 'ct27', the: 'HHoaXDungCoBaoThauNVL' },
+    { ma: 'khac', ten: 'Hoạt động kinh doanh khác', tyLe: 2, dt: 'ct28', thue: 'ct29', the: 'HDongKDoanhKhac' }
+  ];
+
+  /**
+   * Tính 04/GTGT từ hoá đơn bán ra của MST trong kỳ.
+   * nhomHD: { [chỉ số hoá đơn trong docs]: mã nhóm } — hoá đơn không có trong đây lấy nhomMacDinh.
+   * Doanh thu tính thuế theo tỷ lệ là giá thanh toán (đã gồm thuế nếu có); phần hàng không chịu thuế / thuế suất 0% vào [21].
+   */
+  function tinh04(docs, mst, ky, nhomMacDinh = 'pp', nhomHD = {}) {
+    const DC = window.DOI_CHIEU;
+    const k = khoangKy(ky);
+    const { ban } = DC.chonHoaDon(docs, mst, k.tu, k.den);
+    ban.sort((a, b) => (a.ngay || '').localeCompare(b.ngay || '') || String(a.kyHieu).localeCompare(String(b.kyHieu)) || (Number(a.so) - Number(b.so)));
+    const canhBao = [];
+    const ct = { ct21: 0, ct22: 0, ct23: 0, ct24: 0, ct25: 0, ct26: 0, ct27: 0, ct28: 0, ct29: 0, ct30: 0, ct31: 0, ct32: 0, ct36: 0, ct37: 0 };
+    const hd = ban.map(h => {
+      const t = DC.tachHoaDon(h);
+      const tg = h.tien_te && h.tien_te !== 'VND' && Number(h.tyGia) > 0 ? Number(h.tyGia) : 1;
+      const tong = h.tong != null ? h.tong * tg : t.V + t.T;
+      const khongChiu = t.kct + t.t0;
+      const idx = docs.indexOf(h);
+      const nhom = nhomHD[idx] || nhomMacDinh;
+      if (t.T) canhBao.push({ muc: 'chu_y', noiDung: `HĐ ${h.kyHieu}-${h.so} ngày ${ngayVN(h.ngay)} có ghi thuế GTGT ${tienVN(t.T)} đ — doanh nghiệp khai 04/GTGT thường xuất hoá đơn bán hàng; app tính doanh thu theo giá thanh toán ${tienVN(tong)} đ.` });
+      return { idx, kyHieu: h.kyHieu, so: h.so, ngay: h.ngay, ten: h.mua?.Ten || '', doanhThu: Math.round(tong - khongChiu), khongChiu: Math.round(khongChiu), nhom };
+    });
+    for (const r of hd) {
+      ct.ct21 += r.khongChiu;
+      const n = NHOM_04.find(x => x.ma === r.nhom) || NHOM_04[0];
+      ct[n.dt] += r.doanhThu;
+    }
+    for (const n of NHOM_04) ct[n.thue] = Math.round(ct[n.dt] * n.tyLe / 100);
+    ct.ct30 = ct.ct22 + ct.ct24 + ct.ct26 + ct.ct28;
+    ct.ct31 = ct.ct23 + ct.ct25 + ct.ct27 + ct.ct29;
+    ct.ct32 = ct.ct21 + ct.ct30;
+    if (!hd.length) canhBao.push({ muc: 'chu_y', noiDung: `Không có hoá đơn bán ra nào của MST ${mst} trong ${k.ten}.` });
+    canhBao.push({ muc: 'chu_y', noiDung: 'Nếu được giảm 20% mức tỷ lệ % (Nghị quyết giảm thuế GTGT) thì lập thêm phụ lục giảm thuế trong HTKK — app chưa lập phụ lục này cho 04/GTGT.' });
+    return { ct, hd, canhBao, ky: k };
+  }
+
+  function xml04(tk, ky, dn, ngayLap = homNay()) {
+    const k = khoangKy(ky), c = tk.ct;
+    const so = key => `<${key}>${c[key]}</${key}>`;
+    return dinhDang(`<?xml version="1.0" encoding="UTF-8"?>
+<HSoThueDTu xmlns="http://kekhaithue.gdt.gov.vn/TKhaiThue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<HSoKhaiThue id="ID_1">
+<TTinChung>
+<TTinDVu>
+${the('maDVu', DICH_VU.maDVu)}
+${the('tenDVu', DICH_VU.tenDVu)}
+${the('pbanDVu', DICH_VU.pbanDVu)}
+${the('ttinNhaCCapDVu', DICH_VU.ttinNhaCCapDVu)}
+</TTinDVu>
+<TTinTKhaiThue>
+<TKhaiThue>
+${the('maTKhai', MAU_04.maTKhai)}
+${the('tenTKhai', MAU_04.tenTKhai)}
+${the('moTaBMau', MO_TA)}
+${the('pbanTKhaiXML', MAU_04.pban)}
+<loaiTKhai>C</loaiTKhai>
+<soLan>0</soLan>
+<KyKKhaiThue>
+<kieuKy>${ky.kieu}</kieuKy>
+${the('kyKKhai', k.kyKKhai)}
+${the('kyKKhaiTuNgay', k.tuVN)}
+${the('kyKKhaiDenNgay', k.denVN)}
+<kyKKhaiTuThang/>
+<kyKKhaiDenThang/>
+</KyKKhaiThue>
+${the('maCQTNoiNop', dn.maCQTNoiNop)}
+${the('tenCQTNoiNop', dn.tenCQTNoiNop)}
+${the('ngayLapTKhai', ngayLap)}
+<GiaHan>
+<maLyDoGiaHan/>
+<lyDoGiaHan/>
+</GiaHan>
+${the('nguoiKy', dn.nguoiKy)}
+${the('ngayKy', ngayLap)}
+<nganhNgheKD/>
+</TKhaiThue>
+<NNT>
+${the('mst', dn.mst)}
+${the('tenNNT', dn.tenNNT)}
+${the('dchiNNT', dn.dchiNNT)}
+${the('phuongXa', dn.phuongXa)}
+<maHuyenNNT/>
+<tenHuyenNNT/>
+${the('maTinhNNT', dn.maTinhNNT)}
+${the('tenTinhNNT', dn.tenTinhNNT)}
+${the('dthoaiNNT', dn.dthoaiNNT)}
+<faxNNT/>
+${the('emailNNT', dn.emailNNT)}
+</NNT>
+</TTinTKhaiThue>
+</TTinChung>
+<CTieuTKhaiChinh>
+<Header>
+<khaiRiengThuHo>false</khaiRiengThuHo>
+<ct09/>
+<ct10/>
+<ct11/>
+<ct11a_ma/>
+<ct11a_ten/>
+<ct11b_ma/>
+<ct11b_ten/>
+<ct11c_ma/>
+<ct11c_ten/>
+</Header>
+<KhaiThueTPPTTTDT>
+${so('ct21')}
+${NHOM_04.map(n => `<${n.the}>
+${so(n.dt)}
+${so(n.thue)}
+</${n.the}>`).join('\n')}
+<DoanhThuVaSoThuePNop>
+${so('ct30')}
+${so('ct31')}
+</DoanhThuVaSoThuePNop>
+${so('ct32')}
+</KhaiThueTPPTTTDT>
+<KhaiRiengDoiVoiKhoanThuHo>
+<DoanhThuVaSoThuePhaiNop>
+${so('ct36')}
+${so('ct37')}
+</DoanhThuVaSoThuePhaiNop>
+</KhaiRiengDoiVoiKhoanThuHo>
+</CTieuTKhaiChinh>
+<PLuc/>
+</HSoKhaiThue>
+</HSoThueDTu>
+`);
+  }
+
+  /** Tên tệp theo cách HTKK đặt: <MST>000-01_GTGT_TT80-Q32026-L00.xml (kỳ tháng: -M102026-; bổ sung lần n: -L0n) */
+  const tenFile = (ky, mst, maFile = MAU.maFile, soLan = 0) => `${String(mst).replace(/[^0-9-]/g, '')}000-${maFile}-${ky.kieu === 'Q' ? 'Q' + ky.quy : 'M' + pad(ky.thang)}${ky.nam}-L${pad(soLan)}.xml`;
+
+  window.LAP_TO_KHAI = { tinhGTGT, xmlGTGT, khoangKy, kyTruoc, timCt22, thongTinDN, tenFile, NHAP_TAY_TRONG,
+    tinhKHBS, xmlKHBS, toKhaiMoiNhat, hanNop, tinh04, xml04, NHOM_04, MAU_04 };
 })();
