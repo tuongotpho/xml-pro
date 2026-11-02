@@ -1,47 +1,53 @@
-# XML-Pro — Trình xem & Trích xuất dữ liệu Chứng từ điện tử chuẩn Quốc gia
+# XML-Pro — Trình xem & trích xuất dữ liệu chứng từ điện tử (XML)
 
-Ứng dụng Windows siêu nhẹ, độc lập, **100% offline**, thay thế hoàn hảo cho iTax Viewer và mở rộng thành **Trình đọc và xử lý chứng từ điện tử số 1 cho doanh nghiệp và kế toán tại Việt Nam** (hỗ trợ toàn diện 8 hệ sinh thái chứng từ điện tử).
+Ứng dụng Windows nhẹ, chạy **hoàn toàn trên máy, không cần mạng, không gửi dữ liệu đi đâu**. Đọc tờ khai thuế HTKK theo mẫu iTax Viewer, hoá đơn điện tử và một số loại chứng từ XML khác.
 
 Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuongotpho/xml-pro.git)
 
 ---
 
-## 🚀 Tính Năng Đột Phá Mới (Phiên bản v1.8.0)
+## Phiên bản 2.0.1 — sửa lỗi của 2.0.0
 
-### 1. Nạp Lười Siêu Tốc (Lazy-Loading Dictionary)
-* **Khởi động tức thì < 50ms:** Tách toàn bộ 16.6 MB dữ liệu mẫu XSLT iTax (`mau-itax.js`) và từ điển chỉ tiêu HTKK (`ten-chi-tieu.js`) khỏi luồng tải đồng bộ ban đầu. Ứng dụng chỉ nạp động khi mở tờ khai thuế hoặc tải ngầm trong lúc rảnh rỗi.
+Chi tiết lỗi và cách đo ở [01-BAO-CAO-RA-SOAT-TOAN-DIEN-V2.md](01-BAO-CAO-RA-SOAT-TOAN-DIEN-V2.md), kế hoạch ở [02](02-BAO-CAO-KE-HOACH-SUA-LOI-V2.md), kết quả ở [03](03-BAO-CAO-KET-QUA-SUA-LOI-V2.md).
 
-### 2. Xác Thực Toàn Vẹn Chữ Ký Số XMLDSig Ngoại Tuyến (Offline Verification)
-* **Kiểm tra toán học cấp trình duyệt:** Sử dụng Web Crypto API chuẩn quốc tế để tính toán lại giá trị băm DigestValue (SHA-256 / SHA-1) trên toàn bộ khối dữ liệu hóa đơn `<DLHDon>` và đối chiếu với chữ ký số của người bán & Cơ quan thuế.
-* **Cảnh báo đỏ can thiệp dữ liệu:** Nếu file XML bị chỉnh sửa số tiền, thuế suất, ngày lập dù chỉ 1 ký tự sau khi ký số, hệ thống lập tức hiển thị cảnh báo: *"✖ CẢNH BÁO TOÀN VẸN: Dữ liệu bị can thiệp sau khi ký!"*.
-
-### 3. Trợ Lý Đối Chiếu Kế Toán Thông Minh (Smart Audit Assistant)
-* **Phát hiện hóa đơn nạp trùng lặp:** Tự động gom nhóm theo bộ ba `MST Bán + Ký hiệu + Số HĐ`, gắn huy hiệu cảnh báo `⚠️ TRÙNG (N)` trên danh sách và trong bảng điều hành.
-* **Ghép cặp Hóa đơn Thay thế / Điều chỉnh:** Nhận diện trường `<TTHDLQuan>` để tự động liên kết HĐ điều chỉnh với HĐ gốc đang nạp trong tệp, tránh tính đúp doanh số.
-* **Tra cứu Mã QR:** Trích xuất thẻ `<DLQRCode>` và hiển thị nút tra cứu nhanh 1-chạm tới Cổng thông tin HĐĐT của Tổng cục Thuế.
-
-### 4. Mẫu Xuất Excel Chuẩn Kế Toán Việt Nam (MISA AMIS & HTKK TT80)
-* Tự động sinh thêm 4 sheet chuyên biệt khi xuất Excel:
-  * **Sheet MISA - Mua vào:** Cấu trúc cột chuẩn để Import thẳng vào chứng từ mua hàng MISA AMIS / SME.
-  * **Sheet MISA - Bán ra:** Cấu trúc cột chuẩn để Import thẳng vào chứng từ bán hàng MISA AMIS / SME.
-  * **Sheet Bảng kê 01-1_GTGT (Bán ra):** Định dạng chuẩn phụ lục 01-1/GTGT phân loại theo mức thuế suất.
-  * **Sheet Bảng kê 01-2_GTGT (Mua vào):** Định dạng chuẩn phụ lục 01-2/GTGT tổng hợp thuế GTGT được khấu trừ.
+* **Kiểm chữ ký số đúng:** 2.0.0 báo "bị sửa đổi" với cả hoá đơn thật. Nay kiểm cả vân tay dữ liệu lẫn chữ ký trong chứng thư; đo trên 6 hoá đơn mẫu: 12/12 chữ ký khớp kết quả kiểm của Windows (.NET).
+* **Bỏ máy chủ nội bộ** của 2.0.0 (tắt sau vài giây và để ngỏ cho trang web lạ đọc/đổi tên tệp). Quay về cách mở tệp của 1.7.x.
+* **Gỡ "Trung tâm cập nhật"** (không kiểm được bản mới thật). Thêm nút **"Xoá dữ liệu phiên"** trong hộp Giới thiệu.
+* **Script đổi tên `.ps1`** đổi được tệp có tên tiếng Việt, không ghi đè tệp trùng tên, báo rõ số tệp đã đổi / bỏ qua / lỗi.
+* Khôi phục chữ tiếng Việt bị lỗi bảng mã trong giao diện.
 
 ---
 
-## 🚀 Tính Năng Đột Phá & Bảo Mật Mới (Phiên bản v1.8.0)
+## Tính năng chính
 
-### 1. Nâng cấp An toàn & Bảo mật Cao cấp (Security Hardened)
-* **Bảo vệ phòng thủ cấp nhân Chromium:** Tích hợp `Content-Security-Policy` (CSP) nghiêm ngặt với `connect-src 'none'`, đảm bảo cam kết bảo mật 100% offline, tuyệt đối không gửi dữ liệu tài chính/thuế ra ngoài mạng.
-* **Chống Command Injection & Path Traversal:** Công cụ đổi tên hàng loạt Smart File Renamer chuyển toàn diện sang chuỗi nguyên văn PowerShell `-LiteralPath` kết hợp bộ lọc Whitelist ký tự an toàn trên cả 8 định dạng chứng từ, loại bỏ hoàn toàn nguy cơ khai thác qua tên file hoặc nội dung XML độc hại.
-* **Làm sạch chuẩn OpenXML:** Bộ sinh bảng kê Excel `.xlsx` tự động lọc bỏ các ký tự điều khiển bất hợp pháp trong XML 1.0, ngăn chặn triệt để lỗi crash file khi mở trên Microsoft Excel.
+### 1. Kiểm chữ ký số ngay trên máy
+* Băm lại phần dữ liệu đã ký (C14N, SHA-1/256/384/512) và so với `DigestValue`; kiểm `SignatureValue` trên khối `SignedInfo` bằng khoá công khai trong chứng thư số (RSA hoặc ECDSA) qua Web Crypto.
+* Ba mức: **✔ hợp lệ** · **✖ dữ liệu bị sửa đổi sau khi ký** (kể cả khi người sửa tính lại vân tay) · **ⓘ không kiểm tra được** (thuật toán chưa hỗ trợ). Cảnh báo vàng nếu thời điểm ký nằm ngoài hạn chứng thư.
+* **Không** kiểm chứng thư có bị thu hồi hay không (việc đó cần mạng) — muốn chắc chắn thì tra trên cổng thuế điện tử.
 
-### 2. Duyệt Cây Thư Mục Thông Minh (Folder Tree View)
+### 2. Nạp lười bộ mẫu iTax / HTKK
+* `mau-itax.js` và `ten-chi-tieu.js` (khoảng 16,6 MB) chỉ nạp khi mở tờ khai thuế hoặc nạp ngầm lúc rảnh, nên mở hoá đơn nhanh.
+
+### 3. Trợ lý đối chiếu kế toán
+* **Hoá đơn nạp trùng:** gom theo `MST bán + Ký hiệu + Số HĐ`, gắn cảnh báo `⚠️ TRÙNG (N)`.
+* **Hoá đơn thay thế / điều chỉnh:** đọc `<TTHDLQuan>` để liên kết với hoá đơn gốc đang nạp.
+* **Tra cứu mã QR:** đọc `<DLQRCode>`, có nút tra cứu trên cổng hoá đơn điện tử.
+
+### 4. Xuất Excel cho kế toán
+* Thêm các sheet: MISA - Mua vào, MISA - Bán ra, Bảng kê 01-1/GTGT, Bảng kê 01-2/GTGT. *(Chưa thử nhập thật vào MISA.)*
+* Lọc ký tự điều khiển không hợp lệ trong XML 1.0 để tệp `.xlsx` không lỗi khi mở bằng Excel.
+
+### 5. An toàn dữ liệu
+* `Content-Security-Policy` với `connect-src 'self'`: trang không gọi được máy chủ bên ngoài.
+* Mọi nội dung từ tệp XML và tên tệp đều được lọc ký tự trước khi hiện (đo: thay mọi ô chữ của 12 tệp mẫu bằng mã độc → 0 lần chạy).
+* Dữ liệu lưu trên máy: phiên làm việc gần nhất (nội dung các tệp đã nạp, trong IndexedDB của trình duyệt) và lịch sử tệp đã mở. Xoá bằng nút "🗑 Xoá dữ liệu phiên" trong hộp Giới thiệu.
+
+### 6. Duyệt Cây Thư Mục Thông Minh (Folder Tree View)
 * **Nạp cả cây thư mục 1-chạm:** Chọn hoặc kéo thả thư mục tổng (chứa hàng trăm thư mục con các tháng, các phòng ban).
 * **Sidebar dạng Explorer:** Tab `[📁 Cây thư mục]` trực quan với icon phân cấp `📂`, đóng/mở từng nhánh, hiển thị số lượng file và icon phân loại ngành của từng thư mục.
 * **Lọc theo thư mục linh hoạt:** Click vào bất kỳ thư mục nhánh nào để lọc ngay danh sách file và cập nhật Dashboard theo đúng phạm vi thư mục đó. Thanh breadcrumb cho phép quay lại xem toàn bộ thư mục chỉ với 1 click `✖`.
 
-### 3. Dashboard Động Thích Ứng Theo Ngữ Cảnh Chuyên Ngành (Adaptive Dashboard)
+### 7. Dashboard Động Thích Ứng Theo Ngữ Cảnh Chuyên Ngành (Adaptive Dashboard)
 Tự động nhận diện loại chứng từ chiếm đa số trong thư mục đang duyệt để "biến hình" giao diện Dashboard phù hợp 100%:
 * **Thư mục Hóa đơn & Thuế (`hd`):** Dashboard Doanh thu bán ra vs Chi phí mua vào, Thuế GTGT tạm tính (Phải nộp/Khấu trừ), Cơ cấu thuế suất (0%, 5%, 8%, 10%), Top 5 Khách hàng & Top 5 Nhà cung cấp, Hóa đơn cảnh báo rủi ro. Tự động phát hiện và cảnh báo hóa đơn chưa rõ phân loại để kế toán thiết lập MST.
 * **Thư mục Hải quan & XNK (`hq`):** Dashboard Phân luồng kiểm tra (🟢 Luồng Xanh, 🟡 Luồng Vàng, 🔴 Luồng Đỏ), Tổng kim ngạch XNK, Nghĩa vụ thuế XNK và GTGT, Thống kê theo Chi cục & Loại hình XNK.
@@ -53,7 +59,7 @@ Tự động nhận diện loại chứng từ chiếm đa số trong thư mục
 
 ---
 
-## 🚀 Tính Năng Cho Kế Toán Doanh Nghiệp (Phiên bản v1.8.0)
+## Tính năng cho kế toán doanh nghiệp
 
 Dành riêng cho các chuyên viên kế toán xử lý hàng nghìn hóa đơn đầu vào - đầu ra mỗi tháng:
 
@@ -83,13 +89,15 @@ Dành riêng cho các chuyên viên kế toán xử lý hàng nghìn hóa đơn 
          Ban_20261015_0100112437_PETROLIMEX_1C26TAA_0000099.xml
   ```
 * Xem trước bảng đối chiếu tên cũ $\rightarrow$ tên mới, tích chọn từng file linh hoạt.
-* **2 hình thức xuất 1-click an toàn tuyệt đối:**
-  1. **Tải file .ZIP đã đổi tên:** Đóng gói toàn bộ hóa đơn đã đổi tên vào 1 file ZIP sạch sẽ, an toàn tuyệt đối.
-  2. **Tải Script PowerShell (.ps1):** Tải script về thư mục chứa hóa đơn trên máy, click chuột phải chọn *"Run with PowerShell"* để đổi tên trực tiếp hàng loạt file trên ổ cứng trong 1 giây (đã mã hóa chuỗi nháy đơn an toàn chống injection).
+* **2 cách lấy kết quả:**
+  1. **Tải tệp .ZIP đã đổi tên:** gói các hoá đơn với tên mới vào một tệp ZIP; tệp gốc trên máy giữ nguyên.
+  2. **Tải script PowerShell (.ps1):** chép script vào thư mục chứa hoá đơn, chuột phải → *Run with PowerShell*. Script có BOM UTF-8 nên đổi được tên tiếng Việt có dấu; **không ghi đè** tệp đã có cùng tên; cuối script báo số tệp đã đổi / bỏ qua / lỗi. Nếu Windows chặn tệp tải về: chuột phải → Properties → Unblock.
 
 ---
 
 ## 8 Nhóm Chứng từ & Định dạng Chuyên biệt Hỗ trợ
+
+> Lưu ý: tờ khai thuế và hoá đơn đã chạy với tệp thật. Các nhóm hải quan, BHXH, BHYT, ngân hàng, đấu thầu, TNCN mới kiểm bằng **tệp mẫu tự soạn** trong `mau-xml\` — định dạng tệp thật của từng ngành có thể khác.
 
 ### 1. Thuế & Kế toán (Mẫu chuẩn iTax Viewer)
 * **Tờ khai, phụ lục, báo cáo tài chính** xuất từ HTKK / eTax (gốc `HSoThueDTu`): 01/GTGT, 05/KK-TNCN, 03/TNDN, BCTC TT200, TT133…
@@ -170,9 +178,10 @@ Tạo file `.xlsx` thật 100% trong tích tắc ngay trên máy, tương thích
 Bấm đúp file `index.html` để mở bằng Microsoft Edge hoặc Google Chrome. Kéo thả file XML/ZIP vào và xem/xuất Excel ngay lập tức.
 
 ### Cách 2: Cài đặt vào Windows (Bấm đúp file XML là tự mở)
-1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XML-Pro-1.8.0.exe`.
+1. Chạy file bộ cài đặt: `dong-goi\ban-phat-hanh\CaiDat-XML-Pro-<phiên bản>.exe` (vd `CaiDat-XML-Pro-2.0.1.exe`).
 2. Bấm **Có** để cài đặt vào `%LOCALAPPDATA%\Programs\XemXmlThue` (không cần quyền Admin).
 3. Đặt làm ứng dụng mặc định cho đuôi file `.xml` khi được Windows hỏi.
+4. Mở thêm tệp lúc nào cũng thành **tab mới** trong cửa sổ đang mở. Muốn có bản mới: cài đè bộ cài mới (không có cập nhật tự động).
 
 ---
 
@@ -186,13 +195,15 @@ Yêu cầu môi trường: Windows 10/11 có sẵn .NET Framework 4.0+ (không c
   ```
 * **Đóng gói phiên bản mới (.exe):**
   ```powershell
-  powershell -ExecutionPolicy Bypass -File dong-goi\dong-goi.ps1 -PhienBan 1.8.0
+  powershell -ExecutionPolicy Bypass -File dong-goi\dong-goi.ps1            # tự tăng số phiên bản
   ```
-* **Chạy kiểm thử tự động toàn diện (3 bộ test Edge CDP):**
+* **Chạy kiểm thử tự động (Edge chạy ngầm; cần Python + `websocket-client`, `lxml`):** mỗi bộ thoát mã lỗi khác 0 nếu hỏng.
   ```powershell
+  python kiem-thu-sua-loi.py          # 15 mục: chữ ký số (đối chiếu .NET), bảng mã, máy chủ, .ps1, xoá phiên
   python kiem-thu-8-nganh.py
   python kiem-thu-ke-toan.py
   python kiem-thu-tree-dashboard.py
+  python kiem-thu-giai-doan-3.py
   ```
 
 ---

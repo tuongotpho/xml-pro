@@ -74,6 +74,7 @@ Tài liệu này lưu trữ toàn bộ các ý tưởng, kiến trúc và lộ t
 * **Cảnh báo sai lệch số học:** Kiểm tra tự động từng dòng hàng `Đơn giá × Số lượng - Chiết khấu = Thành tiền` và `Thành tiền × Thuế suất = Tiền thuế` (báo động khi sai lệch làm tròn $> 50$ đồng).
 * **Cảnh báo hóa đơn điều chỉnh / thay thế:** Liên kết mã số và hiển thị cây quan hệ giữa HĐ gốc và HĐ thay thế/điều chỉnh, tránh kế toán kê khai sót hoặc trùng 2 lần.
 * **Đối chiếu danh sách đen Doanh nghiệp bỏ trốn / Tạm ngừng kinh doanh:** Tra cứu cảnh báo các MST bán hàng có rủi ro cao.
+  ⚠️ *(Ghi chú 02/11/2026: không làm được nếu giữ cam kết chạy offline — danh sách này phải tra trên mạng. Xem báo cáo 01, mục D.)*
 
 ### 5.3. Xuất Bảng Kê Chuẩn Nhập Vào Phần Mềm Kế Toán (Tính năng 4)
 * **MISA SME / MISA AMIS:** Xuất file Excel đúng chuẩn cấu trúc cột để kế toán vào MISA chọn *Tệp $\rightarrow$ Nhập khẩu từ Excel* là vào thẳng chứng từ mua/bán hàng.
