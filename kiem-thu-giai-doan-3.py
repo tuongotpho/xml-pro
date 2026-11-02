@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-import subprocess, time, json, os, urllib.request, websocket
+import subprocess, time, json, os, re, sys, urllib.request, websocket
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # console Windows mặc định cp1252 không in được tiếng Việt
+except Exception:
+    pass
 
 EDGE_EXE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 if not os.path.exists(EDGE_EXE):
@@ -46,7 +51,7 @@ try:
     # 1. Kiểm tra Version v2.0.0
     pb = evaluate("window.PHIEN_BAN")
     print(f"[+] Phiên bản window.PHIEN_BAN: {pb}")
-    assert pb == "2.0.0", f"Expected 2.0.0, got {pb}"
+    assert pb and re.fullmatch(r"\d+\.\d+\.\d+", pb) and tuple(map(int, pb.split("."))) >= (2, 0, 0), f"Phiên bản phải >= 2.0.0, nhận {pb}"
 
     # 2. Kiểm tra Dark Mode Toggle
     dark_init = evaluate("document.documentElement.classList.contains('dark')")
@@ -59,14 +64,17 @@ try:
     btn_icon_after = evaluate("document.getElementById('btnToggleDark')?.textContent")
     print(f"[+] Sau khi click toggle: Dark={dark_after}, Icon: {btn_icon_after}")
     assert dark_after != dark_init, "Dark mode class must toggle"
+    for icon in (btn_icon, btn_icon_after):
+        assert icon and "?" not in icon, f"Biểu tượng nút sáng/tối bị lỗi bảng mã: {icon!r}"
+    assert btn_icon != btn_icon_after, "Biểu tượng phải đổi khi chuyển sáng/tối"
 
     # Click toggle lại về ban đầu
     evaluate("document.getElementById('btnToggleDark')?.click()")
 
-    # 3. Kiểm tra Nút Đổi tên trực tiếp
+    # 3. Đổi tên trực tiếp qua máy chủ nội bộ đã gỡ (báo cáo 01, lỗi A2/A3): chỉ còn tải .zip / .ps1
     has_btn_direct = evaluate("Boolean(document.getElementById('btnDoiTenTrucTiep'))")
     print(f"[+] Nút Đổi Tên Trực Tiếp (#btnDoiTenTrucTiep) có mặt: {has_btn_direct}")
-    assert has_btn_direct, "btnDoiTenTrucTiep must exist"
+    assert not has_btn_direct, "btnDoiTenTrucTiep phải được gỡ (dùng máy chủ nội bộ không an toàn)"
 
     # 4. Kiểm tra IndexedDB XmlProDB_v2
     idb_check = evaluate("""
@@ -101,7 +109,7 @@ try:
     assert eval_shortcut, "Ctrl+F must focus search input"
 
     print("\n=======================================================")
-    print(" TẤT CẢ TÍNH NĂNG GIAI ĐOẠN 3 (v2.0.0) ĐẠT 100% PASS! ")
+    print(" TẤT CẢ TÍNH NĂNG GIAI ĐOẠN 3 (v2.0.x) ĐẠT 100% PASS! ")
     print("=======================================================")
 
 finally:

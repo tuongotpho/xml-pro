@@ -535,12 +535,15 @@ def main():
         # 6. KIỂM THỬ GIAI ĐOẠN 2: CHỮ KÝ SỐ XMLDSIG & TRỢ LÝ ĐỐI CHIẾU TRÙNG LẶP
         print("\n--- KIỂM THỬ 5: XMLDSIG & AUDIT ASSISTANT (GIAI ĐOẠN 2) ---")
         mid += 1
-        audit_check = cdp_eval(ws, """(() => {
+        audit_check = cdp_eval(ws, """(async () => {
             const docs = window.__xemXmlThue.docs.filter(d => d.kind === 'hd');
             const doc0 = docs[0];
+            // Kiểm chữ ký chạy ngầm: chờ xong rồi mới đọc kết quả
+            await Promise.all([doc0.kyBan, doc0.kyCqt].filter(Boolean).map(s => s.kiemTra));
             const hasSig = !!(doc0.kyBan || doc0.kyCqt);
             const dv = doc0.kyBan?.dv || doc0.kyCqt?.dv || '';
-            const verified = (doc0.kyBan?.verified === true) || (doc0.kyCqt?.verified === true);
+            const sigs = [doc0.kyBan, doc0.kyCqt].filter(Boolean);
+            const verified = sigs.length > 0 && sigs.every(s => s.verified === true);
 
             // Nạp thêm 1 bản sao để kiểm tra phát hiện hóa đơn trùng lặp
             const app = window.__xemXmlThue;
@@ -557,6 +560,7 @@ def main():
         print("Kết quả kiểm tra XMLDSig & Trùng lặp:", json.dumps(audit_check, ensure_ascii=False, indent=2))
         assert audit_check.get('hasSig'), "Hóa đơn mẫu phải có chữ ký số"
         assert audit_check.get('hasDigestValue'), "Chữ ký số phải trích xuất được DigestValue"
+        assert audit_check.get('verified') == True, "Hóa đơn mẫu là hóa đơn thật: mọi chữ ký phải được kiểm là HỢP LỆ"
         assert audit_check.get('doc0IsDuplicate') == True, "Phải phát hiện hóa đơn trùng lặp khi nạp thêm bản sao"
         assert audit_check.get('doc0DupCount') >= 2, "Số lượng bản trùng phải >= 2"
         print("=> [PASS] Xác thực Chữ ký số XMLDSig và Phát hiện Trùng lặp chính xác 100%!")
