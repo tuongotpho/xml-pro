@@ -57,6 +57,7 @@ $nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
            "/resource:$app\nganh-doc.js,nganh-doc.js",
            "/resource:$app\doi-chieu.js,doi-chieu.js",
            "/resource:$app\lap-to-khai.js,lap-to-khai.js",
+           "/resource:$app\dashboard-ke-toan.js,dashboard-ke-toan.js",
            "/resource:$app\mau-itax.js,mau-itax.js",
            "/resource:$app\ten-chi-tieu.js,ten-chi-tieu.js",
            "/resource:$app\HUONG-DAN.md,HUONG-DAN.md")

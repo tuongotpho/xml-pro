@@ -33,6 +33,12 @@ def tien_trinh_xml_pro(thu_muc):
 
 
 def main():
+    # XML-Pro chỉ cho một cửa sổ: nếu người dùng đang mở bản đã cài, bản test sẽ gửi tệp mẫu sang cửa sổ của họ.
+    # Vì vậy thấy XML-Pro đang chạy thì dừng, không chạy gì.
+    dang_chay = tien_trinh_xml_pro('')
+    if dang_chay:
+        print(f'  [DỪNG] XML-Pro đang mở (tiến trình {", ".join(dang_chay)}). Đóng XML-Pro rồi chạy lại bài test này.')
+        sys.exit(2)
     tam = tempfile.mkdtemp(prefix='xmlpro3-')
     app = os.path.join(tam, 'app')
     os.makedirs(app)

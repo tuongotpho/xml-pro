@@ -167,13 +167,15 @@
       mua: cuaDn.filter(d => laMua(d) && trongKy(d)),
       ban: cuaDn.filter(d => laBan(d) && trongKy(d)),
       ngoaiKy: cuaDn.filter(d => !trongKy(d)),
+      // HĐ gốc đã bị thay thế, lập trong kỳ: không tính, nhưng giữ lại để chỉ ra khi tờ khai lỡ kê cả bản gốc
+      biThayThe: hoaDon.filter(d => (laBan(d) || laMua(d)) && trongKy(d) && !conHieuLuc(d)),
       laBan, laMua
     };
   }
 
   function doiChieuMot(tkDoc, docs, idxCua) {
     const tk = docToKhai(tkDoc);
-    const { mua, ban, ngoaiKy, laBan, laMua } = chonHoaDon(docs, tk.mst, tk.tu, tk.den);
+    const { mua, ban, ngoaiKy, biThayThe, laBan, laMua } = chonHoaDon(docs, tk.mst, tk.tu, tk.den);
 
     const cong = (ds, f) => ds.reduce((s, d) => s + f(tachHoaDon(d)), 0);
     const ct = tk.ct;
@@ -182,7 +184,7 @@
       if (toKhai === undefined) return;
       const lech = Math.round(toKhai - hd);
       const r = { ma, ten, toKhai, hoaDon: Math.round(hd), lech, khop: Math.abs(lech) <= dungSai(n), ben, goiY: [] };
-      if (!r.khop && lay) r.goiY = goiY(r, ben, lay, ben === 'mua' ? mua : ban, ngoaiKy.filter(ben === 'mua' ? laMua : laBan), idxCua);
+      if (!r.khop && lay) r.goiY = goiY(r, ben, lay, ben === 'mua' ? mua : ban, ngoaiKy.filter(ben === 'mua' ? laMua : laBan), idxCua, biThayThe.filter(ben === 'mua' ? laMua : laBan));
       dong.push(r);
     };
     const nMua = mua.length, nBan = ban.length;
@@ -280,10 +282,17 @@
   }
 
   // Tìm hoá đơn giải thích được chỗ lệch: một HĐ có đúng số tiền bằng phần lệch
-  function goiY(r, ben, lay, trongKy, ngoaiKy, idxCua) {
+  function goiY(r, ben, lay, trongKy, ngoaiKy, idxCua, biThayThe) {
     const can = Math.abs(r.lech);
     const kq = [];
     const khop = d => Math.abs(Math.abs(lay(tachHoaDon(d))) - can) <= 5;
+    // Tờ khai nhiều hơn đúng bằng một HĐ đã bị thay thế: kê cả bản gốc lẫn bản thay thế
+    if (r.lech > 0) for (const d of biThayThe || []) {
+      if (!khop(d)) continue;
+      const tt = d.thayTheBoi;
+      kq.push({ idx: idxCua(d), loai: 'biThayThe', text: `HĐ ${d.kyHieu}-${d.so} ngày ${ngayVN(d.ngay)} (${ben === 'mua' ? d.ban?.Ten : d.mua?.Ten}) đã bị thay thế bởi HĐ ${tt.kyHieu}-${tt.so} nhưng vẫn được kê — đúng ${tien(can)} đ, cần bỏ ra` });
+    }
+    if (kq.length) return kq;
     if (r.lech < 0) {
       for (const d of trongKy) if (khop(d)) kq.push({ idx: idxCua(d), loai: 'chuaKe', text: `HĐ ${d.kyHieu}-${d.so} ngày ${ngayVN(d.ngay)} (${ben === 'mua' ? d.ban?.Ten : d.mua?.Ten}) có đúng ${tien(can)} đ — có thể chưa kê trên tờ khai` });
     } else {

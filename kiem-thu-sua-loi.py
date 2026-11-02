@@ -163,7 +163,7 @@ def kiem_doi_chieu(ev, J, hd):
           const panel = document.querySelector('.dc-panel');
           A.select(-2); await new Promise(r => setTimeout(r, 300));
           return { dung: tom(f(iDung)), quen: tom(f(iQuen)), coKhungTrenToKhai: !!panel, khungMo: !!(panel && panel.open),
-                   dashboard: document.querySelectorAll('.dc-dash tr[data-mo-doc]').length,
+                   dashboard: document.querySelectorAll('.ktt-ky [data-mo-doc]').length,
                    nhan: [...document.querySelectorAll('#list .tag-pl')].map(e => e.textContent).filter(t => /HĐ/.test(t)) }; })()'''
            % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), J(tk_dung), J(tk_quen)))
     d, q = r['dung'], r['quen']
@@ -171,8 +171,8 @@ def kiem_doi_chieu(ev, J, hd):
              d['trangThai'] == 'khop' and d['mua'] == 2 and d['ban'] == 4 and d['plSai'] == 0 and d['soPl'] == 2 and d['noiBoSai'] == 0 and d['soNoiBo'] >= 10, J(d, ensure_ascii=False))
     danh_gia(f'Đối chiếu: tờ khai quên 1 HĐ bán ra → LỆCH [32]–[35], chỉ đích danh HĐ {so_quen}',
              q['trangThai'] == 'lech' and {'[32]', '[33]', '[34]', '[35]'} <= set(q['lech']) and any(so_quen in g and 'chưa kê' in g for g in q['goiY']), J(q, ensure_ascii=False))
-    danh_gia('Đối chiếu: khung trên tờ khai (tự mở khi lệch), bảng trên Dashboard, nhãn KHỚP/LỆCH ở danh sách',
-             r['coKhungTrenToKhai'] and r['khungMo'] and r['dashboard'] == 2 and 'KHỚP HĐ' in r['nhan'] and any(t.startswith('LỆCH HĐ') for t in r['nhan']), J(r['nhan'] + [r['dashboard']], ensure_ascii=False))
+    danh_gia('Đối chiếu: khung trên tờ khai (tự mở khi lệch), thẻ kỳ trên Dashboard mở được tờ khai, nhãn KHỚP/LỆCH ở danh sách',
+             r['coKhungTrenToKhai'] and r['khungMo'] and r['dashboard'] >= 1 and 'KHỚP HĐ' in r['nhan'] and any(t.startswith('LỆCH HĐ') for t in r['nhan']), J(r['nhan'] + [r['dashboard']], ensure_ascii=False))
 
     # Dữ liệu thật (thư mục HD-TK chỉ có trên máy anh, không đưa lên git): quý 3/2026 + giấy nộp tiền + zip hoá đơn
     that = os.path.join(APP, 'HD-TK')
@@ -281,6 +281,73 @@ def kiem_lap_to_khai(ev, J, hd):
            % (J([[f, base64.b64encode(open(tep[f], 'rb').read()).decode()] for f in zipf]), J(open(tep[tkf[0]], encoding='utf-8-sig').read())))
     danh_gia(f'Lập lại tờ khai thật quý {r["ky"]} từ hoá đơn (HD-TK): trùng {r["soO"]}/{r["soO"]} ô dữ liệu với tờ khai đã nộp',
              not r['chiTrongThat'] and not r['chiTrongBanLap'] and r['soO'] > 100, J(r, ensure_ascii=False)[:600])
+
+
+def cong_ca_zip(duong_dan_zip, mst):
+    """Phép cộng ĐỘC LẬP cả năm từ zip hoá đơn: loại HĐ gốc đã có HĐ thay thế (TTHDLQuan, TCHDon = 1)."""
+    import zipfile
+    z = zipfile.ZipFile(duong_dan_zip)
+    hds = []
+    for n in z.namelist():
+        if not n.lower().endswith('.xml'):
+            continue
+        dl = etree.fromstring(z.read(n)).find('DLHDon')
+        t = lambda p: (dl.findtext(p) or '').strip()
+        hds.append({'kh': t('TTChung/KHHDon'), 'so': t('TTChung/SHDon'), 'tc': t('TTChung/TTHDLQuan/TCHDon'),
+                    'goc': t('TTChung/TTHDLQuan/KHHDCLQuan') + '-' + t('TTChung/TTHDLQuan/SHDCLQuan'),
+                    'ban': t('NDHDon/NBan/MST'), 'mua': t('NDHDon/NMua/MST'),
+                    'V': float(t('NDHDon/TToan/TgTCThue') or 0), 'T': float(t('NDHDon/TToan/TgTThue') or 0)})
+    bi_thay = {h['goc'] for h in hds if h['tc'] == '1'}
+    con = [h for h in hds if h['kh'] + '-' + h['so'] not in bi_thay]
+    return {'banV': round(sum(h['V'] for h in con if h['ban'] == mst)), 'muaV': round(sum(h['V'] for h in con if h['mua'] == mst)),
+            'muaT': round(sum(h['T'] for h in con if h['mua'] == mst)), 'biThay': len(bi_thay)}
+
+
+def kiem_dashboard(ev, J, hd):
+    print('=== 7. Dashboard kế toán mới (ghép "Việc cần làm" + "Sổ sách", báo cáo 08) ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    kq = cong_hoa_don(hd, MST, '2026-10-01', '2026-10-31')
+    ban_v = round(sum(v for ts, (v, _) in kq['ban'].items()))
+    r = ev('''(async () => { const A = window.__xemXmlThue;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'db/' + ten);
+          A.select(-2); await new Promise(r => setTimeout(r, 400));
+          const q = s => document.querySelector(s);
+          const kq = { co: !!q('.ktt-dash'), ten: q('.ktt-dau h1')?.textContent, the: [...document.querySelectorAll('.ktt-ky .ktt-tren')].map(e => e.innerText.replace(/\\n/g, ' | ')),
+                       lap: !!q('.ktt-ky [data-lap-tk]'), banRa: q('.ktt-tong b')?.textContent, chu: q('.ktt-dash').innerText };
+          q('.ktt-chon-ky [data-kieu="M"]').click(); await new Promise(r => setTimeout(r, 300));
+          kq.thang = [...document.querySelectorAll('.ktt-ky .ktt-tren b')].map(e => e.textContent);
+          q('.ktt-chon-ky [data-kieu="Q"]').click();
+          return kq; })()''' % J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
+    emoji = [ch for ch in r['chu'] if ord(ch) >= 0x1F300 or 0x2600 <= ord(ch) <= 0x27BF]
+    danh_gia('Dashboard mới: có thẻ kỳ "Quý 4/2026 — Chưa lập tờ khai" kèm nút lập, tổng bán ra đúng phép cộng Python, không emoji',
+             r['co'] and r['the'] == ['Quý 4/2026 | Chưa lập tờ khai'] and r['lap'] and r['banRa'] == f'{ban_v:,}'.replace(',', '.') and not emoji and r['thang'] == ['Tháng 10/2026'],
+             J({k: r[k] for k in ('the', 'banRa', 'thang')}, ensure_ascii=False) + f' (mong {ban_v:,}) emoji={emoji[:5]}')
+
+    that = os.path.join(APP, 'HD-TK')
+    if not os.path.isdir(that):
+        that = os.environ.get('XMLPRO_HD_TK', that)
+    if not os.path.isdir(that):
+        print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
+        return
+    nap_lai_trang(ev)
+    tep = [os.path.join(that, f) for f in sorted(os.listdir(that)) if f.lower().endswith(('.xml', '.zip'))]
+    oracle = cong_ca_zip(next(f for f in tep if f.lower().endswith('.zip')), MST)
+    r = ev('''(async () => { const A = window.__xemXmlThue;
+          const files = %s.map(([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); });
+          await A.addFiles(files); A.select(-2); await new Promise(r => setTimeout(r, 500));
+          const tong = [...document.querySelectorAll('.ktt-tong b')].map(e => e.textContent);
+          return { the: [...document.querySelectorAll('.ktt-ky')].map(e => e.querySelector('.ktt-tren').innerText.replace(/\\n/g, ' | ') + ' :: ' + e.querySelector('.ktt-mo-ta').innerText),
+                   banRa: tong[0], muaVao: tong[2], thueVao: tong[3], phu: document.querySelector('.ktt-dau .ktt-nho').textContent }; })()'''
+           % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
+    fmt = lambda n: f'{n:,}'.replace(',', '.')
+    the = {x.split(' :: ')[0]: x for x in r['the']}
+    q1 = the.get('Quý 1/2026 | Lệch thuế', '')
+    dat = (r['banRa'] == fmt(oracle['banV']) and r['muaVao'] == fmt(oracle['muaV']) and r['thueVao'] == fmt(oracle['muaT'])
+           and 'đã bị thay thế bởi HĐ C26TKL-19' in q1 and 'Quý 3/2026 | Đã xong' in the and 'Quý 4/2026 | Chưa lập tờ khai' in the
+           and 'Quý 2/2026 | Cần xem lại' in the and f"{oracle['biThay']} hoá đơn bị thay thế đã loại" in r['phu'])
+    danh_gia('Dashboard mới với dữ liệu thật HD-TK: tổng khớp phép cộng độc lập (đã loại HĐ bị thay thế); quý 1 chỉ ra HĐ C26TKL-18 bị thay thế; quý 2/3/4 đúng trạng thái',
+             dat, J(r, ensure_ascii=False)[:700] + f" | mong: bán {fmt(oracle['banV'])}, mua {fmt(oracle['muaV'])}, thuế vào {fmt(oracle['muaT'])}")
 
 
 def main():
@@ -462,6 +529,7 @@ def main():
 
         kiem_doi_chieu(ev, J, hd)
         kiem_lap_to_khai(ev, J, hd)
+        kiem_dashboard(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

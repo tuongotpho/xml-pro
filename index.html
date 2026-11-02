@@ -303,6 +303,74 @@
   html.dark .itax-tabs button:hover { background: #334155; color: #f1f5f9; }
   html.dark .itax-tabs button.on { background: #38bdf8; border-color: #38bdf8; color: #0f172a; }
   html.dark .itax-tabs { border-bottom-color: #38bdf8; }
+  /* Dashboard kế toán (bản 3) — ghép "Việc cần làm" + "Sổ sách"; màu chỉ để báo trạng thái */
+  .ktt-dash { --ktt-chinh: #2563eb; --ktt-xanh: #15803d; --ktt-xanh-nen: #e9f6ee; --ktt-vang: #a15c07; --ktt-vang-nen: #fdf3e2;
+    --ktt-do: #b91c1c; --ktt-do-nen: #fdecec; --ktt-xam-nen: #eef0f3; --ktt-chon: #f2f4f6;
+    max-width: 1180px; margin: 0 auto; padding: 4px 4px 28px; font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; color: var(--ink); }
+  html.dark .ktt-dash { --ktt-chinh: #7aa7ff; --ktt-xanh: #6fd394; --ktt-xanh-nen: #15291d; --ktt-vang: #f0b860; --ktt-vang-nen: #2f2410;
+    --ktt-do: #ff8f8f; --ktt-do-nen: #351818; --ktt-xam-nen: #232a34; --ktt-chon: #1f2731; }
+  .ktt-dash b { font-weight: 600; }
+  .ktt-nho { color: var(--muted); font-size: 12px; }
+  .ktt-cty { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .ktt-cty-nut { font: inherit; font-size: 12.5px; text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .ktt-cty-nut span { display: block; color: var(--muted); font-size: 11.5px; }
+  .ktt-cty-nut.on { border-color: var(--ktt-chinh); box-shadow: inset 0 0 0 1px var(--ktt-chinh); }
+  .ktt-dau { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .ktt-dau h1 { font-size: 19px; font-weight: 600; margin: 0 0 3px; }
+  .ktt-dau-nut { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .ktt-nut { font: inherit; font-size: 12.5px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+  .ktt-nut:hover { border-color: var(--muted); }
+  .ktt-nut.ktt-chinh { background: var(--ktt-chinh); border-color: var(--ktt-chinh); color: #fff; }
+  html.dark .ktt-nut.ktt-chinh { color: #0e1217; }
+  .ktt-chon-ky { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .ktt-chon-ky span { padding: 5px 12px; cursor: pointer; color: var(--muted); }
+  .ktt-chon-ky span.on { background: var(--ktt-chinh); color: #fff; }
+  html.dark .ktt-chon-ky span.on { color: #0e1217; }
+  .ktt-tom { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ktt-tom span { padding: 4px 12px; border-radius: 999px; font-size: 12.5px; }
+  .ktt-tom .ktt-loi, .ktt-huy.ktt-loi { background: var(--ktt-do-nen); color: var(--ktt-do); }
+  .ktt-tom .ktt-xem, .ktt-huy.ktt-xem { background: var(--ktt-vang-nen); color: var(--ktt-vang); }
+  .ktt-tom .ktt-xong, .ktt-huy.ktt-xong { background: var(--ktt-xanh-nen); color: var(--ktt-xanh); }
+  .ktt-tom .ktt-cho, .ktt-huy.ktt-cho { background: var(--ktt-xam-nen); color: var(--muted); }
+  .ktt-huy { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .ktt-ky { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; display: grid; grid-template-columns: 5px minmax(0, 1fr); overflow: hidden; }
+  .ktt-vach { background: var(--line); }
+  .ktt-ky.ktt-loi .ktt-vach { background: var(--ktt-do); } .ktt-ky.ktt-xem .ktt-vach { background: var(--ktt-vang); }
+  .ktt-ky.ktt-xong .ktt-vach { background: var(--ktt-xanh); } .ktt-ky.ktt-cho .ktt-vach { background: var(--ktt-chinh); }
+  .ktt-than { padding: 12px 16px; }
+  .ktt-tren { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .ktt-tren b { font-size: 14.5px; }
+  .ktt-trang-thai { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+  .ktt-ky.ktt-loi .ktt-trang-thai { background: var(--ktt-do-nen); color: var(--ktt-do); }
+  .ktt-ky.ktt-xem .ktt-trang-thai { background: var(--ktt-vang-nen); color: var(--ktt-vang); }
+  .ktt-ky.ktt-xong .ktt-trang-thai { background: var(--ktt-xanh-nen); color: var(--ktt-xanh); }
+  .ktt-ky.ktt-cho .ktt-trang-thai { background: var(--ktt-xam-nen); color: var(--muted); }
+  .ktt-mo-ta { color: var(--muted); margin: 6px 0 8px; line-height: 1.55; }
+  .ktt-ky.ktt-loi .ktt-mo-ta div:first-child { color: var(--ktt-do); }
+  .ktt-so-lieu { display: flex; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+  .ktt-so-lieu b { color: var(--ink); font-variant-numeric: tabular-nums; font-size: 13px; }
+  .ktt-hanh-dong { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .ktt-tong { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 18px 0 14px; }
+  .ktt-tong div { padding: 10px 14px; border-right: 1px solid var(--line); }
+  .ktt-tong div:last-child { border-right: 0; }
+  .ktt-tong span { display: block; color: var(--muted); font-size: 12px; }
+  .ktt-tong b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .ktt-am { color: var(--ktt-do); }
+  .ktt-khoi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+  .ktt-khoi-dau { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+  .ktt-khoi-dau span { color: var(--muted); font-size: 12px; }
+  .ktt-bang { width: 100%; border-collapse: collapse; }
+  .ktt-bang th { font-weight: 600; color: var(--muted); font-size: 12px; text-align: right; padding: 7px 14px; border-bottom: 1px solid var(--line); background: var(--ktt-chon); white-space: nowrap; }
+  .ktt-bang td { padding: 7px 14px; text-align: right; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .ktt-bang th:first-child, .ktt-bang td:first-child { text-align: left; }
+  .ktt-bang tr:last-child td { border-bottom: 0; }
+  .ktt-bang tr.ktt-mo { cursor: pointer; }
+  .ktt-bang tr.ktt-mo:hover td { background: var(--ktt-chon); }
+  .ktt-bang tr.ktt-cong td { font-weight: 600; background: var(--ktt-chon); }
+  .ktt-hai { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .ktt-hai { grid-template-columns: 1fr; } .ktt-tong { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .ktt-chan { color: var(--muted); font-size: 11.5px; text-align: center; margin-top: 6px; }
+
   /* Lập tờ khai 01/GTGT */
   .lt-dlg { width: min(860px, 96vw); max-height: 92vh; overflow: auto; font-size: 13px; }
   .lt-ghi { color: var(--muted); font-size: 12px; font-weight: 400; }
@@ -1177,6 +1245,7 @@
 <script src="nganh-doc.js"></script>
 <script src="doi-chieu.js"></script>
 <script src="lap-to-khai.js"></script>
+<script src="dashboard-ke-toan.js"></script>
 <script src="dashboard-dong.js"></script>
 <script src="phien-ban.js"></script>
 <script>
@@ -3272,8 +3341,13 @@
     } else if (selectedFolder) {
       fTitle = selectedFolder.split('/').pop();
     }
-    if (window.DASHBOARD_DONG) {
-      $('main').innerHTML = khoiDoiChieuDashboard(fDocs) + window.DASHBOARD_DONG.renderExecutiveDashboard(fDocs, fTitle, selectedFolder);
+    // Dashboard kế toán khi hoá đơn / tờ khai thuế là loại chính của thư mục; thư mục trộn nhiều ngành giữ trang tổng quan
+    const nganhChinh = window.DASHBOARD_DONG ? window.DASHBOARD_DONG.detectDominantDomain(fDocs) : 'hd';
+    if (window.DASHBOARD_KE_TOAN && nganhChinh === 'hd' && window.DASHBOARD_KE_TOAN.coDuLieu(fDocs)) {
+      $('main').innerHTML = window.DASHBOARD_KE_TOAN.ve(docs, fDocs, { myMst }) || '';
+      $('main').scrollTop = 0;
+    } else if (window.DASHBOARD_DONG) {
+      $('main').innerHTML = window.DASHBOARD_DONG.renderExecutiveDashboard(fDocs, fTitle, selectedFolder);
       $('main').scrollTop = 0;
     }
     renderList();
@@ -3560,17 +3634,6 @@
       <span style="color:var(--muted)">${esc(tk.kyTen)} · MST ${esc(tk.mst)} · ${k.soMua} HĐ mua vào, ${k.soBan} HĐ bán ra${tk.lanDau ? '' : ` · tờ khai bổ sung lần ${tk.soLan}`}</span></summary>
       <div class="dc-body">${body}</div></details>`;
   }
-  function khoiDoiChieuDashboard(dsTrongThuMuc) {
-    if (!window.DOI_CHIEU) return '';
-    const kq = window.DOI_CHIEU.tinh(docs).filter(k => dsTrongThuMuc.includes(docs[k.tkIdx]));
-    if (!kq.length) return '';
-    const so = v => money(Math.round(v || 0)) || '0';
-    return `<div class="dash-box dc-dash"><h3>🔎 Đối chiếu tờ khai 01/GTGT ↔ hoá đơn (${kq.length} tờ khai)</h3>
-      <table class="dash-tbl"><thead><tr><th>Người nộp thuế</th><th>MST</th><th>Kỳ</th><th>HĐ mua / bán</th><th>Phải nộp [40]</th><th>Kết quả</th></tr></thead><tbody>
-      ${kq.map(k => `<tr class="dash-doc-click" data-mo-doc="${k.tkIdx}" style="cursor:pointer"><td><b>${esc(k.tk.ten || docs[k.tkIdx].ten || '')}</b></td><td>${esc(k.tk.mst)}</td>
-        <td>${esc(k.tk.kyTen)}${k.tk.lanDau ? '' : ` (bổ sung ${k.tk.soLan})`}</td><td>${k.soMua} / ${k.soBan}</td><td>${so(k.tk.ct.ct40)}${k.daNop ? (k.daNop.khop ? ' ✔ đã nộp đủ' : ` ✖ đã nộp ${so(k.daNop.daNop)}`) : ''}</td><td>${chipDoiChieu(k)}</td></tr>`).join('')}
-      </tbody></table></div>`;
-  }
   // ---------- Lập tờ khai 01/GTGT từ hoá đơn (lap-to-khai.js) ----------
   const docSoNhap = v => { const t = String(v || '').replace(/[^\d-]/g, ''); return t && t !== '-' ? parseInt(t, 10) : 0; };
   const KHOA_DN = mst => 'xmlpro_dn_' + mst;
@@ -3631,7 +3694,8 @@
     try { localStorage.setItem(KHOA_DN(dn.mst), JSON.stringify(dn)); } catch (e) { }
     return { xml: L.xmlGTGT(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst) };
   }
-  function moDlgLapTk() {
+  function moDlgLapTk(dat) {
+    dat = dat && typeof dat === 'object' && !(dat instanceof Event) ? dat : {};
     if (!window.LAP_TO_KHAI || !window.DOI_CHIEU) return alert('Chưa nạp được module lập tờ khai.');
     const DC = window.DOI_CHIEU;
     // Danh sách MST có trong hoá đơn đã nạp (bên bán hoặc bên mua), kèm số hoá đơn và hoá đơn mới nhất
@@ -3648,7 +3712,7 @@
     }
     if (!dem.size) return alert('Chưa có hoá đơn nào. Kéo thư mục / file zip hoá đơn mua vào và bán ra của kỳ cần lập vào app trước.');
     const ds = [...dem.entries()].sort((a, b) => b[1].n - a[1].n);
-    const macDinh = myMst && dem.has(DC.sachMst(myMst)) ? DC.sachMst(myMst) : ds[0][0];
+    const macDinh = dat.mst && dem.has(DC.sachMst(dat.mst)) ? DC.sachMst(dat.mst) : myMst && dem.has(DC.sachMst(myMst)) ? DC.sachMst(myMst) : ds[0][0];
     $('ltMst').innerHTML = ds.map(([m, g]) => `<option value="${m}">${esc(m)} — ${esc(g.ten)} (${g.n} HĐ)</option>`).join('');
     $('ltMst').value = macDinh;
     // Kỳ mặc định: quý chứa hoá đơn mới nhất của MST
@@ -3656,12 +3720,17 @@
     const mm = /^(\d{4})-(\d{2})/.exec(moi);
     $('ltKieu').value = 'Q'; ltDienSo();
     if (mm) { $('ltNam').value = mm[1]; $('ltSo').value = String(Math.ceil(Number(mm[2]) / 3)); } else $('ltNam').value = new Date().getFullYear();
+    if (dat.ky) {
+      $('ltKieu').value = dat.ky.kieu; ltDienSo();
+      $('ltSo').value = String(dat.ky.kieu === 'Q' ? dat.ky.quy : dat.ky.thang); $('ltNam').value = dat.ky.nam;
+    }
     document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { i.value = '0'; });
     $('ltCt21').checked = false;
     ltNapMstKy();
     $('dlgLapTk').showModal();
   }
-  $('btnLapTk').onclick = moDlgLapTk;
+  $('btnLapTk').onclick = () => moDlgLapTk();
+  if (window.DASHBOARD_KE_TOAN) window.DASHBOARD_KE_TOAN.ganSuKien($('main'), () => { if (selected === -2) moDashboard(); }, moDlgLapTk);
   $('ltDong').onclick = () => $('dlgLapTk').close();
   $('ltMst').onchange = ltNapMstKy;
   $('ltKieu').onchange = () => { ltDienSo(); ltNapMstKy(); };
