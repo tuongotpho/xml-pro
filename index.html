@@ -20,12 +20,18 @@
   aside { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
   .top { padding: 14px; border-bottom: 1px solid var(--line); }
   .top h1 { font-size: 17px; margin: 0 0 10px; }
-  .drop { border: 2px dashed var(--line); border-radius: 8px; padding: 12px; text-align: center; color: var(--muted); }
+  .drop { border: 2px dashed var(--line); border-radius: 8px; padding: 12px; text-align: center; color: var(--muted); cursor: pointer; transition: all .15s ease; }
+  .drop:hover { border-color: var(--accent); background: #f0f9ff; }
   .drop.over { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
   .drop b { color: var(--ink); }
-  .picks { display: flex; gap: 6px; margin-top: 8px; justify-content: center; }
+  .picks { display: flex; gap: 8px; margin-top: 8px; justify-content: center; }
+  .btn-pick { display: inline-flex; align-items: center; justify-content: center; font: inherit; font-size: 12.5px; font-weight: 500; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); cursor: pointer; user-select: none; transition: all .15s ease; }
+  .btn-pick:hover { background: #f1f5f9; border-color: #cbd5e1; }
+  .btn-pick.pri { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-pick.pri:hover { background: #0274b3; }
+  .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; opacity: 0 !important; pointer-events: none !important; }
   .tools { display: flex; gap: 6px; margin-top: 10px; }
-  .tools input { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+  .tools input { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
   button { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
   button:hover { background: var(--bg); }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -522,20 +528,18 @@
   <aside>
     <div class="top">
       <h1>XML-Pro</h1>
-      <div class="drop" id="drop">
+      <div class="drop" id="drop" title="Bấm để chọn file hoặc kéo thả file / thư mục vào đây">
         <b>Kéo thả file hoặc cả thư mục vào đây</b><br>
         <small>Tờ khai HTKK, thông báo thuế, chứng từ nộp tiền, hoá đơn điện tử (.xml), hoặc file .zip</small>
         <div class="picks">
-          <button id="btnFile">Chọn file…</button>
-          <button id="btnDir">Chọn thư mục…</button>
+          <label for="pick" class="btn-pick pri" id="btnFile">📂 Chọn file…</label>
+          <label for="pickDir" class="btn-pick" id="btnDir">📁 Chọn thư mục…</label>
         </div>
       </div>
-      <input type="file" id="pick" accept=".xml,.zip" multiple hidden>
-      <input type="file" id="pickDir" webkitdirectory multiple hidden>
+      <input type="file" id="pick" class="sr-only" accept=".xml,.zip" multiple>
+      <input type="file" id="pickDir" class="sr-only" webkitdirectory multiple>
       <div class="tools">
         <input id="q" placeholder="Tìm: tên mẫu, MST, kỳ, tên file…">
-        <button id="btnDashTop" title="Mở Bảng điều hành Dashboard phân tích thông minh" style="background:#0284c7;color:#fff;border-color:#0284c7;font-weight:600;white-space:nowrap">📊 Dashboard</button>
-        <button id="btnXuatExcel" title="Xuất toàn bộ bảng kê hóa đơn / hồ sơ thuế ra file Excel (.xlsx)" style="background:#15803d;color:#fff;border-color:#15803d;font-weight:600;white-space:nowrap">📊 Excel</button>
         <button id="clear" title="Xoá danh sách">Xoá</button>
       </div>
       <div class="kt-tools">
@@ -549,7 +553,7 @@
     </div>
     <div id="ktDash" class="kt-dash" style="display:none"></div>
     <div class="summary" id="summary">Chưa có file nào.</div>
-    <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay">📁 Cây thư mục</button><button id="segLs">Lịch sử</button></div>
+    <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay" title="Khám phá cấu trúc thư mục & tập tin (Explorer)">📁 Explorer</button><button id="segLs">Lịch sử</button></div>
     <div id="folderFilterBar" class="folder-filter-bar" style="display:none">
       <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📁 <b id="lblCurrentFolder">Thư mục</b> (<span id="lblFolderCount">0</span>)</span>
       <div style="display:flex;gap:4px;flex-shrink:0">
@@ -571,6 +575,10 @@
   <main id="main">
     <div class="empty" id="homeEmpty">
       <h2>XML-Pro — Trình xem & Trích xuất chứng từ điện tử</h2>
+      <div style="display:flex;gap:12px;margin:16px 0 20px;flex-wrap:wrap">
+        <button type="button" id="btnEmptyFile" class="primary" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📂 Chọn file XML / Zip…</button>
+        <button type="button" id="btnEmptyDir" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📁 Chọn cả thư mục…</button>
+      </div>
       <p>Mở được các loại chứng từ XML chuẩn quốc gia:</p>
       <ul>
         <li><b>Tờ khai, phụ lục, báo cáo tài chính</b> xuất từ HTKK / eTax (gốc <code>HSoThueDTu</code>, và cả file lưu nháp trong <code>HTKK\DataFiles</code>): 01/GTGT, 05/KK-TNCN, 05/QTT-TNCN, 03/TNDN, BCTC TT200, TT133…</li>
@@ -2140,7 +2148,9 @@
   // Các lượt nạp xếp hàng lần lượt (2 lượt đến sát nhau không chạy chen nhau, tab được chọn luôn đúng).
   let chuoiNap = Promise.resolve();
   function addFiles(fileList) {
-    chuoiNap = chuoiNap.then(() => napLoat(fileList)).catch(e => console.error(e));
+    const list = Array.from(fileList || []);
+    if (!list.length) return Promise.resolve();
+    chuoiNap = chuoiNap.then(() => napLoat(list)).catch(e => console.error(e));
     return chuoiNap;
   }
   // Nạp một loạt file; mở (chọn tab) file đầu tiên của loạt này.
@@ -2334,7 +2344,7 @@
   function renderCayThuMuc() {
     if (!window.DASHBOARD_DONG) return;
     folderTreeRoot = window.DASHBOARD_DONG.buildFolderTree(docs);
-    $('summary').innerHTML = `Cây thư mục: <b>${docs.length}</b> file trong <b>${demSoThuMuc(folderTreeRoot)}</b> nhánh.`;
+    $('summary').innerHTML = `Explorer: <b>${docs.length}</b> file trong <b>${demSoThuMuc(folderTreeRoot)}</b> nhánh.`;
     $('list').innerHTML = window.DASHBOARD_DONG.renderTreeHtml(folderTreeRoot, selectedFolder, 0, docs, selected);
   }
 
@@ -2601,14 +2611,87 @@
     const docsToExport = selectedFolder ? layDanhSachTheoThuMuc() : docs;
     if (window.xuatExcel) window.xuatExcel(docsToExport);
   };
-  $('btnXuatExcel').onclick = handleXuatExcel;
+  if ($('btnXuatExcel')) $('btnXuatExcel').onclick = handleXuatExcel;
   document.addEventListener('click', e => {
     if (e.target && e.target.closest('.btn-xuat-excel')) handleXuatExcel();
   });
-  $('btnFile').onclick = () => $('pick').click();
-  $('btnDir').onclick = () => $('pickDir').click();
-  $('pick').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
-  $('pickDir').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+
+  async function chonTep() {
+    if (window.showOpenFilePicker) {
+      try {
+        const handles = await window.showOpenFilePicker({
+          multiple: true,
+          types: [{
+            description: 'Tài liệu XML & Zip',
+            accept: {
+              'text/xml': ['.xml'],
+              'application/xml': ['.xml'],
+              'application/zip': ['.zip'],
+              'application/x-zip-compressed': ['.zip']
+            }
+          }]
+        });
+        const fileList = [];
+        for (const h of handles) {
+          const f = await h.getFile();
+          fileList.push(f);
+        }
+        if (fileList.length) addFiles(fileList);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+    $('pick').click();
+  }
+
+  async function chonThuMuc() {
+    if (window.showDirectoryPicker) {
+      try {
+        const dirHandle = await window.showDirectoryPicker();
+        const fileList = [];
+        async function readDir(h, prefix) {
+          for await (const entry of h.values()) {
+            if (entry.kind === 'file') {
+              const lower = (entry.name || '').toLowerCase();
+              if (lower.endsWith('.xml') || lower.endsWith('.zip')) {
+                const f = await entry.getFile();
+                f.relPath = prefix + entry.name;
+                fileList.push(f);
+              }
+            } else if (entry.kind === 'directory') {
+              await readDir(entry, prefix + entry.name + '/');
+            }
+          }
+        }
+        await readDir(dirHandle, dirHandle.name + '/');
+        if (fileList.length) addFiles(fileList);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+    $('pickDir').click();
+  }
+
+  $('btnFile').onclick = (e) => { e.preventDefault(); chonTep(); };
+  $('btnDir').onclick = (e) => { e.preventDefault(); chonThuMuc(); };
+  $('pick').onchange = e => {
+    const list = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (list.length) addFiles(list);
+  };
+  $('pickDir').onchange = e => {
+    const list = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (list.length) addFiles(list);
+  };
+
+  drop.onclick = e => {
+    if (e.target.closest('#btnFile') || e.target.closest('#btnDir')) return;
+    chonTep();
+  };
+
   ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop' || !e.relatedTarget) drop.classList.remove('over'); }));
   document.addEventListener('drop', async e => {
@@ -2662,6 +2745,8 @@
     if (selected === -2) moDashboard('');
   };
   $('main').addEventListener('click', e => {
+    if (e.target.closest('#btnEmptyFile')) return chonTep();
+    if (e.target.closest('#btnEmptyDir')) return chonThuMuc();
     const docRow = e.target.closest('.dash-doc-click');
     if (docRow && docRow.dataset.docSrc) {
       const idx = docs.findIndex(d => d.source === docRow.dataset.docSrc);
