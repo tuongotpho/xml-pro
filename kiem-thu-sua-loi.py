@@ -177,6 +177,8 @@ def kiem_doi_chieu(ev, J, hd):
     # Dữ liệu thật (thư mục HD-TK chỉ có trên máy anh, không đưa lên git): quý 3/2026 + giấy nộp tiền + zip hoá đơn
     that = os.path.join(APP, 'HD-TK')
     if not os.path.isdir(that):
+        that = os.environ.get('XMLPRO_HD_TK', that)  # thư mục dữ liệu thật ở chỗ khác (vd thư mục làm việc khác của cùng kho)
+    if not os.path.isdir(that):
         print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
         return
     tep = [os.path.join(that, f) for f in sorted(os.listdir(that)) if f.lower().endswith(('.xml', '.zip'))]
@@ -194,8 +196,12 @@ def kiem_doi_chieu(ev, J, hd):
           return window.DOI_CHIEU.tinh(A.docs).map(k => ({ ky: k.tk.kyTen, trangThai: k.trangThai, mua: k.soMua, ban: k.soBan, soLech: k.soLech,
              daNop: k.daNop && k.daNop.khop, dong: k.dong.filter(r => r.toKhai || r.hoaDon).map(r => r.ma + (r.khop ? '✔' : '✖')).join(' ') })); })()'''
            % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
-    danh_gia('Đối chiếu dữ liệu thật HD-TK: mọi tờ khai khớp hoá đơn và đã nộp đủ [40]',
-             bool(r) and all(k['trangThai'] == 'khop' and k['daNop'] for k in r), J(r, ensure_ascii=False))
+    # Quý 3/2026 đã kiểm tay: khớp hoá đơn và có giấy nộp tiền. Các tờ khai khác trong HD-TK có thể lệch thật
+    # (báo cáo 07, mục B) — chỉ yêu cầu đối chiếu chạy được và liệt kê kết quả.
+    q3 = [k for k in r if k['ky'] == 'Quý 3/2026']
+    danh_gia('Đối chiếu dữ liệu thật HD-TK: quý 3/2026 khớp hoá đơn và đã nộp đủ [40]; các kỳ khác đều đối chiếu được',
+             len(q3) == 1 and q3[0]['trangThai'] == 'khop' and q3[0]['daNop'] and all(k['trangThai'] in ('khop', 'lech') for k in r),
+             J(r, ensure_ascii=False))
 
 
 def nap_lai_trang(ev):
@@ -248,12 +254,16 @@ def kiem_lap_to_khai(ev, J, hd):
 
     that = os.path.join(APP, 'HD-TK')
     if not os.path.isdir(that):
+        that = os.environ.get('XMLPRO_HD_TK', that)  # thư mục dữ liệu thật ở chỗ khác (vd thư mục làm việc khác của cùng kho)
+    if not os.path.isdir(that):
         print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
         return
     nap_lai_trang(ev)
     tep = {f: os.path.join(that, f) for f in os.listdir(that)}
     zipf = [f for f in tep if f.lower().endswith('.zip')]
-    tkf = [f for f in tep if '01_GTGT' in f and f.lower().endswith('.xml')]
+    # Chỉ so từng ô với tờ khai KHỚP hoá đơn (quý 3/2026); tờ khai lệch thật thì lập lại tất nhiên khác (báo cáo 07)
+    tkf = [f for f in tep if f.lower().endswith('.xml') and '<kyKKhai>3/2026</kyKKhai>' in open(tep[f], encoding='utf-8-sig', errors='ignore').read()
+           and '<maTKhai>842</maTKhai>' in open(tep[f], encoding='utf-8-sig', errors='ignore').read()]
     r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
           const mk = ([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); };
           await A.addFiles(%s.map(mk));
@@ -296,7 +306,10 @@ def main():
     sot = [k for k in ('api/rename', 'api/poll', 'HttpListener') if k in nguon or k in host]
     danh_gia('A2/A3: không còn máy chủ nội bộ trong mã', not sot, 'còn: ' + ', '.join(sot) if sot else '')
     csp = re.search(r'Content-Security-Policy" content="([^"]+)"', nguon).group(1)
-    danh_gia('A3: CSP chỉ cho kết nối nội bộ (connect-src \'self\')', "connect-src 'self';" in csp, csp.split('connect-src')[1].split(';')[0])
+    # Bản 3 (vỏ WebView2) thêm đúng một địa chỉ nội bộ phục vụ tệp người dùng đã chọn — không địa chỉ nào khác
+    nguon_ket_noi = csp.split('connect-src')[1].split(';')[0].split()
+    danh_gia('A3: CSP chỉ cho kết nối nội bộ (\'self\' + https://tep.xml-pro.example của vỏ)',
+             sorted(nguon_ket_noi) in (["'self'"], ["'self'", 'https://tep.xml-pro.example']), ' '.join(nguon_ket_noi))
 
     print('=== 1. Windows .NET kiểm chữ ký (chuẩn đối chiếu) ===')
     net = kiem_bang_dotnet(hd + [tep_gia_mao, tep_sua])
