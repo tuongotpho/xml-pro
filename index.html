@@ -303,6 +303,20 @@
   html.dark .itax-tabs button:hover { background: #334155; color: #f1f5f9; }
   html.dark .itax-tabs button.on { background: #38bdf8; border-color: #38bdf8; color: #0f172a; }
   html.dark .itax-tabs { border-bottom-color: #38bdf8; }
+  /* Lập tờ khai 01/GTGT */
+  .lt-dlg { width: min(860px, 96vw); max-height: 92vh; overflow: auto; font-size: 13px; }
+  .lt-ghi { color: var(--muted); font-size: 12px; font-weight: 400; }
+  .lt-hang { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .lt-hang label, .lt-luoi label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+  .lt-hang select, .lt-hang input, .lt-luoi input { font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); color: var(--ink); }
+  .lt-hang select#ltMst { min-width: 300px; }
+  .lt-dem { margin: 4px 0 8px; font-weight: 600; }
+  .lt-khoi { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 6px 0; }
+  .lt-khoi summary { cursor: pointer; font-weight: 600; }
+  .lt-luoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 12px; margin-top: 8px; }
+  .lt-luoi label.lt-chk { flex-direction: row; align-items: center; grid-column: 1 / -1; color: var(--ink); }
+  .lt-luoi input[data-nt] { text-align: right; font-variant-numeric: tabular-nums; }
+
   /* Đối chiếu tờ khai 01/GTGT ↔ hoá đơn */
   .dc-panel { max-width: 1000px; margin: 0 auto 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; }
   .dc-panel > summary { cursor: pointer; padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; list-style: none; }
@@ -961,6 +975,11 @@
           🏷 Đổi tên file
         </button>
       </div>
+      <div class="kt-tools">
+        <button id="btnLapTk" class="btn-kt" title="Lập tờ khai thuế GTGT 01/GTGT (tháng hoặc quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">
+          📝 Lập tờ khai 01/GTGT từ hoá đơn
+        </button>
+      </div>
     </div>
     <div class="summary" id="summary">Chưa có file nào.</div>
     <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay" title="Khám phá cấu trúc thư mục & tập tin (Explorer)">📁 Explorer</button><button id="segLs">Lịch sử</button></div>
@@ -1058,6 +1077,51 @@
 </dialog>
 
 <!-- HỘP THOẠI CÀI ĐẶT MST DOANH NGHIỆP -->
+<dialog id="dlgLapTk" class="lt-dlg">
+  <h3 style="margin:0 0 4px">📝 Lập tờ khai 01/GTGT từ hoá đơn đã nạp</h3>
+  <div class="lt-ghi">Mẫu 01/GTGT (TT80/2021), phương pháp khấu trừ, khai lần đầu. App cộng hoá đơn mua vào / bán ra của MST trong kỳ theo đúng quy tắc của phần đối chiếu. File XML xuất ra <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
+  <div class="lt-hang">
+    <label>Doanh nghiệp (MST)<select id="ltMst"></select></label>
+    <label>Kỳ<select id="ltKieu"><option value="Q">Quý</option><option value="M">Tháng</option></select></label>
+    <label>Số<select id="ltSo"></select></label>
+    <label>Năm<input id="ltNam" type="number" min="2020" max="2099" style="width:80px"></label>
+  </div>
+  <div id="ltDem" class="lt-dem"></div>
+  <details class="lt-khoi" open><summary>Thông tin người nộp thuế <span id="ltNguonDn" class="lt-ghi"></span></summary>
+    <div class="lt-luoi">
+      <label>Tên người nộp thuế<input data-dn="tenNNT"></label>
+      <label>Địa chỉ<input data-dn="dchiNNT"></label>
+      <label>Phường / xã<input data-dn="phuongXa"></label>
+      <label>Mã tỉnh<input data-dn="maTinhNNT" style="width:70px"></label>
+      <label>Tên tỉnh<input data-dn="tenTinhNNT"></label>
+      <label>Điện thoại<input data-dn="dthoaiNNT"></label>
+      <label>Email<input data-dn="emailNNT"></label>
+      <label>Mã CQT nơi nộp<input data-dn="maCQTNoiNop" style="width:90px"></label>
+      <label>Tên CQT nơi nộp<input data-dn="tenCQTNoiNop"></label>
+      <label>Người ký<input data-dn="nguoiKy"></label>
+    </div>
+  </details>
+  <details class="lt-khoi" open><summary>Chỉ tiêu không có trong hoá đơn (kế toán tự nhập)</summary>
+    <div class="lt-luoi">
+      <label class="lt-chk"><input type="checkbox" id="ltCt21"> [21] Không phát sinh hoạt động mua, bán trong kỳ</label>
+      <label>[22] Thuế còn được khấu trừ kỳ trước chuyển sang<input data-nt="ct22"><span id="ltNguon22" class="lt-ghi"></span></label>
+      <label>[23a] Giá trị HHDV nhập khẩu<input data-nt="ct23a"></label>
+      <label>[24a] Thuế GTGT HHDV nhập khẩu<input data-nt="ct24a"></label>
+      <label>[37] Điều chỉnh giảm<input data-nt="ct37"></label>
+      <label>[38] Điều chỉnh tăng<input data-nt="ct38"></label>
+      <label>[39a] Thuế đã nộp ở địa phương khác<input data-nt="ct39a"></label>
+      <label>[40b] Thuế dự án đầu tư bù trừ<input data-nt="ct40b"></label>
+      <label>[42] Đề nghị hoàn<input data-nt="ct42"></label>
+    </div>
+  </details>
+  <div id="ltXemTruoc"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+    <button type="button" id="ltDong">Đóng</button>
+    <button type="button" id="ltTai">⬇ Tải file XML</button>
+    <button type="button" id="ltLap" class="primary">Lập &amp; mở tờ khai</button>
+  </div>
+</dialog>
+
 <dialog id="dlgMst" style="max-width:440px">
   <h3 style="margin:0 0 6px;color:#1e3a8a">⚙ Cài Đặt MST Doanh Nghiệp Của Bạn</h3>
   <p style="margin:0 0 10px;font-size:12.5px;color:var(--muted);line-height:1.5">
@@ -1112,6 +1176,7 @@
 <script src="xuat-excel.js"></script>
 <script src="nganh-doc.js"></script>
 <script src="doi-chieu.js"></script>
+<script src="lap-to-khai.js"></script>
 <script src="dashboard-dong.js"></script>
 <script src="phien-ban.js"></script>
 <script>
@@ -3476,6 +3541,117 @@
         <td>${esc(k.tk.kyTen)}${k.tk.lanDau ? '' : ` (bổ sung ${k.tk.soLan})`}</td><td>${k.soMua} / ${k.soBan}</td><td>${so(k.tk.ct.ct40)}${k.daNop ? (k.daNop.khop ? ' ✔ đã nộp đủ' : ` ✖ đã nộp ${so(k.daNop.daNop)}`) : ''}</td><td>${chipDoiChieu(k)}</td></tr>`).join('')}
       </tbody></table></div>`;
   }
+  // ---------- Lập tờ khai 01/GTGT từ hoá đơn (lap-to-khai.js) ----------
+  const docSoNhap = v => { const t = String(v || '').replace(/[^\d-]/g, ''); return t && t !== '-' ? parseInt(t, 10) : 0; };
+  const KHOA_DN = mst => 'xmlpro_dn_' + mst;
+  function ltKy() {
+    const kieu = $('ltKieu').value, so = Number($('ltSo').value), nam = Number($('ltNam').value);
+    return kieu === 'Q' ? { kieu, quy: so, nam } : { kieu, thang: so, nam };
+  }
+  function ltDienSo() {
+    const kieu = $('ltKieu').value, cu = $('ltSo').value;
+    $('ltSo').innerHTML = (kieu === 'Q' ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).map(n => `<option value="${n}">${kieu === 'Q' ? 'Quý ' + n : 'Tháng ' + n}</option>`).join('');
+    if (cu && [...$('ltSo').options].some(o => o.value === cu)) $('ltSo').value = cu;
+  }
+  function ltNhapTay() {
+    const n = { ct21: $('ltCt21').checked };
+    document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { n[i.dataset.nt] = docSoNhap(i.value); });
+    return n;
+  }
+  function ltDn() {
+    const dn = { mst: $('ltMst').value };
+    document.querySelectorAll('#dlgLapTk [data-dn]').forEach(i => { dn[i.dataset.dn] = i.value.trim(); });
+    return dn;
+  }
+  // Đổi MST hoặc kỳ: điền lại thông tin DN và [22]
+  function ltNapMstKy() {
+    const L = window.LAP_TO_KHAI, mst = $('ltMst').value;
+    let dn = null;
+    try { dn = JSON.parse(localStorage.getItem(KHOA_DN(mst)) || 'null'); } catch (e) { }
+    const tu = L.thongTinDN(docs, mst);
+    const nguon = tu.nguon && (!dn || tu.nguon.startsWith('tờ khai')) ? tu : null;
+    const dung = nguon || dn || tu;
+    document.querySelectorAll('#dlgLapTk [data-dn]').forEach(i => { i.value = dung[i.dataset.dn] || ''; });
+    $('ltNguonDn').textContent = nguon ? `— lấy từ ${nguon.nguon}` : dn ? '— lấy từ lần lập trước trên máy này' : tu.nguon ? `— lấy từ ${tu.nguon}, cần bổ sung` : '— chưa có, cần nhập';
+    const c22 = L.timCt22(docs, mst, ltKy());
+    const o = document.querySelector('#dlgLapTk [data-nt="ct22"]');
+    o.value = c22 ? money(c22.ct22) || '0' : (o.value || '0');
+    $('ltNguon22').textContent = c22 ? `= [43] tờ khai lần đầu ${c22.ky} đang nạp` : 'Chưa nạp tờ khai kỳ trước — tự nhập (= [43] tờ khai lần đầu kỳ trước)';
+    ltTinhLai();
+  }
+  let _ltKq = null;
+  function ltTinhLai() {
+    const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
+    if (!mst || !ky.nam) { $('ltXemTruoc').innerHTML = ''; return; }
+    _ltKq = L.tinhGTGT(docs, mst, ky, ltNhapTay());
+    const k = _ltKq, c = k.ct, so = v => money(v) || '0';
+    $('ltDem').textContent = `${k.ky.ten} (${k.ky.tuVN} → ${k.ky.denVN}): ${k.mua.length} hoá đơn mua vào, ${k.ban.length} hoá đơn bán ra`;
+    const dong = [['[22]', 'Thuế kỳ trước chuyển sang', c.ct22], ['[23]', 'Giá trị HHDV mua vào', c.ct23], ['[24]', 'Thuế GTGT mua vào', c.ct24], ['[25]', 'Thuế được khấu trừ', c.ct25],
+      ['[26]', 'Bán ra không chịu thuế', c.ct26], ['[29]', 'Bán ra 0%', c.ct29], ['[30]', 'Bán ra 5% — giá trị', c.ct30], ['[31]', 'Bán ra 5% — thuế', c.ct31],
+      ['[32]', 'Bán ra 10% / 8% — giá trị', c.ct32], ['[33]', 'Bán ra 10% / 8% — thuế', c.ct33], ['[32a]', 'Bán ra KKKNT', c.ct32a], ['[34]', 'Tổng doanh thu', c.ct34],
+      ['[35]', 'Tổng thuế bán ra', c.ct35], ['[36]', 'Thuế phát sinh', c.ct36], ['[40]', 'Thuế phải nộp', c.ct40], ['[41]', 'Chưa khấu trừ hết', c.ct41], ['[43]', 'Chuyển kỳ sau', c.ct43]];
+    $('ltXemTruoc').innerHTML = `<div class="dc-h">Xem trước</div>
+      <table class="dc-tbl"><tbody>${dong.filter(r => r[2] || ['[22]', '[23]', '[24]', '[34]', '[35]', '[40]', '[43]'].includes(r[0])).map(r => `<tr><td><b>${r[0]}</b> ${esc(r[1])}</td><td class="so">${so(r[2])}</td></tr>`).join('')}</tbody></table>
+      ${k.plMua.length || k.plBan.length ? `<div class="lt-ghi">Phụ lục giảm thuế NQ142: ${k.plMua.length} người bán (mua vào 8%: ${so(k.tongPlMua.giaTri)} đ), ${k.plBan.length} người mua (bán ra 8%: ${so(k.tongPlBan.giaTri)} đ, thuế được giảm ${so(k.tongPlBan.thueGiam)} đ).</div>` : ''}
+      ${k.canhBao.map(b => `<div class="${b.muc === 'loi' ? 'dc-goiy' : 'lt-ghi'}" style="margin-top:4px">${b.muc === 'loi' ? '✖' : '⚠'} ${esc(b.noiDung)}</div>`).join('')}`;
+  }
+  function ltXml() {
+    const L = window.LAP_TO_KHAI, ky = ltKy(), dn = ltDn();
+    if (!_ltKq) ltTinhLai();
+    try { localStorage.setItem(KHOA_DN(dn.mst), JSON.stringify(dn)); } catch (e) { }
+    return { xml: L.xmlGTGT(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst) };
+  }
+  function moDlgLapTk() {
+    if (!window.LAP_TO_KHAI || !window.DOI_CHIEU) return alert('Chưa nạp được module lập tờ khai.');
+    const DC = window.DOI_CHIEU;
+    // Danh sách MST có trong hoá đơn đã nạp (bên bán hoặc bên mua), kèm số hoá đơn và hoá đơn mới nhất
+    const dem = new Map();
+    for (const d of docs) {
+      if (d.kind !== 'hd' || d.error) continue;
+      for (const p of [d.ban, d.mua]) {
+        const m = DC.sachMst(p?.MST);
+        if (!m) continue;
+        const g = dem.get(m) || { ten: p.Ten || '', n: 0, moiNhat: '' };
+        g.n++; if ((d.ngay || '') > g.moiNhat) g.moiNhat = d.ngay || '';
+        dem.set(m, g);
+      }
+    }
+    if (!dem.size) return alert('Chưa có hoá đơn nào. Kéo thư mục / file zip hoá đơn mua vào và bán ra của kỳ cần lập vào app trước.');
+    const ds = [...dem.entries()].sort((a, b) => b[1].n - a[1].n);
+    const macDinh = myMst && dem.has(DC.sachMst(myMst)) ? DC.sachMst(myMst) : ds[0][0];
+    $('ltMst').innerHTML = ds.map(([m, g]) => `<option value="${m}">${esc(m)} — ${esc(g.ten)} (${g.n} HĐ)</option>`).join('');
+    $('ltMst').value = macDinh;
+    // Kỳ mặc định: quý chứa hoá đơn mới nhất của MST
+    const moi = dem.get(macDinh).moiNhat || '';
+    const mm = /^(\d{4})-(\d{2})/.exec(moi);
+    $('ltKieu').value = 'Q'; ltDienSo();
+    if (mm) { $('ltNam').value = mm[1]; $('ltSo').value = String(Math.ceil(Number(mm[2]) / 3)); } else $('ltNam').value = new Date().getFullYear();
+    document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { i.value = '0'; });
+    $('ltCt21').checked = false;
+    ltNapMstKy();
+    $('dlgLapTk').showModal();
+  }
+  $('btnLapTk').onclick = moDlgLapTk;
+  $('ltDong').onclick = () => $('dlgLapTk').close();
+  $('ltMst').onchange = ltNapMstKy;
+  $('ltKieu').onchange = () => { ltDienSo(); ltNapMstKy(); };
+  $('ltSo').onchange = ltNapMstKy;
+  $('ltNam').onchange = ltNapMstKy;
+  $('dlgLapTk').addEventListener('input', e => { if (e.target.matches('[data-nt], #ltCt21')) ltTinhLai(); });
+  $('ltTai').onclick = () => {
+    const { xml, ten } = ltXml();
+    const url = URL.createObjectURL(new Blob([xml], { type: 'application/xml;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = ten; document.body.appendChild(a); a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
+  };
+  $('ltLap').onclick = () => {
+    const { xml, ten } = ltXml();
+    const i = addText(xml, ten, 'Lập từ hoá đơn/' + ten + ' (' + new Date().toLocaleTimeString('vi-VN') + ')');
+    $('dlgLapTk').close();
+    renderList();
+    select(i);
+  };
+
   // Bấm tên hoá đơn / chứng từ / tờ khai trong khung đối chiếu thì mở tài liệu đó
   $('main').addEventListener('click', e => {
     const a = e.target.closest('[data-mo-doc]');
@@ -4336,7 +4512,7 @@ Read-Host
     getSelectedFolder: () => selectedFolder,
     setSelectedFolder: f => { selectedFolder = f; },
     moIndexedDB, luuPhienIndexedDb, kiemTraPhienCu, khoiPhucPhienCu, boQuaPhienCu,
-    xoaDuLieuPhien, apDungTheme
+    xoaDuLieuPhien, apDungTheme, moDlgLapTk
   };
 })();
 </script>

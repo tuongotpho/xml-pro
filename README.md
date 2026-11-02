@@ -6,6 +6,14 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
+## Phiên bản 2.0.4 — lập tờ khai 01/GTGT tháng / quý từ hoá đơn
+
+Chi tiết ở [06-BAO-CAO-LAP-TO-KHAI-01GTGT.md](06-BAO-CAO-LAP-TO-KHAI-01GTGT.md).
+
+* Nút **"📝 Lập tờ khai 01/GTGT từ hoá đơn"** ở thanh bên: chọn doanh nghiệp (MST — có sẵn danh sách mọi MST trong hoá đơn đã nạp, dùng được cho nhiều công ty), kỳ **tháng hoặc quý**; app cộng hoá đơn mua vào / bán ra, lập đủ chỉ tiêu và phụ lục giảm thuế NQ142, xuất **XML theo khuôn HTKK** (chưa ký số) để nạp HTKK / eTax.
+* Thông tin doanh nghiệp tự lấy từ tờ khai cũ đang nạp (hoặc lần lập trước trên máy, hoặc hoá đơn); [22] tự lấy = [43] tờ khai lần đầu kỳ trước nếu có nạp; các chỉ tiêu không có trong hoá đơn ([21], [23a], [24a], [37], [38], [39a], [40b], [42]) nhập tay, xem trước số liệu ngay.
+* Quy tắc tính chuyển từ app khai thuế (đã khớp tờ khai HTKK nộp thật) và dùng chung cách chọn hoá đơn với phần đối chiếu. Đo: lập lại tờ khai quý 3/2026 thật từ hoá đơn → trùng 109/109 ô dữ liệu.
+
 ## Phiên bản 2.0.3 — đối chiếu tờ khai 01/GTGT với hoá đơn và giấy nộp tiền
 
 Chi tiết ở [05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md](05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md).

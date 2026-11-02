@@ -198,6 +198,81 @@ def kiem_doi_chieu(ev, J, hd):
              bool(r) and all(k['trangThai'] == 'khop' and k['daNop'] for k in r), J(r, ensure_ascii=False))
 
 
+def nap_lai_trang(ev):
+    ev('location.reload(); true')
+    time.sleep(1.5)
+    for _ in range(40):
+        try:
+            if ev('!!window.__xemXmlThue && !!window.LAP_TO_KHAI') is True:
+                return
+        except Exception:
+            pass
+        time.sleep(0.3)
+
+
+def kiem_lap_to_khai(ev, J, hd):
+    print('=== 6. Lập tờ khai 01/GTGT tháng / quý từ hoá đơn (báo cáo 06) ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    kq = cong_hoa_don(hd, MST, '2026-10-01', '2026-10-31')
+    v8 = sum(v for ts, (v, _) in kq['ban'].items() if ts in ('8%', '10%'))
+    giam = sum(round(v * 0.02) for v in kq['pl_ban'].values())
+    mong = {'ct23': round(kq['mua_V']), 'ct24': round(kq['mua_T']), 'ct32': round(v8), 'ct33': round(v8 * 0.1) - giam,
+            'ct32a': round(sum(v for ts, (v, _) in kq['ban'].items() if ts == 'KKKNT'))}
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'lt/' + ten);
+          const ky = { kieu: 'M', thang: 10, nam: 2026 };
+          const k = L.tinhGTGT(A.docs, '%s', ky, { ct22: 1000 });
+          const xml = L.xmlGTGT(k, ky, L.thongTinDN(A.docs, '%s'), '2026-11-02'), ten = L.tenFile(ky, '%s');
+          const i = A.addText(xml, ten, 'lt/' + ten); A.select(i);
+          for (let n = 0; n < 200 && !A.docs[i]._itaxDone; n++) await new Promise(r => setTimeout(r, 50));
+          const dc = window.DOI_CHIEU.choToKhai(A.docs, A.docs[i]);
+          document.getElementById('btnLapTk').click(); await new Promise(r => setTimeout(r, 300));
+          const hop = { mo: document.getElementById('dlgLapTk').open, mst: document.getElementById('ltMst').value, dem: document.getElementById('ltDem').textContent };
+          document.getElementById('dlgLapTk').close();
+          return { ct: k.ct, mua: k.mua.length, ban: k.ban.length, plMua: k.plMua.length, plBan: k.plBan.length, canhBao: k.canhBao.map(c => c.noiDung),
+                   ten, kind: A.docs[i].kind, bieu: (A.docs[i]._itaxSheets || []).length, duPhong: (A.docs[i]._itaxSheets || []).filter(s => s.duPhong).length,
+                   doiChieu: dc && dc.trangThai, kyDoc: dc && dc.tk.kyTen, hop }; })()''' % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), MST, MST, MST))
+    c = r['ct']
+    dung_so = all(c[k] == v for k, v in mong.items())
+    # [22] = 1000 nhập tay → [36] − [22] → [40]
+    dung_cong_thuc = c['ct25'] == c['ct24'] and c['ct34'] == c['ct26'] + c['ct27'] and c['ct36'] == c['ct35'] - c['ct25'] and c['ct40'] == max(c['ct36'] - 1000, 0)
+    danh_gia('Lập tờ khai THÁNG 10/2026 từ 6 HĐ mẫu: số liệu đúng phép cộng Python độc lập, công thức đúng',
+             dung_so and dung_cong_thuc and r['mua'] == 2 and r['ban'] == 4 and r['plMua'] == 1 and r['plBan'] == 1,
+             J({k: (c[k], v) for k, v in mong.items()}, ensure_ascii=False) + ' ' + J(r['canhBao'], ensure_ascii=False))
+    danh_gia('Tờ khai lập ra: tên tệp kiểu HTKK, mở được bằng mẫu iTax, app tự đối chiếu → KHỚP',
+             r['ten'] == f'{MST}000-01_GTGT_TT80-M102026-L00.xml' and r['kind'] == 'tk' and r['bieu'] >= 2 and r['duPhong'] == 0
+             and r['doiChieu'] == 'khop' and r['kyDoc'] == 'Tháng 10/2026', J({k: r[k] for k in ('ten', 'bieu', 'duPhong', 'doiChieu', 'kyDoc')}, ensure_ascii=False))
+    danh_gia('Hộp thoại "Lập tờ khai 01/GTGT" mở, tự chọn đúng MST, đếm hoá đơn trong kỳ',
+             r['hop']['mo'] and r['hop']['mst'] == MST and 'hoá đơn mua vào' in r['hop']['dem'], J(r['hop'], ensure_ascii=False))
+
+    that = os.path.join(APP, 'HD-TK')
+    if not os.path.isdir(that):
+        print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
+        return
+    nap_lai_trang(ev)
+    tep = {f: os.path.join(that, f) for f in os.listdir(that)}
+    zipf = [f for f in tep if f.lower().endswith('.zip')]
+    tkf = [f for f in tep if '01_GTGT' in f and f.lower().endswith('.xml')]
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
+          const mk = ([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); };
+          await A.addFiles(%s.map(mk));
+          const that = %s, x = new DOMParser().parseFromString(that.replace(/^\\uFEFF/, ''), 'application/xml');
+          const g = t => (x.getElementsByTagNameNS('*', t)[0]?.textContent || '').trim();
+          const mst = g('mst'), q = /^(\\d)\\/(\\d{4})$/.exec(g('kyKKhai')), ky = { kieu: 'Q', quy: +q[1], nam: +q[2] };
+          const k = L.tinhGTGT(A.docs, mst, ky, { ct22: Number(g('ct22')) || 0 });
+          A.addText(that, 'that.xml', 'lt/that');
+          const moi = L.xmlGTGT(k, ky, L.thongTinDN(A.docs, mst), g('ngayLapTKhai'));
+          const la = s => { const d = new DOMParser().parseFromString(s.replace(/^\\uFEFF/, ''), 'application/xml'), o = [];
+            const di = (e, p) => { const c = [...e.children], pp = p + '/' + e.localName; if (!c.length) o.push(pp + '=' + e.textContent.trim()); else c.forEach(z => di(z, pp)); };
+            di(d.documentElement, ''); return o.sort(); };
+          const a = la(that), b = la(moi);
+          return { ky: g('kyKKhai'), soO: a.length, chiTrongThat: a.filter(v => !b.includes(v)), chiTrongBanLap: b.filter(v => !a.includes(v)) }; })()'''
+           % (J([[f, base64.b64encode(open(tep[f], 'rb').read()).decode()] for f in zipf]), J(open(tep[tkf[0]], encoding='utf-8-sig').read())))
+    danh_gia(f'Lập lại tờ khai thật quý {r["ky"]} từ hoá đơn (HD-TK): trùng {r["soO"]}/{r["soO"]} ô dữ liệu với tờ khai đã nộp',
+             not r['chiTrongThat'] and not r['chiTrongBanLap'] and r['soO'] > 100, J(r, ensure_ascii=False)[:600])
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -373,6 +448,7 @@ def main():
         danh_gia('A5: chạy thật bằng PowerShell 5.1 → tệp tên có dấu được đổi', ten1 not in con and len(con) == 2, J(con, ensure_ascii=False))
 
         kiem_doi_chieu(ev, J, hd)
+        kiem_lap_to_khai(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

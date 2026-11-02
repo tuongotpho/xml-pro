@@ -143,26 +143,37 @@
   const dungSai = n => Math.max(5, n); // làm tròn từng hoá đơn / từng dòng
   const tien = n => Math.round(n).toLocaleString('vi-VN');
 
-  function doiChieuMot(tkDoc, docs, idxCua) {
-    const tk = docToKhai(tkDoc);
+  /**
+   * Hoá đơn của một MST trong kỳ [tu, den] (ngày dạng YYYY-MM-DD) — dùng chung cho ĐỐI CHIẾU và LẬP tờ khai.
+   * HĐ nạp trùng chỉ tính một lần; HĐ gốc đã có HĐ thay thế đang nạp thì không tính bản gốc.
+   */
+  function chonHoaDon(docs, mst, tu, den) {
+    mst = sachMst(mst);
     const hoaDon = [];
     const daCo = new Set();
     for (const d of docs) {
       if (d.kind !== 'hd' || d.error) continue;
       const k = `${sachMst(d.ban?.MST)}_${(d.kyHieu || '').trim()}_${(d.so || '').trim()}`;
-      if (daCo.has(k)) continue; // HĐ nạp trùng chỉ tính một lần
+      if (daCo.has(k)) continue;
       daCo.add(k);
       hoaDon.push(d);
     }
-    const laBan = d => sachMst(d.ban?.MST) === tk.mst;
-    const laMua = d => sachMst(d.mua?.MST) === tk.mst;
-    const trongKy = d => d.ngay >= tk.tu && d.ngay <= tk.den;
-    // HĐ gốc đã bị thay thế (có HĐ thay thế đang nạp) thì không tính, tính HĐ thay thế
+    const laBan = d => sachMst(d.ban?.MST) === mst;
+    const laMua = d => sachMst(d.mua?.MST) === mst;
+    const trongKy = d => d.ngay >= tu && d.ngay <= den;
     const conHieuLuc = d => !(d.thayTheBoi && d.thayTheBoi.lienQuan?.tc === '1');
-    const cuaDn = hoaDon.filter(d => laBan(d) || laMua(d));
-    const mua = cuaDn.filter(d => laMua(d) && trongKy(d) && conHieuLuc(d));
-    const ban = cuaDn.filter(d => laBan(d) && trongKy(d) && conHieuLuc(d));
-    const ngoaiKy = cuaDn.filter(d => !trongKy(d) && conHieuLuc(d));
+    const cuaDn = hoaDon.filter(d => (laBan(d) || laMua(d)) && conHieuLuc(d));
+    return {
+      mua: cuaDn.filter(d => laMua(d) && trongKy(d)),
+      ban: cuaDn.filter(d => laBan(d) && trongKy(d)),
+      ngoaiKy: cuaDn.filter(d => !trongKy(d)),
+      laBan, laMua
+    };
+  }
+
+  function doiChieuMot(tkDoc, docs, idxCua) {
+    const tk = docToKhai(tkDoc);
+    const { mua, ban, ngoaiKy, laBan, laMua } = chonHoaDon(docs, tk.mst, tk.tu, tk.den);
 
     const cong = (ds, f) => ds.reduce((s, d) => s + f(tachHoaDon(d)), 0);
     const ct = tk.ct;
@@ -295,5 +306,5 @@
   }
   const choToKhai = (docs, d) => tinh(docs).find(k => k.tkIdx === docs.indexOf(d)) || null;
 
-  window.DOI_CHIEU = { laToKhaiGTGT, tinh, choToKhai, tachHoaDon, docToKhai, nhomThueSuat };
+  window.DOI_CHIEU = { laToKhaiGTGT, tinh, choToKhai, tachHoaDon, docToKhai, nhomThueSuat, chonHoaDon, sachMst };
 })();
