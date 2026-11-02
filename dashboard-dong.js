@@ -263,7 +263,7 @@
   function renderDashboardHoaDon(docs, folderTitle, path) {
     let countBan = 0, tienBan = 0, thueBan = 0;
     let countMua = 0, tienMua = 0, thueMua = 0;
-    let countWarn = 0;
+    let countWarn = 0, countDup = 0, countLq = 0;
     const thueSuatMap = {};
     const khachHangMap = {};
     const nhaCungCapMap = {};
@@ -280,51 +280,58 @@
 
     // Nhận diện phân loại theo cấu trúc nhánh thư mục đang xem
     const folderPl = phanLoaiTuPath(path) || phanLoaiTuPath(folderTitle);
+    let countKhac = 0, tienKhac = 0, thueKhac = 0;
 
-    
-    function laHoaDonBan(d) {
-      if (folderPl === 'ban') return true;
-      if (folderPl === 'mua') return false;
-      if (d.phanLoai === 'ban') return true;
-      if (d.phanLoai === 'mua') return false;
+    function layPhanLoai(d) {
+      if (folderPl === 'ban') return 'ban';
+      if (folderPl === 'mua') return 'mua';
+      if (d.phanLoai === 'ban') return 'ban';
+      if (d.phanLoai === 'mua') return 'mua';
       const filePl = phanLoaiTuPath(d.relPath || d.duongDan || d.source || '');
-      if (filePl === 'ban') return true;
-      if (filePl === 'mua') return false;
-      return true;
+      if (filePl === 'ban') return 'ban';
+      if (filePl === 'mua') return 'mua';
+      return 'khac';
     }
+    const laHoaDonBan = d => layPhanLoai(d) === 'ban';
 
     filtered.forEach((d, idx) => {
       if (d.kind !== 'hd') return;
-      const isBan = laHoaDonBan(d);
-      const isMua = !isBan;
+      const pl = layPhanLoai(d);
 
-
-      const tienHang = d.tongTruocThue || d.tong || 0;
+      const tienHang = d.tongTruocThue != null ? d.tongTruocThue : (d.tong || 0);
       const tienThue = d.tongThue || 0;
 
-      if (isBan) {
+      if (pl === 'ban') {
         countBan++;
         tienBan += tienHang;
         thueBan += tienThue;
         const tenMua = d.mua?.Ten || d.mua?.MST || 'Khách vãng lai';
         khachHangMap[tenMua] = (khachHangMap[tenMua] || 0) + (d.tong || (tienHang + tienThue));
-      } else if (isMua) {
+      } else if (pl === 'mua') {
         countMua++;
         tienMua += tienHang;
         thueMua += tienThue;
         const tenBan = d.ban?.Ten || d.ban?.MST || 'Nhà cung cấp khác';
         nhaCungCapMap[tenBan] = (nhaCungCapMap[tenBan] || 0) + (d.tong || (tienHang + tienThue));
+      } else {
+        countKhac++;
+        tienKhac += tienHang;
+        thueKhac += tienThue;
       }
       // Thuế suất (hỗ trợ cả THTTLTSuat lẫn từng dòng hàng HHDVu)
       const tsList = (d.thueSuat && d.thueSuat.length)
         ? d.thueSuat
-        : (d.lines || []).map(l => ({ ts: l.ts, tien: l.thTien || l.thanhTien || 0, thue: l.tThue || 0 }));
+        : (d.lines && d.lines.length)
+          ? d.lines.map(l => ({ ts: l.ts, tien: l.tien || 0, thue: l.thue || 0 }))
+          : [{ ts: 'KCT', tien: tienHang, thue: tienThue }];
       tsList.forEach(ts => {
         const k = (ts.ts || 'KCT').trim();
-        thueSuatMap[k] = (thueSuatMap[k] || 0) + (ts.tien || tienHang);
+        thueSuatMap[k] = (thueSuatMap[k] || 0) + (ts.tien || 0);
       });
 
-      // Cảnh báo
+      // Cảnh báo & Trợ lý đối chiếu (Audit Assistant)
+      if (d.isDuplicate) countDup++;
+      if (d.lienQuan) countLq++;
       const warns = (d.notes || []).filter(n => n[0] === 'warn');
       if (warns.length) {
         countWarn++;
@@ -351,6 +358,26 @@
           </div>
         </div>
 
+        ${countKhac > 0 ? `
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#92400e">
+            <div>
+              <b>⚠ Có ${countKhac} hóa đơn chưa xác định Mua vào / Bán ra</b> (Tiền hàng: ${money(tienKhac)} đ).
+              <span style="color:#b45309">Hãy cài đặt MST doanh nghiệp của bạn để hệ thống tự động phân loại chính xác.</span>
+            </div>
+            <button type="button" onclick="window.__xemXmlThue.moDlgMst()" style="background:#d97706;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer">⚙ Cài đặt MST</button>
+          </div>
+        ` : ''}
+
+        ${(countDup > 0 || countLq > 0) ? `
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#1e40af">
+            <div>
+              <b>🔍 Trợ lý Đối chiếu Kế toán (Audit Assistant):</b>
+              ${countDup > 0 ? `<span style="color:#b91c1c;margin-left:8px;font-weight:600">⚠️ Phát hiện <b>${countDup}</b> hóa đơn trùng lặp.</span>` : ''}
+              ${countLq > 0 ? `<span style="color:#15803d;margin-left:8px;font-weight:600">🔗 Có <b>${countLq}</b> hóa đơn điều chỉnh / thay thế được liên kết.</span>` : ''}
+            </div>
+            <span style="font-size:11px;color:#6b7280">Tự động đối chiếu chéo số học & pháp lý</span>
+          </div>
+        ` : ''}
         <!-- 4 KPI Cards có lọc tương tác khi bấm -->
         <div class="kpi-grid">
           <div class="kpi-card ban dash-filter-trigger ${activeFilter?.type === 'pl' && activeFilter?.val === 'ban' ? 'active-filter' : ''}" data-filter-type="pl" data-filter-val="ban" data-filter-label="Hóa đơn BÁN RA" title="Bấm để lọc bảng kê phía dưới chỉ hiện HĐ Bán ra">
@@ -465,10 +492,11 @@
                 ${(() => {
                   // Lọc theo bộ lọc tương tác nếu có
                   const tableFiltered = filtered.filter(d => {
+                    if (d.kind !== 'hd') return false;
                     if (!activeFilter) return true;
                     if (activeFilter.type === 'pl') {
-                      const isB = laHoaDonBan(d);
-                      return activeFilter.val === 'ban' ? isB : !isB;
+                      const pl = layPhanLoai(d);
+                      return activeFilter.val === pl;
                     }
                     if (activeFilter.type === 'warn') {
                       return (d.notes || []).some(n => n[0] === 'warn');
@@ -514,10 +542,10 @@
                   });
 
                   return sorted.slice(0, 150).map((d, i) => {
-                    const isB = laHoaDonBan(d);
-                    const plTag = isB ? '<span class="tag-pl ban">BÁN RA</span>' : '<span class="tag-pl mua">MUA VÀO</span>';
-                    const doiTac = (isB ? (d.mua?.Ten || d.mua?.ten) : (d.ban?.Ten || d.ban?.ten)) || d.ten || 'Chưa rõ';
-                    const mst = (isB ? (d.mua?.MST || d.mua?.mst) : (d.ban?.MST || d.ban?.mst)) || d.mst || '';
+                    const pl = layPhanLoai(d);
+                    const plTag = pl === 'ban' ? '<span class="tag-pl ban">BÁN RA</span>' : pl === 'mua' ? '<span class="tag-pl mua">MUA VÀO</span>' : '<span class="tag-pl" style="background:#fef3c7;color:#92400e">CHƯA RÕ</span>';
+                    const doiTac = (pl === 'ban' ? (d.mua?.Ten || d.mua?.ten) : (d.ban?.Ten || d.ban?.ten)) || d.ten || 'Chưa rõ';
+                    const mst = (pl === 'ban' ? (d.mua?.MST || d.mua?.mst) : (d.ban?.MST || d.ban?.mst)) || d.mst || '';
                     const warns = (d.notes || []).filter(n => n[0] === 'warn');
                     const sttHtml = warns.length
                       ? `<span style="color:#b91c1c;font-weight:600" title="${esc(warns[0][1])}">⚠️ Cần kiểm tra</span>`
@@ -526,7 +554,7 @@
                     return `
                       <tr class="dash-doc-click" data-doc-src="${esc(d.source)}">
                         <td>${i + 1}</td>
-                        <td>${plTag}</td>
+                        <td>${plTag}${d.isDuplicate ? ' <span class="tag-pl dup" style="background:#fee2e2;color:#b91c1c;border:1px solid #f87171" title="Phát hiện trùng lặp">TRÙNG</span>' : ''}</td>
                         <td><b>${esc(d.so || '')}</b></td>
                         <td><code>${esc(d.kyHieu || '')}</code></td>
                         <td>${esc(dateVN(d.ngay))}</td>
@@ -720,10 +748,13 @@
     let tongChi = 0, soMonChi = 0;
     let soDuDau = 0, soDuCuoi = 0;
 
+    const tkMap = new Map();
     docs.forEach(d => {
       if (d.kind !== 'nh') return;
-      soDuDau += (d.soDuDauKy || 0);
-      soDuCuoi += (d.soDuCuoiKy || 0);
+      const tk = d.soTaiKhoan || 'ChuaXacDinh';
+      if (!tkMap.has(tk)) tkMap.set(tk, []);
+      tkMap.get(tk).push(d);
+
       if (d.tongPhatSinhCo != null || d.tongPhatSinhNo != null) {
         tongThu += (d.tongPhatSinhCo || 0);
         tongChi += (d.tongPhatSinhNo || 0);
@@ -732,13 +763,19 @@
       } else {
         (d.giaoDich || []).forEach(tx => {
           const amt = Math.abs(tx.soTien || 0);
-          if (tx.loai === 'CRDT' || tx.soTien > 0) {
+          if (tx.loaiGD === 'CRDT' || tx.loai === 'CRDT' || tx.soTien > 0) {
             tongThu += amt; soMonThu++;
           } else {
             tongChi += amt; soMonChi++;
           }
         });
       }
+    });
+
+    tkMap.forEach((stList) => {
+      stList.sort((a, b) => (layNgayChuan(a) || '').localeCompare(layNgayChuan(b) || ''));
+      soDuDau += (stList[0].soDuDauKy || 0);
+      soDuCuoi += (stList[stList.length - 1].soDuCuoiKy || 0);
     });
 
     const netFlow = tongThu - tongChi;
@@ -937,7 +974,7 @@
                   <td><span class="tag ${d.kind}">${d.kind.toUpperCase()}</span></td>
                   <td><b>${esc(d.title)}</b></td>
                   <td>${esc(dateVN(d.ngay))}</td>
-                  <td style="text-align:right"><b>${money(d.tong || d.tongChiPhi || d.soDuCuoiKy || d.giaDuThau)}</b></td>
+                  <td style="text-align:right"><b>${esc(soTienFile(d) || '—')}</b></td>
                 </tr>
               `).join('')}
             </tbody>

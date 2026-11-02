@@ -6,6 +6,7 @@
   function xmlEsc(s) {
     if (s == null) return '';
     return String(s)
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -315,20 +316,47 @@
         ]);
       });
 
-      // Dòng tổng cộng
-      if (hdDocs.length > 1) {
+      // Dòng tổng cộng tách bạch theo phân loại nghiệp vụ
+      if (hdDocs.length > 0) {
         const lastRow = hdDocs.length + 1;
-        hdRows.push([
-          { text: 'Tổng cộng', isBold: true },
-          '', '', '', '', '', '', '', '', '', '',
-          { formula: `SUM(L2:L${lastRow})`, isMoney: true },
-          { formula: `SUM(M2:M${lastRow})`, isMoney: true },
-          { formula: `SUM(N2:N${lastRow})`, isMoney: true },
-          { formula: `SUM(O2:O${lastRow})`, isMoney: true },
-          '', '', '', '', '', '', ''
-        ]);
-      }
+        const hasBan = hdDocs.some(d => d.phanLoai === 'ban');
+        const hasMua = hdDocs.some(d => d.phanLoai === 'mua');
+        const hasKhac = hdDocs.some(d => d.phanLoai !== 'ban' && d.phanLoai !== 'mua');
 
+        if (hasBan) {
+          hdRows.push([
+            { text: 'TỔNG BÁN RA (ĐẦU RA)', isBold: true },
+            '', '', '', '', '', '', '', '', '', '',
+            { formula: `SUMIF(B2:B${lastRow},"BÁN RA",L2:L${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"BÁN RA",M2:M${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"BÁN RA",N2:N${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"BÁN RA",O2:O${lastRow})`, isMoney: true },
+            '', '', '', '', '', '', ''
+          ]);
+        }
+        if (hasMua) {
+          hdRows.push([
+            { text: 'TỔNG MUA VÀO (ĐẦU VÀO)', isBold: true },
+            '', '', '', '', '', '', '', '', '', '',
+            { formula: `SUMIF(B2:B${lastRow},"MUA VÀO",L2:L${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"MUA VÀO",M2:M${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"MUA VÀO",N2:N${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"MUA VÀO",O2:O${lastRow})`, isMoney: true },
+            '', '', '', '', '', '', ''
+          ]);
+        }
+        if (hasKhac) {
+          hdRows.push([
+            { text: 'TỔNG CHƯA XÁC ĐỊNH', isBold: true },
+            '', '', '', '', '', '', '', '', '', '',
+            { formula: `SUMIF(B2:B${lastRow},"CHƯA XÁC ĐỊNH",L2:L${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"CHƯA XÁC ĐỊNH",M2:M${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"CHƯA XÁC ĐỊNH",N2:N${lastRow})`, isMoney: true },
+            { formula: `SUMIF(B2:B${lastRow},"CHƯA XÁC ĐỊNH",O2:O${lastRow})`, isMoney: true },
+            '', '', '', '', '', '', ''
+          ]);
+        }
+      }
       sheets.push({
         name: 'Bảng kê Hóa đơn',
         cols: hdCols,
@@ -369,7 +397,7 @@
             { text: inv.kyHieu || '', isCenter: true },
             { text: inv.so || '', isCenter: true },
             { text: fmtDateStr(inv.ngay), isCenter: true },
-            inv.ban?.ten || '',
+            (inv.ban?.Ten || inv.ban?.ten || ''),
             { text: l.stt || '', isCenter: true },
             l.ma || '',
             l.ten || '',
@@ -402,6 +430,272 @@
           headers: lineHeaders,
           rows: lineRows
         });
+      }
+
+      // 3. Sheet: MISA AMIS - Hóa đơn mua vào
+      const muaDocs = hdDocs.filter(d => d.phanLoai === 'mua' || d.phanLoai === 'khac');
+      if (muaDocs.length > 0) {
+        const misaMuaCols = [
+          { width: 6 },  // STT
+          { width: 12 }, // Số HĐ
+          { width: 12 }, // Ngày HĐ
+          { width: 10 }, // Mẫu số
+          { width: 12 }, // Ký hiệu
+          { width: 15 }, // MST người bán
+          { width: 32 }, // Tên người bán
+          { width: 32 }, // Tên hàng hóa, dịch vụ
+          { width: 10 }, // ĐVT
+          { width: 12 }, // Số lượng
+          { width: 15 }, // Đơn giá
+          { width: 18 }, // Tiền hàng chưa thuế
+          { width: 12 }, // Thuế suất (%)
+          { width: 16 }, // Tiền thuế GTGT
+          { width: 18 }  // Tổng thanh toán
+        ];
+        const misaMuaHeaders = [
+          'STT', 'Số HĐ', 'Ngày HĐ', 'Mẫu số', 'Ký hiệu', 'Mã NCC (MST)', 'Tên nhà cung cấp',
+          'Tên hàng hóa, dịch vụ', 'ĐVT', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Thuế suất', 'Tiền thuế', 'Tổng thanh toán'
+        ];
+        const misaMuaRows = [];
+        let sttMua = 1;
+        muaDocs.forEach(inv => {
+          const items = (inv.lines && inv.lines.length) ? inv.lines : [{
+            ten: inv.title || 'Hàng hóa, dịch vụ',
+            dvt: '',
+            sl: 1,
+            dg: inv.tienHang || 0,
+            tien: inv.tienHang || 0,
+            ts: inv.thueSuat || ''
+          }];
+          items.forEach(l => {
+            const tienHang = typeof l.tien === 'number' ? l.tien : (Number(l.tien) || 0);
+            const tsNum = Number(String(l.ts || '').replace(/[^0-9.]/g, '')) || 0;
+            const thueDong = typeof l.thue === 'number' ? l.thue : Math.round(tienHang * tsNum / 100);
+            const tongDong = tienHang + thueDong;
+            misaMuaRows.push([
+              sttMua++,
+              inv.so || '',
+              inv.ngayLap || inv.ngay || '',
+              inv.mauSo || '',
+              inv.kyHieu || '',
+              inv.ban?.MST || inv.mst || '',
+              inv.ban?.Ten || inv.ban?.ten || '',
+              l.ten || '',
+              { text: l.dvt || '', isCenter: true },
+              typeof l.sl === 'number' ? l.sl : (Number(l.sl) || 0),
+              typeof l.dg === 'number' ? l.dg : (Number(l.dg) || 0),
+              tienHang,
+              { text: l.ts || '', isCenter: true },
+              thueDong,
+              tongDong
+            ]);
+          });
+        });
+        if (misaMuaRows.length > 0) {
+          const lastM = misaMuaRows.length + 1;
+          misaMuaRows.push([
+            { text: 'TỔNG CỘNG MUA VÀO (MISA)', isBold: true },
+            '', '', '', '', '', '', '', '', '', '',
+            { formula: `SUM(L2:L${lastM})`, isMoney: true },
+            '',
+            { formula: `SUM(N2:N${lastM})`, isMoney: true },
+            { formula: `SUM(O2:O${lastM})`, isMoney: true }
+          ]);
+          sheets.push({
+            name: 'MISA - Mua vào',
+            cols: misaMuaCols,
+            headers: misaMuaHeaders,
+            rows: misaMuaRows
+          });
+        }
+      }
+
+      // 4. Sheet: MISA AMIS - Hóa đơn bán ra
+      const banDocs = hdDocs.filter(d => d.phanLoai === 'ban');
+      if (banDocs.length > 0) {
+        const misaBanCols = [
+          { width: 6 },  // STT
+          { width: 12 }, // Số HĐ
+          { width: 12 }, // Ngày HĐ
+          { width: 10 }, // Mẫu số
+          { width: 12 }, // Ký hiệu
+          { width: 15 }, // MST người mua
+          { width: 32 }, // Tên người mua
+          { width: 32 }, // Tên hàng hóa, dịch vụ
+          { width: 10 }, // ĐVT
+          { width: 12 }, // Số lượng
+          { width: 15 }, // Đơn giá
+          { width: 18 }, // Tiền hàng chưa thuế
+          { width: 12 }, // Thuế suất (%)
+          { width: 16 }, // Tiền thuế GTGT
+          { width: 18 }  // Tổng thanh toán
+        ];
+        const misaBanHeaders = [
+          'STT', 'Số HĐ', 'Ngày HĐ', 'Mẫu số', 'Ký hiệu', 'Mã KH (MST)', 'Tên khách hàng',
+          'Tên hàng hóa, dịch vụ', 'ĐVT', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Thuế suất', 'Tiền thuế', 'Tổng thanh toán'
+        ];
+        const misaBanRows = [];
+        let sttBan = 1;
+        banDocs.forEach(inv => {
+          const items = (inv.lines && inv.lines.length) ? inv.lines : [{
+            ten: inv.title || 'Hàng hóa, dịch vụ',
+            dvt: '',
+            sl: 1,
+            dg: inv.tienHang || 0,
+            tien: inv.tienHang || 0,
+            ts: inv.thueSuat || ''
+          }];
+          items.forEach(l => {
+            const tienHang = typeof l.tien === 'number' ? l.tien : (Number(l.tien) || 0);
+            const tsNum = Number(String(l.ts || '').replace(/[^0-9.]/g, '')) || 0;
+            const thueDong = typeof l.thue === 'number' ? l.thue : Math.round(tienHang * tsNum / 100);
+            const tongDong = tienHang + thueDong;
+            misaBanRows.push([
+              sttBan++,
+              inv.so || '',
+              inv.ngayLap || inv.ngay || '',
+              inv.mauSo || '',
+              inv.kyHieu || '',
+              inv.mua?.MST || '',
+              inv.mua?.Ten || inv.mua?.ten || '',
+              l.ten || '',
+              { text: l.dvt || '', isCenter: true },
+              typeof l.sl === 'number' ? l.sl : (Number(l.sl) || 0),
+              typeof l.dg === 'number' ? l.dg : (Number(l.dg) || 0),
+              tienHang,
+              { text: l.ts || '', isCenter: true },
+              thueDong,
+              tongDong
+            ]);
+          });
+        });
+        if (misaBanRows.length > 0) {
+          const lastB = misaBanRows.length + 1;
+          misaBanRows.push([
+            { text: 'TỔNG CỘNG BÁN RA (MISA)', isBold: true },
+            '', '', '', '', '', '', '', '', '', '',
+            { formula: `SUM(L2:L${lastB})`, isMoney: true },
+            '',
+            { formula: `SUM(N2:N${lastB})`, isMoney: true },
+            { formula: `SUM(O2:O${lastB})`, isMoney: true }
+          ]);
+          sheets.push({
+            name: 'MISA - Bán ra',
+            cols: misaBanCols,
+            headers: misaBanHeaders,
+            rows: misaBanRows
+          });
+        }
+      }
+
+      // 5. Sheet: Bảng kê 01-1/GTGT (Bán ra) theo chuẩn TT80/HTKK
+      if (banDocs.length > 0) {
+        const bkBanCols = [
+          { width: 6 },  // STT
+          { width: 10 }, // Mẫu số
+          { width: 12 }, // Ký hiệu
+          { width: 12 }, // Số HĐ
+          { width: 12 }, // Ngày HĐ
+          { width: 32 }, // Tên người mua
+          { width: 15 }, // MST người mua
+          { width: 28 }, // Mặt hàng
+          { width: 18 }, // Doanh số chưa thuế
+          { width: 16 }, // Tiền thuế GTGT
+          { width: 18 }  // Ghi chú
+        ];
+        const bkBanHeaders = [
+          'STT', 'Mẫu số', 'Ký hiệu HĐ', 'Số HĐ', 'Ngày lập', 'Tên người mua', 'MST người mua',
+          'Mặt hàng', 'Doanh số chưa thuế', 'Thuế GTGT', 'Ghi chú'
+        ];
+        const bkBanRows = [];
+        let sttBkBan = 1;
+        banDocs.forEach(inv => {
+          const matHang = (inv.lines && inv.lines.length) ? inv.lines.map(l => l.ten).filter(Boolean).slice(0, 3).join(', ') : (inv.title || '');
+          bkBanRows.push([
+            sttBkBan++,
+            inv.mauSo || '',
+            inv.kyHieu || '',
+            inv.so || '',
+            inv.ngayLap || inv.ngay || '',
+            inv.mua?.Ten || inv.mua?.ten || '',
+            inv.mua?.MST || '',
+            matHang,
+            typeof inv.tienHang === 'number' ? inv.tienHang : (Number(inv.tienHang) || 0),
+            typeof inv.tienThue === 'number' ? inv.tienThue : (Number(inv.tienThue) || 0),
+            inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : ''
+          ]);
+        });
+        if (bkBanRows.length > 0) {
+          const lastBk = bkBanRows.length + 1;
+          bkBanRows.push([
+            { text: 'TỔNG CỘNG PHỤ LỤC 01-1/GTGT', isBold: true },
+            '', '', '', '', '', '', '',
+            { formula: `SUM(I2:I${lastBk})`, isMoney: true },
+            { formula: `SUM(J2:J${lastBk})`, isMoney: true },
+            ''
+          ]);
+          sheets.push({
+            name: 'Bảng kê 01-1_GTGT (Bán ra)',
+            cols: bkBanCols,
+            headers: bkBanHeaders,
+            rows: bkBanRows
+          });
+        }
+      }
+
+      // 6. Sheet: Bảng kê 01-2/GTGT (Mua vào) theo chuẩn TT80/HTKK
+      if (muaDocs.length > 0) {
+        const bkMuaCols = [
+          { width: 6 },  // STT
+          { width: 10 }, // Mẫu số
+          { width: 12 }, // Ký hiệu
+          { width: 12 }, // Số HĐ
+          { width: 12 }, // Ngày HĐ
+          { width: 32 }, // Tên người bán
+          { width: 15 }, // MST người bán
+          { width: 28 }, // Mặt hàng
+          { width: 18 }, // Giá trị mua chưa thuế
+          { width: 16 }, // Tiền thuế GTGT được khấu trừ
+          { width: 18 }  // Ghi chú
+        ];
+        const bkMuaHeaders = [
+          'STT', 'Mẫu số', 'Ký hiệu HĐ', 'Số HĐ', 'Ngày lập', 'Tên người bán', 'MST người bán',
+          'Mặt hàng', 'Giá trị chưa thuế', 'Thuế GTGT khấu trừ', 'Ghi chú'
+        ];
+        const bkMuaRows = [];
+        let sttBkMua = 1;
+        muaDocs.forEach(inv => {
+          const matHang = (inv.lines && inv.lines.length) ? inv.lines.map(l => l.ten).filter(Boolean).slice(0, 3).join(', ') : (inv.title || '');
+          bkMuaRows.push([
+            sttBkMua++,
+            inv.mauSo || '',
+            inv.kyHieu || '',
+            inv.so || '',
+            inv.ngayLap || inv.ngay || '',
+            inv.ban?.Ten || inv.ban?.ten || '',
+            inv.ban?.MST || inv.mst || '',
+            matHang,
+            typeof inv.tienHang === 'number' ? inv.tienHang : (Number(inv.tienHang) || 0),
+            typeof inv.tienThue === 'number' ? inv.tienThue : (Number(inv.tienThue) || 0),
+            inv.phanLoai === 'khac' ? 'Chưa xác định mua/bán' : (inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : '')
+          ]);
+        });
+        if (bkMuaRows.length > 0) {
+          const lastBkM = bkMuaRows.length + 1;
+          bkMuaRows.push([
+            { text: 'TỔNG CỘNG PHỤ LỤC 01-2/GTGT', isBold: true },
+            '', '', '', '', '', '', '',
+            { formula: `SUM(I2:I${lastBkM})`, isMoney: true },
+            { formula: `SUM(J2:J${lastBkM})`, isMoney: true },
+            ''
+          ]);
+          sheets.push({
+            name: 'Bảng kê 01-2_GTGT (Mua vào)',
+            cols: bkMuaCols,
+            headers: bkMuaHeaders,
+            rows: bkMuaRows
+          });
+        }
       }
     }
 
@@ -976,18 +1270,17 @@
       if (nhDocs.length > 1) {
         const lastNhRow = nhDocs.length + 1;
         nhRows.push([
-          { text: 'Tổng cộng', isBold: true },
+          { text: 'Tổng phát sinh', isBold: true },
           '', '', '', '', '', '',
-          { formula: `SUM(H2:H${lastNhRow})`, isMoney: true },
+          '',
           { formula: `SUM(I2:I${lastNhRow})`, isMoney: true },
-          { formula: `SUM(J2:J${lastNhRow})`, isMoney: true },
+          { formula: `SUM(J2:J${lastNhRow})` },
           { formula: `SUM(K2:K${lastNhRow})`, isMoney: true },
-          { formula: `SUM(L2:L${lastNhRow})`, isMoney: true },
-          { formula: `SUM(M2:M${lastNhRow})`, isMoney: true },
+          { formula: `SUM(L2:L${lastNhRow})` },
+          '',
           ''
         ]);
       }
-
       sheets.push({
         name: 'Sổ phụ Ngân hàng',
         cols: nhCols,

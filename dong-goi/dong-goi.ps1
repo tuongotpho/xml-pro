@@ -29,7 +29,7 @@ if ($moi -notmatch '^\d+\.\d+\.\d+$') { throw "Số phiên bản không hợp l�
 
 # --- Biên dịch ---
 New-Item -ItemType Directory -Force $ra | Out-Null
-Get-ChildItem $ra -Filter 'CaiDat-XML-Pro*.exe' | Remove-Item -Force
+Get-ChildItem $ra -Filter "CaiDat-XML-Pro-$moi.exe" | Remove-Item -Force
 $chung = @('/nologo', '/target:winexe', '/codepage:65001', '/optimize+', "/win32icon:$dg\XemXmlThue.ico",
            '/r:System.Windows.Forms.dll', '/r:System.Core.dll')
 

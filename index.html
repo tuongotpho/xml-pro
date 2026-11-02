@@ -2,6 +2,7 @@
 <html lang="vi" translate="no">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://127.0.0.1:* https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>XML-Pro</title>
 <meta name="google" content="notranslate">
@@ -685,6 +686,17 @@
   .hd-pl-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
   .hd-pl-tag.mua { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
   .hd-pl-tag.ban { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+  .tag-pl.dup { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; font-weight: 700; }
+  .tag-pl.khac { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .sig-v-badge { margin-top: 5px; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-align: center; }
+  .sig-v-badge.ok { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .sig-v-badge.err { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .hd-lq-match { margin: 8px 0; padding: 8px 12px; border-radius: 6px; font-size: 12.5px; line-height: 1.5; }
+  .hd-lq-match.ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .hd-lq-match.warn { background: #fefce8; color: #854d0e; border: 1px solid #fef08a; }
+  .hd-qr-box { margin-top: 6px; }
+  .qr-btn { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 4px; text-decoration: none; }
+  .qr-btn:hover { background: #dbeafe; }
 
   /* Cây thư mục */
   .tree-node { display: flex; align-items: center; gap: 5px; padding: 5px 8px; cursor: pointer; user-select: none; font-size: 12px; border-bottom: 1px solid #f8fafc; border-left: 3px solid transparent; }
@@ -829,13 +841,61 @@
   .warn-list-scroll { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
   .warn-item-row { padding: 6px 8px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; font-size: 11.5px; cursor: pointer; }
   .warn-item-row:hover { background: #fee2e2; }
+/* ---------- Ch? ?? giao di?n T?i (Dark Mode) chu?n c?ng th?i h?c v2.0.0 ---------- */
+  html.dark {
+    --bg: #0f172a; --panel: #1e293b; --ink: #f1f5f9; --muted: #94a3b8; --line: #334155;
+    --accent: #ef4444; --accent-soft: #451a1a; --ok: #22c55e; --warn: #f59e0b; --warn-soft: #452b05;
+    --sel: #1e3a5f;
+  }
+  html.dark body { background: var(--bg); color: var(--ink); }
+  html.dark aside { background: #131d2e; border-right-color: #334155; }
+  html.dark .drop { background: #1e293b; border-color: #475569; }
+  html.dark .drop:hover { border-color: #38bdf8; background: #253349; }
+  html.dark .tabs { background: #0f172a; border-bottom-color: #334155; }
+  html.dark .tab { background: #1e293b; color: #94a3b8; border-color: #334155; }
+  html.dark .tab.active { background: #334155; color: #f8fafc; border-color: #475569; }
+  html.dark .list .item { border-bottom-color: #334155; }
+  html.dark .list .item:hover { background: #1e293b; }
+  html.dark .list .item.sel { background: #1e3a5f; }
+  html.dark .table-box { background: #1e293b; border-color: #334155; }
+  html.dark table.lines th { background: #182234; color: #cbd5e1; border-color: #334155; }
+  html.dark table.lines td { border-color: #334155; color: #e2e8f0; }
+  html.dark .summary { background: #182234; border-bottom-color: #334155; color: #94a3b8; }
+  html.dark dialog { background: #1e293b; color: #f1f5f9; border-color: #475569; }
+  html.dark input, html.dark select, html.dark textarea { background: #0f172a; color: #f1f5f9; border-color: #475569; }
+  html.dark .dn-box { background: #182234; border-color: #334155; }
+  html.dark .dash-metric-card { background: #1e293b !important; border-color: #334155 !important; }
+  html.dark .dash-section-card { background: #1e293b !important; border-color: #334155 !important; }
+  html.dark .sec-card { background: #1e293b !important; border-color: #334155 !important; }
+  html.dark .audit-box { background: #1e293b !important; border-color: #334155 !important; }
+  html.dark .audit-pill { background: #334155 !important; }
+  html.dark .btn-theme-toggle { background: #1e293b; border-color: #475569; color: #f1f5f9; }
+
+  .btn-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all .15s ease;
+    user-select: none;
+  }
+  .btn-theme-toggle:hover { background: var(--sel); }
 </style>
 </head>
 <body class="notranslate">
 <div class="app">
   <aside>
     <div class="top">
-      <h1>XML-Pro</h1>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h1 style="margin:0">XML-Pro</h1>
+        <button type="button" id="btnToggleDark" class="btn-theme-toggle" title="Chuy?n ch? ?? Giao di?n T?i / S?ng (Dark Mode)" aria-label="??i giao di?n t?i s?ng">??</button>
+      </div>
       <div class="drop" id="drop" title="Bấm để chọn file hoặc kéo thả file / thư mục vào đây">
         <b>Kéo thả file hoặc cả thư mục vào đây</b><br>
         <small>Tờ khai HTKK, thông báo thuế, chứng từ nộp tiền, hoá đơn điện tử (.xml), hoặc file .zip</small>
@@ -886,13 +946,26 @@
       <div style="display:flex;gap:12px;margin:16px 0 20px;flex-wrap:wrap">
         <button type="button" id="btnEmptyFile" class="primary" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📂 Chọn file XML / Zip…</button>
         <button type="button" id="btnEmptyDir" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📁 Chọn cả thư mục…</button>
+      <div id="sessionCard" style="display:none;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:12px 16px;margin:12px 0 16px;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:13px;color:#065f46">
+          ?? <b>Kh?i ph?c phi?n l?m vi?c tr??c:</b> C? <b id="sessionCardCount">0</b> ch?ng t? ?? n?p (<span id="sessionCardTime">--</span>).
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="btnRestoreSessionCard" class="primary" style="background:#059669;border-color:#059669;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer">?? Kh?i ph?c ngay</button>
+          <button type="button" id="btnDiscardSession" style="padding:6px 12px;font-size:12.5px;color:#64748b;cursor:pointer">? B? qua</button>
+        </div>
       </div>
-      <p>Mở được các loại chứng từ XML chuẩn quốc gia:</p>
+      </div>
+      <p>Mở được các loại chứng từ XML chuẩn quốc gia (8 hệ sinh thái chuyên ngành):</p>
       <ul>
         <li><b>Tờ khai, phụ lục, báo cáo tài chính</b> xuất từ HTKK / eTax (gốc <code>HSoThueDTu</code>, và cả file lưu nháp trong <code>HTKK\DataFiles</code>): 01/GTGT, 05/KK-TNCN, 05/QTT-TNCN, 03/TNDN, BCTC TT200, TT133…</li>
-        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — hiển thị đầy đủ bảng hàng hóa, chiết khấu, trạng thái thanh toán.</li>
-        <li><b>Tờ khai Hải quan điện tử</b> (hệ thống VNACCS/VCIS, Cổng Một cửa Quốc gia NSW) — hiển thị phân luồng Xanh / Vàng / Đỏ, hàng hóa XNK, thuế XNK.</li>
+        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — hiển thị đầy đủ bảng hàng hóa, chiết khấu, phân loại Mua vào / Bán ra, trạng thái thanh toán.</li>
+        <li><b>Tờ khai Hải quan điện tử</b> (hệ thống VNACCS/VCIS, Cổng Một cửa Quốc gia NSW) — phân luồng Xanh / Vàng / Đỏ, hàng hóa XNK, nghĩa vụ thuế XNK.</li>
         <li><b>Bệnh án điện tử & Viện phí BHYT</b> (chuẩn XML 4210 / Quyết định 130/QĐ-BYT) — bảng kê chi phí KCB, chi tiết thuốc, dịch vụ kỹ thuật.</li>
+        <li><b>Chứng từ khấu trừ thuế TNCN điện tử</b> (Nghị định 123/2020/NĐ-CP & Thông tư 78/2021/TT-BTC) — khấu trừ thuế TNCN, thu nhập chịu thuế.</li>
+        <li><b>Hồ sơ Bảo hiểm Xã hội điện tử</b> (Cổng BHXH Việt Nam — biểu mẫu D02-LT, C70a-HD, 600, 888...) — danh sách lao động, tiền lương đóng BHXH.</li>
+        <li><b>Sổ phụ Ngân hàng điện tử & Sao kê tài khoản</b> (chuẩn ISO 20022 camt.053/camt.054 và ngân hàng Việt Nam) — nhật ký giao dịch, dòng tiền, số dư.</li>
+        <li><b>Hồ sơ Đấu thầu qua mạng e-GP</b> (Hệ thống Mạng đấu thầu Quốc gia) — gói thầu, bảng giá dự thầu, năng lực tài chính.</li>
         <li><b>Thông báo thuế, đăng ký thuế & Chứng từ nộp tiền thuế</b> (gốc <code>TBaoThue</code>, <code>CHUNGTU</code>…).</li>
       </ul>
       <p>Tờ khai, phụ lục, BCTC được dựng bằng <b>chính bộ mẫu chuẩn của iTax Viewer</b>; đồng thời hỗ trợ <b>Xuất bảng kê Excel (.xlsx)</b> chuẩn OpenXML cho toàn bộ hồ sơ.</p>
@@ -984,6 +1057,7 @@
       Đã chọn <b id="lblDoiTenCount" style="color:var(--ink)">0</b> file để đổi tên.
     </div>
     <div style="display:flex;gap:8px">
+      <button type="button" id="btnDoiTenTrucTiep" class="primary" style="background:#16a34a;border-color:#16a34a;font-weight:600" title="??i t?n tr?c ti?p c?c file XML ngay tr?n th? m?c ? c?ng (Kh? d?ng khi ch?y qua XemXmlThue.exe tr?n Desktop)">? ??i T?n Tr?c Ti?p Tr?n ? ??a</button>
       <button type="button" id="btnExportPs1" style="background:#475569;color:#fff;border-color:#475569;font-weight:600" title="Tải file script PowerShell để chạy đổi tên trực tiếp các file trên ổ cứng máy tính">⚡ Tải Script PowerShell (.ps1)</button>
       <button type="button" id="btnExportZipMoi" class="primary" style="background:#0284c7;border-color:#0284c7;font-weight:600" title="Đóng gói và tải về file .ZIP chứa toàn bộ các file đã được đổi tên chuẩn">📦 Tải File .ZIP Đã Đổi Tên</button>
       <button type="button" id="btnCloseDoiTen">Đóng</button>
@@ -1004,7 +1078,7 @@
   <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <span style="font-size:13px;color:#475569">Phiên bản đang dùng:</span>
-      <span id="txtPhienBanHienTai" style="font-weight:700;font-size:13.5px;color:#0f172a">v1.7.2</span>
+      <span id="txtPhienBanHienTai" style="font-weight:700;font-size:13.5px;color:#0f172a">v2.0.0</span>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center">
       <span style="font-size:13px;color:#475569">Trạng thái:</span>
@@ -1039,12 +1113,41 @@
 <script src="xuat-excel.js"></script>
 <script src="nganh-doc.js"></script>
 <script src="dashboard-dong.js"></script>
-<script src="mau-itax.js"></script>
-<script src="ten-chi-tieu.js"></script>
 <script src="phien-ban.js"></script>
 <script>
 (() => {
   'use strict';
+
+  // ---------- GIAI ĐOẠN 2: Nạp lười từ điển iTax & HTKK (tiết kiệm 16.6 MB khởi động) ----------
+  let _itaxDictsLoading = null;
+  function loadItaxDictsAsync() {
+    if (window.MAU_ITAX && window.TEN_CHI_TIEU) return Promise.resolve(true);
+    if (_itaxDictsLoading) return _itaxDictsLoading;
+
+    const loadScript = src => new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => resolve(true);
+      s.onerror = () => { console.warn('Không thể nạp', src); resolve(false); };
+      document.head.appendChild(s);
+    });
+
+    _itaxDictsLoading = Promise.all([
+      window.MAU_ITAX ? Promise.resolve(true) : loadScript('mau-itax.js'),
+      window.TEN_CHI_TIEU ? Promise.resolve(true) : loadScript('ten-chi-tieu.js')
+    ]).then(() => {
+      ensureItaxCss();
+      return true;
+    });
+    return _itaxDictsLoading;
+  }
+
+  // Tải ngầm trong lúc rảnh rỗi sau khi mở app
+  if (typeof window.requestIdleCallback === 'function') {
+    requestIdleCallback(() => setTimeout(loadItaxDictsAsync, 2000));
+  } else {
+    setTimeout(loadItaxDictsAsync, 3000);
+  }
 
   const docs = [];
   const openTabs = []; // Mảng chứa chỉ mục (index) các file đang mở tab theo nhu cầu
@@ -1135,7 +1238,14 @@
     return t || 'DoiTac';
   }
 
+  function safeFileName(s) {
+    let clean = String(s || '').replace(/[\\/:*?"<>|\r\n\0$`]/g, '_').replace(/\.{2,}/g, '.').replace(/^\.+/, '_').trim();
+    if (!clean.toLowerCase().endsWith('.xml')) clean += '.xml';
+    return clean.slice(0, 150);
+  }
+
   function taoTenFileMoi(d) {
+    const cleanTag = s => String(s || '').replace(/[^0-9A-Za-z_-]/g, '').slice(0, 30);
     if (d.kind === 'hd') {
       const pl = d.phanLoai === 'ban' ? 'Ban' : d.phanLoai === 'mua' ? 'Mua' : 'HD';
       const ngay = (d.ngay || '').replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
@@ -1143,28 +1253,87 @@
       const mstDt = cleanMst(doiTac?.MST) || 'NoMST';
       const tenNgan = rutGonTen(doiTac?.Ten || '') || 'DoiTac';
       const kh = (d.kyHieu || '').replace(/[^0-9A-Za-z]/g, '');
-      const so = String(d.so || '').padStart(7, '0');
-      return `${pl}_${ngay}_${mstDt}_${tenNgan}_${kh}_${so}.xml`;
+      const so = String(d.so || '').replace(/[^0-9A-Za-z]/g, '').padStart(7, '0');
+      return safeFileName(`${pl}_${ngay}_${mstDt}_${tenNgan}_${kh}_${so}.xml`);
     }
     if (d.kind === 'hq') {
-      const ngay = (d.ngayDky || '').replace(/[^0-9]/g, '').slice(0, 8);
-      return `HQ_${ngay}_${d.soTKhai || ''}_${d.maLH || ''}.xml`;
+      const ngay = (d.ngayDky || '').replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
+      return safeFileName(`HQ_${ngay}_${cleanTag(d.soTKhai)}_${cleanTag(d.maLH)}.xml`);
     }
     if (d.kind === 'tncn') {
-      const ngay = (d.ngayLap || '').replace(/[^0-9]/g, '').slice(0, 8);
-      const mst = cleanMst(d.caNhan?.mst || d.toChuc?.mst);
-      return `TNCN_${ngay}_${mst}_${d.soChungTu || ''}.xml`;
+      const ngay = (d.ngayLap || '').replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
+      const mst = cleanMst(d.caNhan?.mst || d.toChuc?.mst) || 'NoMST';
+      return safeFileName(`TNCN_${ngay}_${mst}_${cleanTag(d.soChungTu)}.xml`);
     }
     if (d.kind === 'bhxh') {
-      return `BHXH_${d.donVi?.ma || ''}_${(d.kyKeKhai || '').replace('/', '-')}_${d.maThuTuc || ''}.xml`;
+      const ky = (d.kyKeKhai || '').replace(/[^0-9]/g, '-').slice(0, 10);
+      return safeFileName(`BHXH_${cleanTag(d.donVi?.ma)}_${ky}_${cleanTag(d.maThuTuc)}.xml`);
     }
-    return d.fileName || d.source?.split(/[\\/]/).pop() || 'file.xml';
+    if (d.kind === 'yte') {
+      const ngay = (d.ngayVao || d.ngayRa || '').replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
+      return safeFileName(`YTE_${ngay}_${cleanTag(d.maBN)}_${cleanTag(d.maThe)}.xml`);
+    }
+    if (d.kind === 'nh') {
+      const ky = (d.denNgay || d.tuNgay || '').replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
+      return safeFileName(`NH_${cleanTag(d.soTaiKhoan)}_${ky}.xml`);
+    }
+    if (d.kind === 'thau') {
+      return safeFileName(`THAU_${cleanTag(d.maTBMT)}_${cleanTag(d.maGoiThau)}.xml`);
+    }
+    const def = d.fileName || d.source?.split(/[\\/›]/).pop() || 'file.xml';
+    return safeFileName(def);
+  }
+
+  function auditInvoices(allDocs) {
+    if (!allDocs || !allDocs.length) return;
+    const keyCounts = new Map();
+    const hdList = allDocs.filter(d => d.kind === 'hd');
+
+    // 1. Đếm số lần xuất hiện của từng hóa đơn (trùng MST bán, ký hiệu, số HĐ)
+    hdList.forEach(d => {
+      const mst = (d.mst || d.ban?.MST || '').trim();
+      const kh = (d.kyHieu || '').trim();
+      const so = (d.so || '').trim();
+      if (mst && so) {
+        const k = `${mst}_${kh}_${so}`;
+        keyCounts.set(k, (keyCounts.get(k) || 0) + 1);
+      }
+    });
+
+    hdList.forEach(d => {
+      const mst = (d.mst || d.ban?.MST || '').trim();
+      const kh = (d.kyHieu || '').trim();
+      const so = (d.so || '').trim();
+      const k = `${mst}_${kh}_${so}`;
+      const count = keyCounts.get(k) || 1;
+      d.isDuplicate = count > 1;
+      d.dupCount = count;
+    });
+
+    // 2. Đối chiếu liên kết HĐ điều chỉnh / thay thế với HĐ gốc đang nạp
+    const hdByKhSo = new Map();
+    hdList.forEach(d => {
+      const kh = (d.kyHieu || '').trim();
+      const so = (d.so || '').trim();
+      if (kh && so) hdByKhSo.set(`${kh}_${so}`, d);
+    });
+
+    hdList.forEach(d => {
+      if (d.lienQuan && d.lienQuan.kh && d.lienQuan.so) {
+        const goc = hdByKhSo.get(`${d.lienQuan.kh.trim()}_${d.lienQuan.so.trim()}`);
+        if (goc && goc !== d) {
+          d.gocDoc = goc;
+          goc.thayTheBoi = d;
+        }
+      }
+    });
   }
 
   function capNhatPhanLoaiToanBo() {
     docs.forEach(d => {
       if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
     });
+    auditInvoices(docs);
     capNhatUiMst();
     renderList();
     if (selected >= 0) select(selected);
@@ -1177,7 +1346,12 @@
 
   const $ = id => document.getElementById(id);
   const HOME_HTML = $('main').innerHTML;
-  const TEN = window.TEN_CHI_TIEU || { forms: {}, files: {} };
+  const TEN = new Proxy({}, {
+    get(target, prop) {
+      const dict = window.TEN_CHI_TIEU || { forms: {}, files: {} };
+      return dict[prop] || (prop === 'forms' ? {} : (prop === 'files' ? {} : undefined));
+    }
+  });
 
   // ---------- Tiện ích ----------
   const kids = (el, name) => el ? Array.from(el.children).filter(c => c.localName === name) : [];
@@ -1267,7 +1441,104 @@
     } catch (e) { return null; }
   }
 
-  // Mọi chữ ký số trong file: tên người ký + thời điểm ký (KHÔNG kiểm tính hợp lệ).
+  // Canonicalize XML node theo chuẩn C14N (W3C REC-xml-c14n-20010315)
+  function canonicalizeXmlNode(node, withComments = false) {
+    if (!node) return '';
+    if (node.nodeType === 3) {
+      return node.nodeValue
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\r/g, '&#xD;');
+    }
+    if (node.nodeType === 1) {
+      let out = '<' + node.tagName;
+      const attrs = [];
+      for (let i = 0; i < node.attributes.length; i++) {
+        const a = node.attributes[i];
+        attrs.push({ name: a.name, value: a.value, isNs: a.name === 'xmlns' || a.name.startsWith('xmlns:') });
+      }
+      attrs.sort((a, b) => {
+        if (a.isNs && !b.isNs) return -1;
+        if (!a.isNs && b.isNs) return 1;
+        return a.name.localeCompare(b.name);
+      });
+      for (const a of attrs) {
+        const val = a.value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;')
+          .replace(/\t/g, '&#x9;')
+          .replace(/\n/g, '&#xA;')
+          .replace(/\r/g, '&#xD;');
+        out += ' ' + a.name + '="' + val + '"';
+      }
+      out += '>';
+      for (let i = 0; i < node.childNodes.length; i++) {
+        const child = node.childNodes[i];
+        if (child.nodeType === 8 && !withComments) continue;
+        out += canonicalizeXmlNode(child, withComments);
+      }
+      out += '</' + node.tagName + '>';
+      return out;
+    }
+    return '';
+  }
+
+  // Xác thực toàn vẹn Chữ ký số XMLDSig Offline bằng Web Crypto API
+  async function verifyXmlSignatureAsync(sig, root) {
+    if (!sig || !sig.dv) return { verified: false, reason: 'Thiếu DigestValue' };
+    try {
+      let target = null;
+      if (sig.refUri) {
+        target = root.querySelector(`[Id="${sig.refUri}"]`) || root.querySelector(`[id="${sig.refUri}"]`);
+      }
+      if (!target) {
+        target = deep(root, 'DLHDon')[0] || deep(root, 'HSoKhaiThue')[0] || root;
+      }
+      const algo = /sha256/i.test(sig.dm) ? 'SHA-256' : (/sha512/i.test(sig.dm) ? 'SHA-512' : 'SHA-1');
+
+      // 1. Canonicalize C14N không kèm comment
+      const c14nWithout = canonicalizeXmlNode(target, false);
+      const bufWithout = new TextEncoder().encode(c14nWithout);
+      const dWithout = await crypto.subtle.digest(algo, bufWithout);
+      let binWithout = '';
+      const bArrWithout = new Uint8Array(dWithout);
+      for (let i = 0; i < bArrWithout.length; i++) binWithout += String.fromCharCode(bArrWithout[i]);
+      const b64Without = btoa(binWithout);
+
+      if (b64Without === sig.dv) {
+        sig.verified = true;
+        sig.tampered = false;
+        sig.digestStatus = 'valid';
+      } else {
+        // 2. Thử C14N kèm comment (WithComments)
+        const c14nWith = canonicalizeXmlNode(target, true);
+        const bufWith = new TextEncoder().encode(c14nWith);
+        const dWith = await crypto.subtle.digest(algo, bufWith);
+        let binWith = '';
+        const bArrWith = new Uint8Array(dWith);
+        for (let i = 0; i < bArrWith.length; i++) binWith += String.fromCharCode(bArrWith[i]);
+        const b64With = btoa(binWith);
+
+        if (b64With === sig.dv) {
+          sig.verified = true;
+          sig.tampered = false;
+          sig.digestStatus = 'valid';
+        } else {
+          sig.verified = false;
+          sig.tampered = true;
+          sig.digestStatus = 'tampered';
+        }
+      }
+      return { verified: sig.verified, digestStatus: sig.digestStatus };
+    } catch (e) {
+      console.warn('Lỗi kiểm tra chữ ký số:', e);
+      return { verified: false, digestStatus: 'error' };
+    }
+  }
+
+  // Đọc chữ ký số và trích xuất tham số mật mã
   function readSignatures(root) {
     return deep(root, 'Signature').map(sig => {
       const subject = deep(sig, 'X509SubjectName')[0]?.textContent.trim() || '';
@@ -1276,9 +1547,18 @@
       let cn = (subject.match(/(?:^|,)\s*CN=([^,]+)/) || [])[1] || cert?.cn || '';
       const mst = (subject.match(/MST:([0-9-]+)/) || [])[1] || (cert?.uid.match(/MST:([0-9-]+)/) || [])[1] || '';
       const time = deep(sig, 'SigningTime')[0]?.textContent.trim() || deep(sig, 'DateTimeStamp')[0]?.textContent.trim() || '';
-      // vị trí chữ ký: ngay trong <CKyDTu> của hồ sơ, hay của CQT…
       const parent = sig.parentElement?.localName || '';
-      return { cn: cn.trim(), mst, time, cert, parent };
+
+      const ref = deep(sig, 'Reference')[0];
+      const refUri = ref ? (ref.getAttribute('URI') || '').replace(/^#/, '') : '';
+      const dm = deep(sig, 'DigestMethod')[0]?.getAttribute('Algorithm') || '';
+      const dv = deep(sig, 'DigestValue')[0]?.textContent.trim().replace(/\s+/g, '') || '';
+      const sm = deep(sig, 'SignatureMethod')[0]?.getAttribute('Algorithm') || '';
+      const sv = deep(sig, 'SignatureValue')[0]?.textContent.trim().replace(/\s+/g, '') || '';
+
+      const sObj = { cn: cn.trim(), mst, time, cert, parent, refUri, dm, dv, sm, sv };
+      verifyXmlSignatureAsync(sObj, root);
+      return sObj;
     }).filter(s => s.cn || s.time || s.cert);
   }
   function sigTip(s) {
@@ -1286,12 +1566,15 @@
     return [
       s.mst ? 'MST: ' + s.mst : '',
       s.cert?.issuer ? `Tổ chức cấp (CA): ${s.cert.issuer} (${s.cert.from} – ${s.cert.to})` : '',
-      'Chỉ hiển thị thông tin trong file, không kiểm tra tính hợp lệ.'
+      s.tampered ? 'CẢNH BÁO: Chữ ký số không khớp dữ liệu (có dấu hiệu bị chỉnh sửa)!' : (s.verified ? 'Chữ ký số toàn vẹn, dữ liệu khớp 100% bản ký gốc.' : 'Chữ ký điện tử đính kèm.')
     ].filter(Boolean).join(' · ');
   }
   function sigStamps(sigs, ghiChu) {
     if (!sigs.length) return `<div class="sigs"><span class="sig-none">Hồ sơ không có chữ ký điện tử${ghiChu ? ' — ' + esc(ghiChu) : ''}</span></div>`;
-    return `<div class="sigs">${sigs.map(s => `<div class="sig-row" title="${esc(sigTip(s))}"><span class="ico">✔</span><div><b>Ký điện tử bởi:</b> ${esc(s.cn || '(không ghi tên)')}<br><b>Ngày ký:</b> ${s.time ? esc(dateTime(s.time)) : '<i>không ghi giờ ký</i>'}</div></div>`).join('')}</div>`;
+    return `<div class="sigs">${sigs.map(s => {
+      let vBadge = s.tampered ? '<div class="sig-v-badge err">✖ Dữ liệu bị sửa đổi sau khi ký</div>' : (s.verified ? '<div class="sig-v-badge ok">✔ Chữ ký số toàn vẹn (Hợp lệ)</div>' : '');
+      return `<div class="sig-row" title="${esc(sigTip(s))}"><span class="ico">✔</span><div><b>Ký điện tử bởi:</b> ${esc(s.cn || '(không ghi tên)')}<br><b>Ngày ký:</b> ${s.time ? esc(dateTime(s.time)) : '<i>không ghi giờ ký</i>'}${vBadge}</div></div>`;
+    }).join('')}</div>`;
   }
 
   // ---------- Duyệt cây XML: chỉ tiêu đơn + bảng lặp ----------
@@ -1946,7 +2229,7 @@
   function readSigner(el) {
     if (!el) return null;
     const s = readSignatures(el)[0];
-    return s ? { cn: s.cn, time: s.time, cert: s.cert, mst: s.mst } : null;
+    return s || null;
   }
   function parseInvoice(root, fileName) {
     const dl = kid(root, 'DLHDon');
@@ -1990,6 +2273,21 @@
   function checkInvoice(inv) {
     const notes = [];
     const near = (a, b) => Math.abs(a - b) <= 1;
+
+    // Cảnh báo trùng lặp & đối chiếu hóa đơn liên quan (Giai đoạn 2)
+    if (inv.isDuplicate) {
+      notes.push(['warn', `Phát hiện ${inv.dupCount} bản sao của hóa đơn này trong danh sách tệp đang duyệt!`]);
+    }
+    if (inv.thayTheBoi) {
+      notes.push(['warn', `Hóa đơn này ĐÃ BỊ THAY THẾ bởi Hóa đơn số ${inv.thayTheBoi.so} (Ký hiệu ${inv.thayTheBoi.kyHieu}).`]);
+    }
+    if (inv.gocDoc) {
+      notes.push(['info', `Hóa đơn gốc (Số ${inv.lienQuan.so}, Ký hiệu ${inv.lienQuan.kh}) đang được nạp trong danh sách.`]);
+    }
+    if ((inv.kyBan && inv.kyBan.tampered) || (inv.kyCqt && inv.kyCqt.tampered)) {
+      notes.unshift(['err', 'CẢNH BÁO TOÀN VẸN: Dữ liệu hóa đơn KHÔNG KHỚP với chữ ký số (có dấu hiệu bị chỉnh sửa sau khi ký)!']);
+    }
+
     if (inv.tien_te !== 'VND') notes.push(['info', `Hóa đơn bằng ${inv.tien_te}, tỷ giá ${inv.tyGia || '?'} — các phép cộng chỉ kiểm theo nguyên tệ.`]);
     let sumLines = 0, counted = 0;
     for (const l of inv.lines) {
@@ -2061,7 +2359,13 @@
   }
   function stamp(sig, emptyText) {
     if (!sig) return `<div class="stamp none">${esc(emptyText || 'Không có chữ ký số')}</div>`;
-    return `<div class="stamp" title="${esc(sigTip(sig))}"><div class="s1">✔ Ký bởi: ${esc(sig.cn || '(không rõ tên)')}</div><div class="s2">Ngày ký: ${sig.time ? esc(dateTime(sig.time)) : 'không ghi'}</div></div>`;
+    let vBadge = '';
+    if (sig.tampered) {
+      vBadge = `<div class="sig-v-badge err">✖ Dữ liệu bị sửa đổi sau khi ký</div>`;
+    } else if (sig.verified) {
+      vBadge = `<div class="sig-v-badge ok">✔ Chữ ký số toàn vẹn (Hợp lệ)</div>`;
+    }
+    return `<div class="stamp" title="${esc(sigTip(sig))}"><div class="s1">✔ Ký bởi: ${esc(sig.cn || '(không rõ tên)')}</div><div class="s2">Ngày ký: ${sig.time ? esc(dateTime(sig.time)) : 'không ghi'}</div>${vBadge}</div>`;
   }
   // Lọc bỏ các trường TTKhac trùng lặp / bằng 0 do phần mềm xuất HĐ tự sinh gây rối mắt
   const RE_SKIP_LINE_KHAC = /^(thành tiền|tiền thuế|tổng tiền|chiết khấu lần|thuế suất)/i;
@@ -2156,6 +2460,8 @@
         <div class="hd-head">
           <div class="hd-left">
             ${inv.phanLoai === 'ban' ? '<div class="hd-pl-tag ban">📤 BÁN RA (ĐẦU RA)</div>' : inv.phanLoai === 'mua' ? '<div class="hd-pl-tag mua">📥 MUA VÀO (ĐẦU VÀO)</div>' : ''}
+            ${inv.isDuplicate ? `<div class="hd-pl-tag dup" style="background:#fee2e2;color:#b91c1c;border:1px solid #f87171;margin-top:4px">⚠️ TRÙNG LẶP (${inv.dupCount})</div>` : ''}
+            ${inv.qr ? `<div class="hd-qr-box">${/^https?:\/\//i.test(inv.qr) ? `<a href="${esc(inv.qr)}" target="_blank" rel="noopener noreferrer" class="qr-btn" title="Tra cứu hóa đơn gốc">🔍 Tra cứu HĐĐT</a>` : `<span class="qr-btn" title="${esc(inv.qr)}">📱 Mã QR</span>`}</div>` : ''}
           </div>
           <div class="hd-title">
             <h2>${esc(mainTitle)}</h2>
@@ -2170,6 +2476,8 @@
           </div>
         </div>
         ${lq ? `<div class="hd-lq"><b>Hóa đơn ${tinhChat(lq.tc)} cho HĐ:</b> mẫu ${esc(lq.mau)}, ký hiệu <b>${esc(lq.kh)}</b>, số <b>${esc(lq.so)}</b>, ngày ${date(lq.ngay)}${lq.gc ? ' — ' + esc(lq.gc) : ''}</div>` : ''}
+        ${inv.gocDoc ? `<div class="hd-lq-match ok">🔗 <b>Đối chiếu liên kết:</b> Hóa đơn gốc (Số ${esc(inv.lienQuan.so)}, Ký hiệu ${esc(inv.lienQuan.kh)}) đang được nạp trong danh sách.</div>` : ''}
+        ${inv.thayTheBoi ? `<div class="hd-lq-match warn">⚠️ <b>HÓA ĐƠN ĐÃ BỊ THAY THẾ:</b> Hóa đơn này đã được thay thế bởi Hóa đơn số ${esc(inv.thayTheBoi.so)} (Ký hiệu ${esc(inv.thayTheBoi.kyHieu)}). Doanh số được ghi nhận theo HĐ mới.</div>` : ''}
         ${partyBlock(inv.ban, true, inv)}
         ${partyBlock(inv.mua, false, inv, inlineBuyer)}
         <table class="lines">
@@ -2193,23 +2501,36 @@
       <div class="copyright">(C) August87 - 0982722036</div>`;
   }
 
-  // ---------- Bộ dựng chuẩn theo mẫu XSLT của iTax Viewer ----------
-  const ITAX = window.MAU_ITAX || null;
-  if (ITAX?.css && !$('itaxCss')) {
-    const st = document.createElement('style');
-    st.id = 'itaxCss';
-    st.textContent = ITAX.css;
-    document.head.appendChild(st);
+  // ---------- Bộ dựng chuẩn theo mẫu XSLT của iTax Viewer (Nạp lười v1.8.0) ----------
+  function getItax() { return window.MAU_ITAX || null; }
+  function ensureItaxCss() {
+    const itax = getItax();
+    if (itax?.css && !$('itaxCss')) {
+      const st = document.createElement('style');
+      st.id = 'itaxCss';
+      st.textContent = itax.css;
+      document.head.appendChild(st);
+    }
   }
+  ensureItaxCss();
+
   let itaxZipProm = null;
-  const getItaxZip = () => itaxZipProm || (itaxZipProm = (ITAX && window.JSZip) ? JSZip.loadAsync(ITAX.zipB64, { base64: true }) : Promise.resolve(null));
-  if (ITAX) getItaxZip();
+  const getItaxZip = () => {
+    const itax = getItax();
+    if (!itaxZipProm && itax && window.JSZip) {
+      itaxZipProm = JSZip.loadAsync(itax.zipB64, { base64: true });
+    }
+    return itaxZipProm || Promise.resolve(null);
+  };
 
   const xslRawCache = new Map();
   const xslProcCache = new Map();
 
   async function readItaxXsl(pathKey) {
-    const h = ITAX?.files?.[pathKey];
+    await loadItaxDictsAsync();
+    ensureItaxCss();
+    const itax = getItax();
+    const h = itax?.files?.[pathKey];
     if (!h) return '';
     if (xslRawCache.has(h)) return xslRawCache.get(h);
     const zip = await getItaxZip();
@@ -2575,9 +2896,12 @@
     if (pBox) pBox.style.display = 'none';
 
     tuDongNhanDienMst();
+    auditInvoices(docs);
     renderList();
 
     // Nếu nạp nhiều file hoặc cả thư mục: Ưu tiên mở ngay Dashboard tổng hợp, KHÔNG mở hàng nghìn tab
+    // L?u phi?n l?m vi?c IndexedDB t? ??ng v2.0.0
+    luuPhienIndexedDb();
     const soFileMoi = docs.length - batDau;
     if (soFileMoi > 1) {
       moDashboard(selectedFolder);
@@ -2599,6 +2923,7 @@
       d.rawXml = text;
       if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
       docs.push(d);
+      auditInvoices(docs);
       return docs.length - 1;
     } catch (e) { return pushError(source, e.message); }
   }
@@ -2673,25 +2998,34 @@
   let selectedFolder = ''; // rỗng = tất cả thư mục
   let folderTreeRoot = null;
 
-  function layDanhSachTheoThuMuc() {
-    if (!selectedFolder) return docs;
-    if (folderTreeRoot) {
+    function buildFolderTreeIfNeeded() {
+    if (window.DASHBOARD_DONG && (!folderTreeRoot || folderTreeRoot.allDocIndices.length !== docs.length)) {
+      folderTreeRoot = window.DASHBOARD_DONG.buildFolderTree(docs);
+    }
+    return folderTreeRoot;
+  }
+
+  function layDanhSachTheoThuMuc(fPath) {
+    const targetPath = fPath !== undefined ? fPath : selectedFolder;
+    if (!targetPath) return docs;
+    const tree = buildFolderTreeIfNeeded();
+    if (tree) {
       function timNodeTheoPath(n) {
-        if (n.path === selectedFolder) return n;
+        if (n.path === targetPath) return n;
         for (const ch of n.children.values()) {
           const res = timNodeTheoPath(ch);
           if (res) return res;
         }
         return null;
       }
-      const targetNode = timNodeTheoPath(folderTreeRoot);
+      const targetNode = timNodeTheoPath(tree);
       if (targetNode && targetNode.allDocIndices && targetNode.allDocIndices.length) {
         return targetNode.allDocIndices.map(idx => docs[idx]).filter(Boolean);
       }
     }
     return docs.filter(d => {
-      let raw = (d.relPath || d.duongDan || d.source || '').replace(/^[A-Za-z]:[\/]/, '').replace(/\\/g, '/').replace(/\s*›\s*/g, '/');
-      return raw.startsWith(selectedFolder + '/') || raw === selectedFolder || raw.includes('/' + selectedFolder + '/');
+      let raw = (d.relPath || d.duongDan || d.source || '').replace(/^[A-Za-z]:[\/\\]/, '').replace(/\\/g, '/').replace(/\s*›\s*/g, '/');
+      return raw.startsWith(targetPath + '/') || raw === targetPath || raw.includes('/' + targetPath + '/');
     });
   }
 
@@ -2835,17 +3169,15 @@
     if (cheDo === 'ls') return renderLichSu(q);
     if (cheDo === 'cay') return renderCayThuMuc();
 
-    // Chế độ 'mo' (Đang mở): Chỉ hiển thị các file đang có tab mở
+    // Hiển thị danh sách file: ưu tiên thư mục đang chọn, sau đó là các tab đang mở
     let curDocs = [];
-    if (cheDo === 'mo') {
-      curDocs = openTabs.map(idx => docs[idx]).filter(Boolean);
-      if (selectedFolder) {
-        curDocs = curDocs.filter(d => (d.duongDan || d.source || '').replace(/\\/g, '/').toLowerCase().startsWith(selectedFolder.toLowerCase()));
-      }
-    } else {
+    if (selectedFolder) {
       curDocs = layDanhSachTheoThuMuc();
+    } else if (cheDo === 'mo') {
+      curDocs = openTabs.length ? openTabs.map(idx => docs[idx]).filter(Boolean) : docs;
+    } else {
+      curDocs = docs;
     }
-
     if (cheDo === 'mo' && !curDocs.length) {
       $('summary').innerHTML = docs.length
         ? `Không có file đang mở tab (Đã nạp <b>${docs.length}</b> file trong <a href="#" id="lnkToCay">Explorer</a>)`
@@ -2867,7 +3199,6 @@
     $('list').innerHTML = curDocs.map(d => {
       const i = docs.indexOf(d);
       if (d.error) {
-        if (locPhanLoai !== 'all') return '';
         if (q && !d.source.toLowerCase().includes(q)) return '';
         hienThiCount++;
         return `<div class="item err ${i === selected ? 'sel' : ''}" data-i="${i}">
@@ -2878,10 +3209,6 @@
           <div class="l2">${esc(d.source)}</div>
         </div>`;
       }
-      // Áp dụng bộ lọc phân loại
-      if (locPhanLoai === 'mua' && d.phanLoai !== 'mua') return '';
-      if (locPhanLoai === 'ban' && d.phanLoai !== 'ban') return '';
-      if (locPhanLoai === 'warn' && !(d.kind === 'hd' && d.notes.some(n => n[0] === 'warn'))) return '';
 
       const hay = [d.title, d.mst, d.ten, d.ky, d.source, d.mtk, d.so, d.phanLoai || ''].join(' ').toLowerCase();
       if (q && !hay.includes(q)) return '';
@@ -2899,6 +3226,7 @@
       const plTag = d.kind === 'hd'
         ? (d.phanLoai === 'ban' ? '<span class="tag-pl ban">BÁN RA</span>' : d.phanLoai === 'mua' ? '<span class="tag-pl mua">MUA VÀO</span>' : '')
         : '';
+      const dupTag = (d.kind === 'hd' && d.isDuplicate) ? `<span class="tag-pl dup" title="Phát hiện ${d.dupCount} bản trùng lặp">TRÙNG (${d.dupCount})</span>` : '';
 
       return `<div class="item ${i === selected ? 'sel' : ''}" data-i="${i}">
         <div class="l1">
@@ -2909,7 +3237,7 @@
           </span>
         </div>
         <div class="l2">${esc([d.ky || date(d.ngay), right, d.ten || d.mst].filter(Boolean).join(' · '))}</div>
-        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
+        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}${dupTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
     }).join('');
 
     if (!curDocs.length) { $('summary').textContent = 'Chưa có file nào.'; return; }
@@ -2917,7 +3245,7 @@
     for (const d of curDocs) { const k = d.error ? 'Lỗi' : KIND[d.kind][1]; dem[k] = (dem[k] || 0) + 1; }
     const chiTiet = Object.entries(dem).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(', ');
     const tongSummary = `${curDocs.length} file đang mở${chiTiet ? ' (' + chiTiet + ')' : ''}`;
-    const locSummary = (locPhanLoai !== 'all' || selectedFolder) ? ` (Đang lọc: ${hienThiCount} file)` : '';
+    const locSummary = selectedFolder ? ` (Đang lọc thư mục: ${hienThiCount} file)` : '';
     $('summary').innerHTML = tongSummary + locSummary + (docs.length > curDocs.length ? ` · Tổng nạp: <b>${docs.length}</b> file` : '');
   }
 
@@ -3202,6 +3530,8 @@
   $('main').addEventListener('click', e => {
     if (e.target.closest('#btnEmptyFile')) return chonTep();
     if (e.target.closest('#btnEmptyDir')) return chonThuMuc();
+    if (e.target.closest('#btnRestoreSessionCard')) return khoiPhucPhienCu();
+    if (e.target.closest('#btnDiscardSession')) return boQuaPhienCu();
 
     // Bộ lọc tương tác từ Dashboard (Cross-filtering: Click KPI, Thuế suất, Top KH, Top NCC)
     const fTrigger = e.target.closest('.dash-filter-trigger');
@@ -3266,7 +3596,7 @@
     }
   });
   $('q').oninput = debounce(renderList, 150);
-  $('clear').onclick = () => { docs.length = 0; openTabs.length = 0; selected = -1; selectedFolder = ''; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; };
+  $('clear').onclick = () => { docs.length = 0; openTabs.length = 0; selected = -1; selectedFolder = ''; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; luuPhienIndexedDb(); kiemTraPhienCu(); };
   $('about').onclick = e => {
     e.preventDefault();
     // chỉ báo khi thiếu file tên chỉ tiêu
@@ -3293,6 +3623,19 @@
     }
 
     // Ctrl + F: Tìm kiếm tức thì
+    // Ctrl + O: M? ch?n file
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'o' || e.key === 'O')) {
+      e.preventDefault();
+      if (e.shiftKey) chonThuMuc();
+      else chonTep();
+      return;
+    }
+    // Ctrl + E: Xu?t Excel
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'e' || e.key === 'E')) {
+      e.preventDefault();
+      $('btnExportExcel')?.click();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
       e.preventDefault();
       const qInp = $('q');
@@ -3450,7 +3793,8 @@
       alert('Vui lòng tích chọn ít nhất 1 file để xuất script đổi tên!');
       return;
     }
-    const mappingLines = items.map(it => `  "${it.oldName}" = "${it.newName}"`).join('\r\n');
+    const psQuote = s => "'" + String(s || '').replace(/[\r\n\0]/g, '').replace(/'/g, "''") + "'";
+    const mappingLines = items.map(it => `  ${psQuote(it.oldName)} = ${psQuote(safeFileName(it.newName))}`).join('\r\n');
     const ps1 = `# =====================================================================
 # SCRIPT ĐỔI TÊN HÓA ĐƠN / TỜ KHAI TỰ ĐỘNG - XML PRO
 # Tạo ngày: ${new Date().toLocaleString('vi-VN')}
@@ -3477,7 +3821,7 @@ Get-ChildItem -File -Filter *.xml | ForEach-Object {
         if ($curName -ne $target) {
             Write-Host "-> Doi ten: $curName" -ForegroundColor Gray
             Write-Host "       => $target" -ForegroundColor Green
-            Rename-Item -Path $_.FullName -NewName $target -Force
+            Rename-Item -LiteralPath $_.FullName -NewName $target -Force
             $count++
         }
     }
@@ -3498,18 +3842,6 @@ Read-Host
     document.body.appendChild(a);
     a.click();
     setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
-  }
-
-  // Gắn sự kiện cho các nút điều khiển Kế toán
-  const filterPills = $('filterPills');
-  if (filterPills) {
-    filterPills.addEventListener('click', e => {
-      const btn = e.target.closest('.pill');
-      if (btn && btn.dataset.loc) {
-        locPhanLoai = btn.dataset.loc;
-        renderList();
-      }
-    });
   }
 
   const btnCaiDatMst = $('btnCaiDatMst');
@@ -3542,6 +3874,242 @@ Read-Host
   });
   $('btnExportZipMoi').onclick = xuatZipDoiTen;
   $('btnExportPs1').onclick = xuatScriptPs1;
+  const btnDoiTenTrucTiep = $('btnDoiTenTrucTiep');
+  if (btnDoiTenTrucTiep) btnDoiTenTrucTiep.onclick = doiTenTrucTiepTrenODia;
+
+  // ---------- ??i T?n Tr?c Ti?p Tr?n ? ??a (Desktop API v2.0.0) ----------
+  async function doiTenTrucTiepTrenODia() {
+    const items = layDanhSachDoiTenChon();
+    if (!items.length) {
+      alert('Vui l?ng t?ch ch?n ?t nh?t 1 file ?? ??i t?n!');
+      return;
+    }
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+      alert('? T?nh n?ng "??i T?n Tr?c Ti?p Tr?n ? ??a" ???c t?i ?u khi m? ?ng d?ng qua bi?u t??ng XemXmlThue.exe tr?n Desktop.\n\nHi?n b?n ?ang m? qua giao th?c file://, vui l?ng s? d?ng n?t "? T?i Script PowerShell (.ps1)" ho?c "?? T?i File .ZIP ?? ??i T?n"!');
+      return;
+    }
+
+    const itemsCoDuongDan = items.filter(it => it.d.duongDan && it.d.duongDan.includes(':'));
+    if (!itemsCoDuongDan.length) {
+      alert('C?c file ???c n?p th? c?ng t? tr?nh duy?t kh?ng c? ???ng d?n ? ??a tuy?t ??i do c? ch? b?o m?t tr?nh duy?t.\n\nB?n vui l?ng m? file b?ng c?ch click ??p file/k?o th? file v?o bi?u t??ng XemXmlThue.exe tr?n Desktop, ho?c s? d?ng n?t "? T?i Script PowerShell (.ps1)" ?? ??i t?n ngay t?i th? m?c ch?a file!');
+      return;
+    }
+
+    if (!confirm(`B?n c? ch?c ch?n mu?n ??i t?n tr?c ti?p ${itemsCoDuongDan.length} file ngay tr?n ? ??a m?y t?nh?`)) {
+      return;
+    }
+
+    const btn = $('btnDoiTenTrucTiep');
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '? ?ang ??i t?n...';
+
+    const payload = itemsCoDuongDan.map(it => ({
+      oldPath: it.d.duongDan,
+      newName: safeFileName(it.newName)
+    }));
+
+    try {
+      const res = await fetch('/api/rename', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('M?y ch? ph?n h?i m? ' + res.status);
+      const data = await res.json();
+      if (data.success) {
+        let msg = `? ?? ??i t?n th?nh c?ng ${data.renamed}/${itemsCoDuongDan.length} file tr?c ti?p tr?n ? c?ng!`;
+        if (data.errorCount > 0) msg += `\n(C? ${data.errorCount} file kh?ng th? ??i t?n do ?ang b? kh?a ho?c tr?ng l?p)`;
+        alert(msg);
+        itemsCoDuongDan.forEach(it => {
+          const safe = safeFileName(it.newName);
+          it.d.fileName = safe;
+          if (it.d.duongDan) {
+            const p = it.d.duongDan.lastIndexOf('\\');
+            if (p > 0) it.d.duongDan = it.d.duongDan.slice(0, p + 1) + safe;
+          }
+        });
+        hienThiDanhSach();
+        capNhatDemDoiTen();
+      } else {
+        alert('L?i khi ??i t?n: ' + (data.error || 'Thao t?c kh?ng th?nh c?ng'));
+      }
+    } catch (e) {
+      alert('Kh?ng th? k?t n?i ??n API ??i t?n c?a Desktop App: ' + e.message + '\nB?n c? th? d?ng n?t "T?i Script PowerShell (.ps1)" ?? ??i t?n th? c?ng.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
+  }
+
+  // ---------- Dark Mode / Theme Toggle ----------
+  const KHOA_THEME = 'xmlpro_theme';
+  function apDungTheme(theme) {
+    const isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    const btn = $('btnToggleDark');
+    if (btn) btn.textContent = isDark ? '??' : '??';
+    try { localStorage.setItem(KHOA_THEME, isDark ? 'dark' : 'light'); } catch(e){}
+  }
+  const themeLuu = (function() {
+    try {
+      const t = localStorage.getItem(KHOA_THEME);
+      if (t) return t;
+    } catch(e){}
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  })();
+  apDungTheme(themeLuu);
+  const btnToggleDark = $('btnToggleDark');
+  if (btnToggleDark) {
+    btnToggleDark.onclick = () => {
+      const dangDark = document.documentElement.classList.contains('dark');
+      apDungTheme(dangDark ? 'light' : 'dark');
+    };
+  }
+
+  // ---------- Qu?n l? Phi?n l?m vi?c kh?ng gi?i h?n v?i IndexedDB (v2.0.0) ----------
+  const DB_NAME = 'XmlProDB_v2';
+  const DB_VERSION = 1;
+  const STORE_NAME = 'phienLamViec';
+
+  function moIndexedDB() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) return reject(new Error('IndexedDB kh?ng ???c h? tr?'));
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  let saveSessionTimer = null;
+  function luuPhienIndexedDb() {
+    clearTimeout(saveSessionTimer);
+    saveSessionTimer = setTimeout(async () => {
+      try {
+        const db = await moIndexedDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const st = tx.objectStore(STORE_NAME);
+        if (!docs.length) {
+          st.delete('phien_gan_nhat');
+          return;
+        }
+        const data = {
+          id: 'phien_gan_nhat',
+          thoiGian: new Date().toLocaleString('vi-VN'),
+          soLuong: docs.length,
+          items: docs.slice(0, 1500).map(d => ({
+            fileName: d.fileName || 'file.xml',
+            source: d.source || d.fileName || 'file.xml',
+            duongDan: d.duongDan || '',
+            rawXml: d.rawXml || ''
+          }))
+        };
+        st.put(data);
+      } catch (err) {
+        console.warn('L?i l?u phi?n IndexedDB:', err);
+      }
+    }, 1200);
+  }
+
+  async function kiemTraPhienCu() {
+    try {
+      const db = await moIndexedDB();
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const st = tx.objectStore(STORE_NAME);
+      const req = st.get('phien_gan_nhat');
+      req.onsuccess = () => {
+        const data = req.result;
+        if (data && data.items && data.items.length > 0 && docs.length === 0) {
+          const card = $('sessionCard');
+          const countEl = $('sessionCardCount');
+          const timeEl = $('sessionCardTime');
+          if (card && countEl && timeEl) {
+            countEl.textContent = data.items.length.toLocaleString('vi-VN');
+            timeEl.textContent = data.thoiGian || '';
+            card.style.display = 'flex';
+          }
+        }
+      };
+    } catch (e) {
+      console.warn('Kh?ng th? ??c phi?n c? t? IndexedDB:', e);
+    }
+  }
+
+  async function khoiPhucPhienCu() {
+    try {
+      const db = await moIndexedDB();
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const st = tx.objectStore(STORE_NAME);
+      const req = st.get('phien_gan_nhat');
+      req.onsuccess = async () => {
+        const data = req.result;
+        if (!data || !data.items || !data.items.length) {
+          alert('Kh?ng t?m th?y d? li?u phi?n c?.');
+          return;
+        }
+        const files = data.items.map(it => {
+          const blob = new Blob([it.rawXml || ''], { type: 'text/xml' });
+          const f = new File([blob], it.fileName || 'file.xml');
+          f.relPath = it.source || it.fileName;
+          f.duongDan = it.duongDan || '';
+          return f;
+        });
+        const card = $('sessionCard');
+        if (card) card.style.display = 'none';
+        await addFiles(files);
+      };
+    } catch (e) {
+      alert('L?i kh?i ph?c phi?n: ' + e.message);
+    }
+  }
+
+  async function boQuaPhienCu() {
+    const card = $('sessionCard');
+    if (card) card.style.display = 'none';
+    try {
+      const db = await moIndexedDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete('phien_gan_nhat');
+    } catch (e) { }
+  }
+
+  // Kh?i ch?y ki?m tra phi?n c?
+  kiemTraPhienCu();
+
+  // ---------- Polling API tr?n Loopback Server (v2.0.0 Desktop IPC) ----------
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    const pollLoopback = async () => {
+      try {
+        const res = await fetch('/api/poll');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const files = items.map(x => {
+              const bin = atob(x.b64);
+              const b = new Uint8Array(bin.length);
+              for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+              const f = new File([b], x.ten);
+              f.relPath = x.duongDan;
+              f.duongDan = x.duongDan;
+              return f;
+            });
+            await addFiles(files);
+            if (docs.length > 0) select(docs.length - 1);
+          }
+        }
+      } catch (e) {
+      } finally {
+        setTimeout(pollLoopback, 1500);
+      }
+    };
+    pollLoopback();
+  }
 
   // Khởi động giao diện MST ban đầu
   capNhatUiMst();
@@ -3552,7 +4120,8 @@ Read-Host
   // Nhờ vậy mở thêm file lúc nào cũng vào đúng cửa sổ này, thành tab mới. Chỉ nhận đúng thư mục đó.
   const thamSo = new URLSearchParams(location.search);
   const hang = thamSo.get('hang');
-  if (hang && hang.toLowerCase().includes('mo/hang')) {
+  const isLocalHang = hang && /^file:\/\/\/[a-zA-Z]:\/[^?#<>:"|*]+\/mo\/hang\/$/i.test(hang);
+  if (isLocalHang) {
     let so = Math.max(1, parseInt(thamSo.get('so'), 10) || 1);
     window.__NHAN_FILE = (n, ds) => {
       if (n !== so) return;
@@ -3614,7 +4183,7 @@ Read-Host
 
     function moModalCapNhat() {
       if ($('dlg') && $('dlg').open) $('dlg').close();
-      if (txtPhienBanHienTai) txtPhienBanHienTai.textContent = 'v' + (window.PHIEN_BAN || '1.7.5');
+      if (txtPhienBanHienTai) txtPhienBanHienTai.textContent = 'v' + (window.PHIEN_BAN || '2.0.0');
       if (dlgCapNhat) dlgCapNhat.showModal();
     }
     if (btnMoCapNhat) btnMoCapNhat.onclick = moModalCapNhat;
@@ -3627,7 +4196,7 @@ Read-Host
       }
       try {
         // Kiểm tra từ manifest version cục bộ hoặc endpoint
-        let banMoiNhat = window.PHIEN_BAN || '1.7.2';
+        let banMoiNhat = window.PHIEN_BAN || '2.0.0';
         let coBanMoi = false;
         
         // Thử đọc file version từ thư mục phát hành nếu có
@@ -3650,7 +4219,7 @@ Read-Host
           if (boxCapNhatMoi) {
             boxCapNhatMoi.style.display = 'block';
             lblTieuDeBanMoi.textContent = '🎉 Đã có bản cập nhật mới v' + banMoiNhat + '!';
-            txtNoiDungBanMoi.innerHTML = '• Cố định viền app khít 100% khung màn hình, không trôi cuộn ngang dọc.<br>• Mở tối đa hóa cửa sổ khít mép màn hình máy tính.<br>• Trung tâm cập nhật phiên bản 1 chạm tiện lợi.';
+            txtNoiDungBanMoi.innerHTML = '• Bản phát hành v1.8.0: Nạp lười 16.6 MB từ điển iTax/HTKK (tăng tốc mở HĐĐT >90%).<br>• Xác thực toàn vẹn Chữ ký số XMLDSig Offline (Web Crypto API SHA-256 / SHA-1).<br>• Trợ lý đối chiếu kế toán (Audit Assistant): Phát hiện hóa đơn trùng lặp, ghép cặp HĐ điều chỉnh/thay thế, mã QR tra cứu.<br>• Bổ sung mẫu xuất Excel chuẩn MISA AMIS và phụ lục TT80 01-1, 01-2/GTGT.';
           }
           if (btnMoCapNhat) btnMoCapNhat.classList.add('has-new');
           if (btnTaiCapNhatTuDong) {
@@ -3660,7 +4229,7 @@ Read-Host
           }
         } else {
           if (txtTrangThaiCapNhat) {
-            txtTrangThaiCapNhat.textContent = '✓ Bạn đang dùng phiên bản mới nhất (v' + (window.PHIEN_BAN || '1.7.2') + ')';
+            txtTrangThaiCapNhat.textContent = '✓ Bạn đang dùng phiên bản mới nhất (v' + (window.PHIEN_BAN || '1.8.0') + ')';
             txtTrangThaiCapNhat.style.color = '#16a34a';
           }
           if (boxCapNhatMoi) boxCapNhatMoi.style.display = 'none';
@@ -3670,7 +4239,7 @@ Read-Host
         }
       } catch(err) {
         if (txtTrangThaiCapNhat) {
-          txtTrangThaiCapNhat.textContent = '✓ Phiên bản hiện tại v' + (window.PHIEN_BAN || '1.7.2') + ' đang hoạt động tối ưu';
+          txtTrangThaiCapNhat.textContent = '✓ Phiên bản hiện tại v' + (window.PHIEN_BAN || '1.8.0') + ' đang hoạt động tối ưu';
           txtTrangThaiCapNhat.style.color = '#16a34a';
         }
       }
@@ -3690,7 +4259,9 @@ Read-Host
     setMyMst: m => { myMst = cleanMst(m); capNhatPhanLoaiToanBo(); },
     moDashboard, renderCayThuMuc, layDanhSachTheoThuMuc,
     getSelectedFolder: () => selectedFolder,
-    setSelectedFolder: f => { selectedFolder = f; }
+    setSelectedFolder: f => { selectedFolder = f; },
+    moIndexedDB, luuPhienIndexedDb, kiemTraPhienCu, khoiPhucPhienCu, boQuaPhienCu,
+    doiTenTrucTiepTrenODia, apDungTheme
   };
 })();
 </script>

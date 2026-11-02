@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("Xem XML thuế")]
-[assembly: AssemblyProduct("Xem XML thuế")]
-[assembly: AssemblyDescription("Xem tờ khai, BCTC, thông báo thuế, chứng từ nộp tiền, hoá đơn điện tử (XML)")]
+[assembly: AssemblyTitle("XML-Pro")]
+[assembly: AssemblyProduct("XML-Pro")]
+[assembly: AssemblyDescription("Xem và xử lý 8 hệ sinh thái chứng từ điện tử Việt Nam (XML)")]
 [assembly: AssemblyCompany("August87")]
 [assembly: AssemblyCopyright("(C) August87 - 0982722036")]
 // Số phiên bản nằm ở PhienBan.cs — do dong-goi.ps1 tự tạo, tự tăng mỗi lần đóng gói.
