@@ -750,6 +750,17 @@
 
   /* Thanh công cụ Kế toán */
   .kt-tools { display: flex; gap: 6px; margin-top: 6px; }
+  .tools #clear { flex-shrink: 0; white-space: nowrap; }
+  .tools #q { min-width: 0; }
+  .cong-cu { position: relative; margin-top: 6px; }
+  .cong-cu > summary { list-style: none; cursor: pointer; font-size: 12px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); user-select: none; }
+  .cong-cu > summary::-webkit-details-marker { display: none; }
+  .cong-cu > summary::after { content: '▾'; float: right; color: var(--muted); }
+  .cong-cu[open] > summary::after { content: '▴'; }
+  .cc-menu { position: absolute; left: 0; right: 0; top: calc(100% + 3px); z-index: 30; display: flex; flex-direction: column; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+  .cc-menu button { text-align: left; font-size: 12px; padding: 6px 8px; border: 0; border-radius: 4px; background: transparent; color: var(--ink); cursor: pointer; }
+  .cc-menu button:hover { background: var(--line); }
+  .cc-menu b { color: var(--accent, #0284c7); font-weight: 600; }
   .btn-kt { flex: 1; font-size: 11px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #f8fafc; color: var(--ink); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
   .btn-kt:hover { background: #e2e8f0; }
   .btn-kt.pri { background: #0284c7; color: #fff; border-color: #0284c7; font-weight: 600; flex: 0.85; }
@@ -1038,21 +1049,16 @@
       <input type="file" id="pickDir" class="sr-only" webkitdirectory multiple>
       <div class="tools">
         <input id="q" placeholder="Tìm: tên mẫu, MST, kỳ, tên file…">
-        <button id="clear" title="Xoá danh sách">Xoá</button>
+        <button id="clear" title="Đóng mọi tệp đang mở trong app (không xoá tệp nào trên ổ cứng)">Đóng tất cả</button>
       </div>
-      <div class="kt-tools">
-        <button id="btnCaiDatMst" class="btn-kt" title="Thiết lập MST Doanh nghiệp để tự động phân loại Mua vào / Bán ra">
-          ⚙ MST: <b id="lblMyMst" style="color:#0284c7">Chưa cài</b>
-        </button>
-        <button id="btnDoiTen" class="btn-kt pri" title="Chuẩn hóa & Đổi tên file XML hàng loạt theo quy chuẩn kế toán">
-          🏷 Đổi tên file
-        </button>
-      </div>
-      <div class="kt-tools">
-        <button id="btnLapTk" class="btn-kt" title="Lập tờ khai thuế GTGT 01/GTGT hoặc 04/GTGT (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">
-          📝 Lập tờ khai GTGT từ hoá đơn
-        </button>
-      </div>
+      <details class="cong-cu" id="congCu">
+        <summary>🧰 Công cụ</summary>
+        <div class="cc-menu">
+          <button id="btnLapTk" type="button" title="Lập tờ khai thuế GTGT 01/GTGT hoặc 04/GTGT (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">📝 Lập tờ khai GTGT từ hoá đơn</button>
+          <button id="btnDoiTen" type="button" title="Đổi tên tệp XML trên ổ cứng theo dạng ngày-MST-số HĐ-tên công ty, dễ tìm trong Windows Explorer">🏷 Đổi tên file hàng loạt</button>
+          <button id="btnCaiDatMst" type="button" title="App tự nhận MST công ty từ tờ khai / hoá đơn để gắn nhãn Mua vào / Bán ra. Cài tay khi app nhận sai">⚙ MST công ty: <b id="lblMyMst">chưa nhận ra</b></button>
+        </div>
+      </details>
     </div>
     <div class="summary" id="summary">Chưa có file nào.</div>
     <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay" title="Khám phá cấu trúc thư mục & tập tin (Explorer)">📁 Explorer</button><button id="segLs">Lịch sử</button></div>
@@ -1372,27 +1378,39 @@
     return d.kind;
   }
 
+  // MST "của mình" tự nhận mỗi lần nạp tệp, trừ khi kế toán đã cài tay (Công cụ → MST) hoặc đã chọn công ty trên Dashboard.
+  // Trước đây hàm này đếm theo nhãn Mua/Bán — mà nhãn đó lại cần MST mới có, nên chưa cài MST thì không bao giờ nhận ra.
+  let mstTuDong = !cleanMst(myMst);
   function tuDongNhanDienMst() {
-    if (cleanMst(myMst)) return;
-    const candidateCounts = {};
+    if (!mstTuDong) return;
+    // Ưu tiên MST của tờ khai GTGT đang nạp; không có thì MST xuất hiện trên nhiều hoá đơn nhất (bên bán hoặc bên mua)
+    const dem = {};
+    const DC = window.DOI_CHIEU;
     for (const d of docs) {
-      if (d.kind !== 'hd') continue;
-      if (d.phanLoai === 'ban') {
-        const m = cleanMst(d.ban?.MST);
-        if (m) candidateCounts[m] = (candidateCounts[m] || 0) + 2;
-      } else if (d.phanLoai === 'mua') {
-        const m = cleanMst(d.mua?.MST);
-        if (m) candidateCounts[m] = (candidateCounts[m] || 0) + 2;
+      if (d.error) continue;
+      if (d.kind === 'tk' && DC && DC.laToKhaiGTGT(d)) {
+        const m = cleanMst(DC.docToKhai(d).mst);
+        if (m) dem[m] = (dem[m] || 0) + 1000;
+      } else if (d.kind === 'hd') {
+        for (const p of [d.ban, d.mua]) { const m = cleanMst(p?.MST); if (m) dem[m] = (dem[m] || 0) + 1; }
       }
     }
-    const entries = Object.entries(candidateCounts).sort((a, b) => b[1] - a[1]);
-    if (entries.length && entries[0][1] >= 2) {
-      myMst = entries[0][0];
-      for (const d of docs) {
-        if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
-      }
-      capNhatUiMst();
-    }
+    const ds = Object.entries(dem).sort((a, b) => b[1] - a[1]);
+    // Chỉ nhận khi rõ ràng: có ít nhất 2 lần và nhiều hơn hẳn MST đứng thứ hai
+    const moi = ds.length && ds[0][1] >= 2 && (!ds[1] || ds[0][1] > ds[1][1]) ? ds[0][0] : '';
+    if (moi === myMst) return;
+    myMst = moi;
+    for (const d of docs) if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
+    capNhatUiMst();
+  }
+  // Chọn công ty trên Dashboard: danh sách bên trái gắn nhãn Mua vào / Bán ra theo công ty đó (chỉ trong phiên này)
+  function chonCongTy(mst) {
+    mst = cleanMst(mst);
+    if (!mst || mst === myMst) return;
+    myMst = mst; mstTuDong = false;
+    for (const d of docs) if (d.kind === 'hd') d.phanLoai = xacDinhPhanLoai(d);
+    capNhatUiMst();
+    renderList();
   }
 
   function rutGonTen(ten) {
@@ -1507,7 +1525,7 @@
 
   function capNhatUiMst() {
     const el = $('lblMyMst');
-    if (el) el.textContent = myMst || 'Chưa cài';
+    if (el) el.textContent = myMst ? myMst + (mstTuDong ? ' (tự nhận)' : '') : 'chưa nhận ra';
   }
 
   const $ = id => document.getElementById(id);
@@ -3795,7 +3813,7 @@
     $('dlgLapTk').showModal();
   }
   $('btnLapTk').onclick = () => moDlgLapTk();
-  if (window.DASHBOARD_KE_TOAN) window.DASHBOARD_KE_TOAN.ganSuKien($('main'), () => { if (selected === -2) moDashboard(); }, moDlgLapTk);
+  if (window.DASHBOARD_KE_TOAN) window.DASHBOARD_KE_TOAN.ganSuKien($('main'), () => { if (selected === -2) moDashboard(); }, moDlgLapTk, chonCongTy);
   $('ltDong').onclick = () => $('dlgLapTk').close();
   $('ltMst').onchange = ltNapMstKy;
   $('ltKieu').onchange = () => { ltDienSo(); ltNapMstKy(); };
@@ -4229,7 +4247,14 @@
     }
   });
   $('q').oninput = debounce(renderList, 150);
-  $('clear').onclick = () => { docs.length = 0; openTabs.length = 0; selected = -1; selectedFolder = ''; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; luuPhienIndexedDb(); kiemTraPhienCu(); };
+  // Menu Công cụ: bấm một mục hoặc bấm ra ngoài thì đóng lại
+  $('congCu').addEventListener('click', e => { if (e.target.closest('.cc-menu button')) $('congCu').open = false; });
+  document.addEventListener('click', e => { if ($('congCu').open && !e.target.closest('#congCu')) $('congCu').open = false; });
+  // Đóng tất cả: chỉ đóng trong app, không đụng tệp trên ổ cứng. Hỏi lại vì phiên đã lưu cũng bị thay bằng phiên rỗng.
+  $('clear').onclick = () => {
+    if (docs.length && !confirm(`Đóng cả ${docs.length.toLocaleString('vi-VN')} tệp đang mở trong app?\n\nTệp trên ổ cứng KHÔNG bị xoá, nhưng phiên làm việc đã lưu sẽ bị thay bằng phiên rỗng (không bấm "Khôi phục" được nữa).`)) return;
+    if (mstTuDong) { myMst = ''; capNhatUiMst(); }
+    docs.length = 0; openTabs.length = 0; selected = -1; selectedFolder = ''; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; luuPhienIndexedDb(); kiemTraPhienCu(); };
   $('about').onclick = e => {
     e.preventDefault();
     // chỉ báo khi thiếu file tên chỉ tiêu
@@ -4512,6 +4537,8 @@ Read-Host
     myMst = cleanMst($('inpMyMst').value);
     if (myMst) localStorage.setItem(KHOA_MY_MST, myMst);
     else localStorage.removeItem(KHOA_MY_MST);
+    mstTuDong = !myMst;
+    if (mstTuDong) tuDongNhanDienMst();
     capNhatPhanLoaiToanBo();
     $('dlgMst').close();
   };
@@ -4519,6 +4546,8 @@ Read-Host
     myMst = '';
     localStorage.removeItem(KHOA_MY_MST);
     $('inpMyMst').value = '';
+    mstTuDong = true;
+    tuDongNhanDienMst();
     capNhatPhanLoaiToanBo();
     $('dlgMst').close();
   };

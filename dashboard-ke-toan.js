@@ -185,11 +185,12 @@
     </div>`;
   }
 
-  /** Gắn sự kiện một lần lên khung chính. veLai(): vẽ lại Dashboard; moLapTk(preset): mở hộp lập tờ khai */
-  function ganSuKien(khung, veLai, moLapTk) {
+  /** Gắn sự kiện một lần lên khung chính. veLai(): vẽ lại Dashboard; moLapTk(preset): mở hộp lập tờ khai;
+   *  chonCty(mst): báo app công ty vừa chọn, để danh sách bên trái gắn nhãn Mua vào / Bán ra theo công ty đó */
+  function ganSuKien(khung, veLai, moLapTk, chonCty) {
     khung.addEventListener('click', e => {
       const cty = e.target.closest('[data-cty]');
-      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; veLai(); return; }
+      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; if (chonCty) chonCty(chon.mst); veLai(); return; }
       const k = e.target.closest('.ktt-chon-ky [data-kieu]');
       if (k) { chon.kieu = k.dataset.kieu; veLai(); return; }
       const l = e.target.closest('[data-lap-tk]');

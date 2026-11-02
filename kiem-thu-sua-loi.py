@@ -499,6 +499,44 @@ def kiem_04(ev, J, hd):
              J({'x': x, 'mong': mong, 'ten': r['ten'], 'mtk': r['mtk'], 'duPhong': r['duPhong']}, ensure_ascii=False))
 
 
+def kiem_thanh_ben(ev, J, hd):
+    print('=== 11. Thanh bên: tự nhận MST, menu Công cụ, "Đóng tất cả" hỏi lại ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    dem = {}
+    for f in hd:
+        dl = etree.parse(f).getroot().find('DLHDon')
+        for p in ('NBan', 'NMua'):
+            m = dl.findtext(f'NDHDon/{p}/MST')
+            if m:
+                dem[m] = dem.get(m, 0) + 1
+    top = max(dem, key=dem.get)
+    mong = {'ban': sum(1 for f in hd if etree.parse(f).getroot().findtext('DLHDon/NDHDon/NBan/MST') == top),
+            'mua': sum(1 for f in hd if etree.parse(f).getroot().findtext('DLHDon/NDHDon/NMua/MST') == top)}
+    r = ev('''(async () => { const A = window.__xemXmlThue;
+          localStorage.removeItem('xmlpro.myMst');
+          const truoc = document.getElementById('lblMyMst').textContent;
+          await A.addFiles(%s.map(([ten, vb]) => new File([vb], ten)));
+          const nhan = {}; A.docs.forEach(d => { if (d.kind === 'hd') nhan[d.phanLoai] = (nhan[d.phanLoai] || 0) + 1; });
+          const sau = document.getElementById('lblMyMst').textContent;
+          document.querySelector('#congCu summary').click(); await new Promise(r => setTimeout(r, 100));
+          const mo = document.getElementById('congCu').open;
+          document.getElementById('btnLapTk').click(); await new Promise(r => setTimeout(r, 300));
+          const hop = document.getElementById('dlgLapTk').open, menuDong = !document.getElementById('congCu').open;
+          document.getElementById('dlgLapTk').close();
+          const goc = window.confirm, n0 = A.docs.length;
+          window.confirm = () => false; document.getElementById('clear').click(); const huy = A.docs.length;
+          window.confirm = () => true; document.getElementById('clear').click(); const dong = A.docs.length;
+          window.confirm = goc;
+          return { truoc, sau, nhan, mo, hop, menuDong, n0, huy, dong, nut: document.getElementById('clear').textContent,
+                   conNutCu: !!document.querySelector('.kt-tools') }; })()''' % J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
+    danh_gia(f'Chưa cài MST: app tự nhận {top} (MST có trên nhiều hoá đơn nhất), gắn nhãn đủ {mong["ban"]} bán ra / {mong["mua"]} mua vào',
+             top == MST and r['truoc'] == 'chưa nhận ra' and r['sau'] == f'{MST} (tự nhận)' and r['nhan'] == mong, J({k: r[k] for k in ('truoc', 'sau', 'nhan')}, ensure_ascii=False) + f' mong {mong}')
+    danh_gia('Thanh bên: 3 nút gom vào "Công cụ", bấm mục thì mở hộp và menu tự đóng; "Đóng tất cả" hỏi lại (Huỷ giữ nguyên, OK mới đóng)',
+             r['mo'] and r['hop'] and r['menuDong'] and r['n0'] == len(hd) and r['huy'] == len(hd) and r['dong'] == 0 and r['nut'] == 'Đóng tất cả' and not r['conNutCu'],
+             J({k: r[k] for k in ('mo', 'hop', 'menuDong', 'n0', 'huy', 'dong', 'nut', 'conNutCu')}, ensure_ascii=False))
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -682,6 +720,7 @@ def main():
         kiem_tncn(ev, J, hd)
         kiem_khbs(ev, J, hd)
         kiem_04(ev, J, hd)
+        kiem_thanh_ben(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

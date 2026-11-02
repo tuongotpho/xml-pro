@@ -34,7 +34,7 @@
    - **Cách dùng:** chọn Mẫu "04/GTGT" trong hộp lập tờ khai. Chọn nhóm ngành mặc định (1%, 5%, 3% hoặc 2%) rồi đổi nhóm cho từng hoá đơn nếu cần. App xuất XML mã 847.
    - **Đo:** 4 hoá đơn mẫu, doanh thu 1.130.646.600 đ, thuế 1% là 11.306.466 đ — đúng phép cộng Python độc lập. Mẫu iTax 04/GTGT dựng được tờ khai.
 4. **Test:**
-   - bộ test chính **36/36** (trước 29/29), thêm 7 mục mới;
+   - bộ test chính **38/38** (trước 29/29), thêm 9 mục mới;
    - 4 bộ test cũ: đạt;
    - đã có bộ cài **`CaiDat-XML-Pro-3.0.2.exe`** và đã kiểm mã mới nằm trong bộ cài.
 5. **Chưa kiểm được — cần anh:**
@@ -95,6 +95,21 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
   - app **chưa lập phụ lục giảm 20% mức tỷ lệ** theo nghị quyết giảm thuế GTGT. Không có tệp mẫu thật nào để chép khuôn, nên không đoán. Nếu doanh nghiệp được giảm thì lập thêm phụ lục trong HTKK.
 - Mẫu iTax 04/GTGT in dòng "[01] Kỳ tính thuế: Lần phát sinh Tháng 10 năm 2026". Chữ "Lần phát sinh" là **mẫu chính thức in cố định**, không phải app ghi sai (đã đọc mẫu `TKhaiHeader.xsl`).
 
+## C2. Bổ sung sau khi anh xem (cùng bản 3.0.2)
+
+- **Hộp lập tờ khai và tờ khai bổ sung rộng 1320 px:** trái nhập liệu, phải xem trước. Bảng hoá đơn 04/GTGT trải hết chiều ngang.
+  - Trước đây mọi hộp thoại bị giới hạn chung 650 px, nên độ rộng 860 px đặt cho hộp này chưa bao giờ có tác dụng.
+- **Nút "Xoá" cạnh ô tìm → "Đóng tất cả", có hỏi lại.**
+  - Nút này chỉ đóng tệp trong app, không xoá gì trên ổ cứng.
+  - Trước đây bấm là mất ngay cả phiên đã lưu, không hỏi.
+- **MST tự nhận.**
+  - Hàm tự nhận có sẵn từ bản Gemini nhưng không bao giờ chạy được: nó đếm theo nhãn Mua / Bán, mà nhãn lại cần MST mới có.
+  - Giờ app lấy MST của tờ khai GTGT đang nạp; không có tờ khai thì lấy MST có trên nhiều hoá đơn nhất (phải nhiều hơn hẳn MST thứ hai mới nhận).
+  - Chọn công ty trên Dashboard thì nhãn Mua vào / Bán ra đổi theo công ty đó.
+  - Dữ liệu thật HD-TK: nhận đúng 2601102955; 93 hoá đơn đều có nhãn (20 bán ra, 73 mua vào), không còn hoá đơn nào bị để "Khác".
+- **Gom "Lập tờ khai GTGT", "Đổi tên file", "MST công ty" vào một menu "🧰 Công cụ"** ở thanh bên.
+  - Đổi tên file vẫn giữ: app nhận diện tệp theo nội dung, nhưng tên tệp dễ đọc giúp anh tìm trong Windows Explorer.
+
 ## D. Bằng chứng đo
 
 | Mục test | Kết quả |
@@ -106,7 +121,8 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
 | KHBS dữ liệu thật quý 1/2026: số ở phần Kết luận | ĐẠT |
 | 04/GTGT: doanh thu = cộng `TgTTTBSo` bằng Python (1.130.646.600), thuế 1% | ĐẠT |
 | 04/GTGT: đổi 1 hoá đơn sang nhóm 5% → XML mã 847 đúng từng ô, mẫu iTax dựng được | ĐẠT |
-| Toàn bộ test chính | **36/36** |
+| Thanh bên: tự nhận MST đúng phép đếm Python; menu Công cụ; "Đóng tất cả" Huỷ thì giữ, OK mới đóng | ĐẠT (2 mục) |
+| Toàn bộ test chính | **38/38** |
 | 4 bộ test cũ (cây thư mục & Dashboard, 8 ngành, kế toán, giai đoạn 3) | đạt cả 4 |
 | Bộ cài 3.0.2 chứa mã mới (`tinhKHBS`, `MA_TK_GTGT`, hộp thoại KHBS, nhóm 04) | đã kiểm |
 
