@@ -13,6 +13,39 @@
     return s;
   };
 
+  let curFilterFrom = '';
+  let curFilterTo = '';
+  let curSortCol = 'ngay';
+  let curSortAsc = false;
+
+  function setDateFilter(from, to) {
+    curFilterFrom = from || '';
+    curFilterTo = to || '';
+  }
+
+  function setSort(col) {
+    if (curSortCol === col) {
+      curSortAsc = !curSortAsc;
+    } else {
+      curSortCol = col;
+      curSortAsc = (col === 'shd' || col === 'ngay' || col === 'tien' || col === 'thue') ? false : true;
+    }
+  }
+
+  function sortIcon(col) {
+    if (curSortCol !== col) return '<span style="opacity:.3">↕</span>';
+    return curSortAsc ? '▲' : '▼';
+  }
+
+  function layNgayChuan(d) {
+    const raw = d.ngay || d.ky || '';
+    if (!raw) return '';
+    const m = String(raw).match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/) || String(raw).match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+    if (!m) return '';
+    if (m[3].length === 4) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  }
+
   const DOMAIN_INFO = {
     hd: { name: 'Hóa đơn & Thuế GTGT', icon: '🧾', color: '#1e3a8a', bg: '#eff6ff', tag: 'hd' },
     hq: { name: 'Hải quan & Logistics XNK', icon: '🚢', color: '#0369a1', bg: '#f0f9ff', tag: 'hq' },
@@ -223,10 +256,19 @@
     const nhaCungCapMap = {};
     const warnList = [];
 
+    // Áp dụng bộ lọc ngày nếu có
+    const filtered = docs.filter(d => {
+      if (d.error) return false;
+      const dDate = layNgayChuan(d);
+      if (curFilterFrom && dDate && dDate < curFilterFrom) return false;
+      if (curFilterTo && dDate && dDate > curFilterTo) return false;
+      return true;
+    });
+
     // Nhận diện phân loại theo cấu trúc nhánh thư mục đang xem
     const folderPl = phanLoaiTuPath(path) || phanLoaiTuPath(folderTitle);
 
-    docs.forEach((d, idx) => {
+    filtered.forEach((d, idx) => {
       if (d.kind !== 'hd') return;
       let isBan = false, isMua = false;
 
@@ -364,6 +406,92 @@
                 </div>
               `).join('') || '<div style="color:#15803d;padding:8px 0">✓ Toàn bộ hóa đơn đều khớp số học, không có cảnh báo nào.</div>'}
             </div>
+          </div>
+        </div>
+
+        <!-- Bảng kê Hóa đơn chi tiết có Sắp xếp & Lọc theo ngày -->
+        <div class="dash-box" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px">
+            <h3 style="margin:0;border:0;padding:0">📋 Bảng Kê Chi Tiết Hóa Đơn (${filtered.length} HĐ)</h3>
+            <div class="dash-filter-group" style="display:flex;align-items:center;gap:8px;font-size:12px">
+              <span>Khoảng ngày:</span>
+              <input type="date" id="dashDateFrom" class="dash-inp-date" value="${curFilterFrom}">
+              <span>-</span>
+              <input type="date" id="dashDateTo" class="dash-inp-date" value="${curFilterTo}">
+              <button type="button" id="btnApplyDateFilter" class="btn-dash-sm">Lọc</button>
+              <button type="button" id="btnResetDateFilter" class="btn-dash-sm alt">Tất cả</button>
+            </div>
+          </div>
+          <div style="max-height:450px;overflow-y:auto">
+            <table class="dash-tbl sortable-tbl">
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th class="th-sort" data-sort="loai">Loại ${sortIcon('loai')}</th>
+                  <th class="th-sort" data-sort="shd">Số HĐ ${sortIcon('shd')}</th>
+                  <th>Ký hiệu</th>
+                  <th class="th-sort" data-sort="ngay">Ngày lập ${sortIcon('ngay')}</th>
+                  <th class="th-sort" data-sort="ten">Đối tác ${sortIcon('ten')}</th>
+                  <th class="th-sort" data-sort="mst">MST ${sortIcon('mst')}</th>
+                  <th class="th-sort" data-sort="tien" style="text-align:right">Tiền hàng (VND) ${sortIcon('tien')}</th>
+                  <th class="th-sort" data-sort="thue" style="text-align:right">Thuế GTGT ${sortIcon('thue')}</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(() => {
+                  const sorted = [...filtered].sort((a, b) => {
+                    let vA, vB;
+                    if (curSortCol === 'ngay') {
+                      vA = layNgayChuan(a); vB = layNgayChuan(b);
+                    } else if (curSortCol === 'shd') {
+                      vA = parseInt(a.so, 10) || 0; vB = parseInt(b.so, 10) || 0;
+                    } else if (curSortCol === 'tien') {
+                      vA = (a.tongTruocThue || a.tong || 0); vB = (b.tongTruocThue || b.tong || 0);
+                    } else if (curSortCol === 'thue') {
+                      vA = (a.tongThue || 0); vB = (b.tongThue || 0);
+                    } else if (curSortCol === 'ten') {
+                      vA = (a.phanLoai === 'ban' ? (a.mua?.Ten || a.mua?.ten) : (a.ban?.Ten || a.ban?.ten)) || a.ten || '';
+                      vB = (b.phanLoai === 'ban' ? (b.mua?.Ten || b.mua?.ten) : (b.ban?.Ten || b.ban?.ten)) || b.ten || '';
+                    } else if (curSortCol === 'mst') {
+                      vA = (a.phanLoai === 'ban' ? (a.mua?.MST || a.mua?.mst) : (a.ban?.MST || a.ban?.mst)) || a.mst || '';
+                      vB = (b.phanLoai === 'ban' ? (b.mua?.MST || b.mua?.mst) : (b.ban?.MST || b.ban?.mst)) || b.mst || '';
+                    } else if (curSortCol === 'loai') {
+                      vA = a.phanLoai || ''; vB = b.phanLoai || '';
+                    }
+                    if (vA < vB) return curSortAsc ? -1 : 1;
+                    if (vA > vB) return curSortAsc ? 1 : -1;
+                    return 0;
+                  });
+
+                  return sorted.slice(0, 150).map((d, i) => {
+                    const isB = d.phanLoai === 'ban';
+                    const plTag = isB ? '<span class="tag-pl ban">BÁN RA</span>' : '<span class="tag-pl mua">MUA VÀO</span>';
+                    const doiTac = (isB ? (d.mua?.Ten || d.mua?.ten) : (d.ban?.Ten || d.ban?.ten)) || d.ten || 'Chưa rõ';
+                    const mst = (isB ? (d.mua?.MST || d.mua?.mst) : (d.ban?.MST || d.ban?.mst)) || d.mst || '';
+                    const warns = (d.notes || []).filter(n => n[0] === 'warn');
+                    const sttHtml = warns.length
+                      ? `<span style="color:#b91c1c;font-weight:600" title="${esc(warns[0][1])}">⚠️ Cần kiểm tra</span>`
+                      : `<span style="color:#15803d">✓ Hợp lệ</span>`;
+
+                    return `
+                      <tr class="dash-doc-click" data-doc-src="${esc(d.source)}">
+                        <td>${i + 1}</td>
+                        <td>${plTag}</td>
+                        <td><b>${esc(d.so || '')}</b></td>
+                        <td><code>${esc(d.kyHieu || '')}</code></td>
+                        <td>${esc(dateVN(d.ngay))}</td>
+                        <td><b>${esc(doiTac)}</b></td>
+                        <td>${esc(mst)}</td>
+                        <td style="text-align:right"><b>${money(d.tongTruocThue || d.tong)}</b></td>
+                        <td style="text-align:right">${money(d.tongThue)}</td>
+                        <td>${sttHtml}</td>
+                      </tr>
+                    `;
+                  }).join('') || '<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">Không có hóa đơn nào khớp bộ lọc</td></tr>';
+                })()}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -791,6 +919,10 @@
     detectDominantDomain,
     renderExecutiveDashboard,
     toggleNode,
+    setSort,
+    setDateFilter,
+    getDateFilter: () => ({ from: curFilterFrom, to: curFilterTo }),
+    getSort: () => ({ col: curSortCol, asc: curSortAsc }),
     DOMAIN_INFO
   };
 })();

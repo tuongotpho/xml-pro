@@ -54,6 +54,21 @@
   .tab.on .x:hover { background: #d5dbe1; color: var(--accent); }
   .tab .dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa4ae; flex: none; box-shadow: 0 0 0 1.5px rgba(255,255,255,.85); }
   .tab .dot.tk { background: var(--ok); } .tab .dot.tb { background: #5b3c99; } .tab .dot.ct { background: var(--warn); } .tab .dot.hd { background: var(--accent); } .tab .dot.err { background: #000; }
+  .tab-close-all { background: rgba(255,255,255,.12); color: #cbd5e1; border: 1px solid rgba(255,255,255,.2); border-radius: 4px; font-size: 11px; padding: 4px 8px; cursor: pointer; white-space: nowrap; margin-left: 4px; align-self: center; transition: all .15s ease; }
+  .tab-close-all:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+  .load-progress-toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,.35); display: flex; align-items: center; gap: 14px; min-width: 320px; max-width: 440px; z-index: 9999; font-size: 13px; animation: slideUp .2s ease-out; border: 1px solid #334155; }
+  .load-spinner { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.2); border-top-color: #38bdf8; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .load-bar { background: rgba(255,255,255,.2); height: 6px; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .load-bar-fill { background: linear-gradient(90deg, #38bdf8, #10b981); height: 100%; width: 0%; border-radius: 99px; transition: width .15s ease; }
+  .th-sort { cursor: pointer; user-select: none; transition: background .15s ease; }
+  .th-sort:hover { background: #e2e8f0 !important; color: #0f172a; }
+  .dash-inp-date { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; font-size: 12px; font-family: inherit; }
+  .btn-dash-sm { padding: 4px 10px; background: #0284c7; color: #fff; border: 1px solid #0284c7; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-dash-sm:hover { background: #0369a1; }
+  .btn-dash-sm.alt { background: #fff; color: #475569; border-color: var(--line); }
+  .btn-dash-sm.alt:hover { background: #f1f5f9; }
   .item { padding: 9px 14px; border-bottom: 1px solid #eef0f2; cursor: pointer; }
   .item:hover { background: #f6f8fa; }
   .item.sel { background: var(--sel); }
@@ -707,9 +722,18 @@
   'use strict';
 
   const docs = [];
+  const openTabs = []; // Mảng chứa chỉ mục (index) các file đang mở tab theo nhu cầu
   let selected = -1;
   let showEmpty = false;
   let locPhanLoai = 'all'; // 'all', 'mua', 'ban', 'warn'
+
+  function debounce(fn, wait = 150) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
 
   const KHOA_MY_MST = 'xmlpro.myMst';
   let myMst = localStorage.getItem(KHOA_MY_MST) || '';
@@ -2157,9 +2181,23 @@
   async function napLoat(fileList) {
     let dau = -1;
     const batDau = docs.length;
-    for (const f of Array.from(fileList)) {
+    const total = fileList.length;
+    const pBox = $('loadProgress');
+    const pFill = $('loadProgressFill');
+    const pText = $('loadProgressText');
+
+    if (total > 20 && pBox) {
+      pBox.style.display = 'flex';
+      if (pFill) pFill.style.width = '0%';
+      if (pText) pText.innerHTML = `Đang nạp hồ sơ: <b>0</b> / ${total.toLocaleString('vi-VN')} file (0%)`;
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    let count = 0;
+    for (const f of fileList) {
+      count++;
       const name = f.webkitRelativePath || f.relPath || f.name;
-      const lower = f.name.toLowerCase();
+      const lower = (f.name || '').toLowerCase();
       const truoc = docs.length;
       let i = -1;
       if (lower.endsWith('.zip')) {
@@ -2181,10 +2219,30 @@
         docs[i].duongDan = f.duongDan;
         ghiLichSu(f.duongDan, docs[i], docs.length - truoc);
       }
+
+      // Nhường quyền vẽ lại giao diện và cập nhật tiến trình mỗi 30 file
+      if (total > 20 && count % 30 === 0) {
+        const pct = Math.round((count / total) * 100);
+        if (pFill) pFill.style.width = `${pct}%`;
+        if (pText) pText.innerHTML = `Đang nạp hồ sơ: <b>${count.toLocaleString('vi-VN')}</b> / ${total.toLocaleString('vi-VN')} file (${pct}%)`;
+        await new Promise(r => setTimeout(r, 0));
+      }
     }
+
+    if (pBox) pBox.style.display = 'none';
+
     tuDongNhanDienMst();
     renderList();
-    if (dau >= 0) select(dau); else if (selected < 0 && docs.length) select(0);
+
+    // Nếu nạp nhiều file hoặc cả thư mục: Ưu tiên mở ngay Dashboard tổng hợp, KHÔNG mở hàng nghìn tab
+    const soFileMoi = docs.length - batDau;
+    if (soFileMoi > 1 || docs.length > 1) {
+      moDashboard(selectedFolder);
+    } else if (dau >= 0) {
+      select(dau);
+    } else if (selected < 0 && docs.length) {
+      select(0);
+    }
   }
   // Trả về vị trí của file trong danh sách (file đã mở rồi thì trả vị trí cũ, không mở trùng).
   function addText(text, fileName, source) {
@@ -2360,21 +2418,36 @@
 
   function renderTabs() {
     const isDash = selected === -2;
-    const dashTab = docs.length ? `<div class="tab dash-tab ${isDash ? 'on' : ''}" data-dash="1" title="Bảng điều hành Dashboard phân tích thông minh"><span class="dot" style="background:#0284c7"></span><span class="tt">📊 Bảng điều hành</span></div>` : '';
-    const docTabs = docs.map((d, i) => {
+    const dashTab = docs.length ? `<div class="tab dash-tab ${isDash ? 'on' : ''}" data-dash="1" title="Bảng điều hành Dashboard phân tích thông minh (Ctrl+D)"><span class="dot" style="background:#0284c7"></span><span class="tt">📊 Dashboard</span></div>` : '';
+    const docTabs = openTabs.map((idx) => {
+      const d = docs[idx];
+      if (!d) return '';
       const [cls] = d.error ? ['err'] : KIND[d.kind];
-      return `<div class="tab ${i === selected ? 'on' : ''}" data-i="${i}" title="${esc((d.title || '') + '\n' + d.source)}"><span class="dot ${cls}"></span><span class="tt">${esc(tenTab(d))}</span><button class="x" data-x="${i}" title="Đóng tab">×</button></div>`;
+      return `<div class="tab ${idx === selected ? 'on' : ''}" data-i="${idx}" title="${esc((d.title || '') + '\n' + d.source)}"><span class="dot ${cls}"></span><span class="tt">${esc(tenTab(d))}</span><button class="x" data-x="${idx}" title="Đóng tab (Ctrl+W)">×</button></div>`;
     }).join('');
-    $('tabs').innerHTML = dashTab + docTabs;
+    const closeAll = openTabs.length > 1 ? `<button type="button" id="btnCloseAllTabs" class="tab-close-all" title="Đóng tất cả các tab tài liệu đang mở">✕ Đóng hết (${openTabs.length})</button>` : '';
+    $('tabs').innerHTML = dashTab + docTabs + closeAll;
     const on = $('tabs').querySelector('.tab.on');
     if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 
-  function dongTab(i) {
-    docs.splice(i, 1);
-    if (!docs.length) { selected = -1; renderList(); $('main').innerHTML = HOME_HTML; return; }
-    if (selected > i || selected === docs.length) selected--;
-    if (selected === i || selected < 0) select(Math.min(i, docs.length - 1)); else renderList();
+  function dongTab(idx) {
+    const pos = openTabs.indexOf(idx);
+    if (pos >= 0) openTabs.splice(pos, 1);
+    if (selected === idx) {
+      if (openTabs.length > 0) {
+        select(openTabs[Math.max(0, pos - 1)]);
+      } else {
+        moDashboard(selectedFolder);
+      }
+    } else {
+      renderTabs();
+    }
+  }
+
+  function dongTatCaTab() {
+    openTabs.length = 0;
+    moDashboard(selectedFolder);
   }
 
   function renderLichSu(q) {
@@ -2522,6 +2595,12 @@
 
   function select(i) {
     if (i === -2) return moDashboard(selectedFolder);
+    if (i < 0 || i >= docs.length) return;
+    if (!openTabs.includes(i)) {
+      openTabs.push(i);
+      // Giữ tối đa 15 tab làm việc gần nhất, đóng tab xem lâu nhất
+      if (openTabs.length > 15) openTabs.shift();
+    }
     selected = i;
     renderList();
     const d = docs[i];
@@ -2729,9 +2808,27 @@
     if (it.dataset.p) moLai(it.dataset.p); else if (it.dataset.i) select(Number(it.dataset.i));
   };
   $('tabs').onclick = e => {
-    const x = e.target.closest('.x'); if (x) { e.stopPropagation(); dongTab(Number(x.dataset.x)); return; }
-    const dt = e.target.closest('.dash-tab'); if (dt) { moDashboard(selectedFolder); return; }
-    const t = e.target.closest('.tab'); if (t && t.dataset.i != null) select(Number(t.dataset.i));
+    const x = e.target.closest('.x');
+    if (x) {
+      e.stopPropagation();
+      dongTab(Number(x.dataset.x));
+      return;
+    }
+    const btnAll = e.target.closest('#btnCloseAllTabs');
+    if (btnAll) {
+      e.stopPropagation();
+      dongTatCaTab();
+      return;
+    }
+    const dt = e.target.closest('.dash-tab');
+    if (dt) {
+      moDashboard(selectedFolder);
+      return;
+    }
+    const t = e.target.closest('.tab');
+    if (t && t.dataset.i != null) {
+      select(Number(t.dataset.i));
+    }
   };
   $('tabs').onauxclick = e => { const t = e.target.closest('.tab'); if (t && e.button === 1 && t.dataset.i != null) dongTab(Number(t.dataset.i)); };
   $('segMo').onclick = () => { cheDo = 'mo'; renderList(); };
@@ -2747,6 +2844,35 @@
   $('main').addEventListener('click', e => {
     if (e.target.closest('#btnEmptyFile')) return chonTep();
     if (e.target.closest('#btnEmptyDir')) return chonThuMuc();
+
+    // Bấm tiêu đề cột bảng kê để sắp xếp (Click-to-sort)
+    const thSort = e.target.closest('.th-sort');
+    if (thSort && thSort.dataset.sort) {
+      if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.setSort) {
+        window.DASHBOARD_DONG.setSort(thSort.dataset.sort);
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
+
+    // Bộ lọc ngày trong Dashboard
+    if (e.target.closest('#btnApplyDateFilter')) {
+      const from = $('dashDateFrom')?.value || '';
+      const to = $('dashDateTo')?.value || '';
+      if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.setDateFilter) {
+        window.DASHBOARD_DONG.setDateFilter(from, to);
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
+    if (e.target.closest('#btnResetDateFilter')) {
+      if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.setDateFilter) {
+        window.DASHBOARD_DONG.setDateFilter('', '');
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
+
     const docRow = e.target.closest('.dash-doc-click');
     if (docRow && docRow.dataset.docSrc) {
       const idx = docs.findIndex(d => d.source === docRow.dataset.docSrc);
@@ -2760,8 +2886,8 @@
       return;
     }
   });
-  $('q').oninput = renderList;
-  $('clear').onclick = () => { docs.length = 0; selected = -1; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; };
+  $('q').oninput = debounce(renderList, 150);
+  $('clear').onclick = () => { docs.length = 0; openTabs.length = 0; selected = -1; selectedFolder = ''; skipped = 0; renderList(); $('main').innerHTML = HOME_HTML; };
   $('about').onclick = e => {
     e.preventDefault();
     // chỉ báo khi thiếu file tên chỉ tiêu
@@ -2777,9 +2903,62 @@
     else { const ta = document.createElement('textarea'); ta.value = stk; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); }
   });
   document.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT' || selected < 0) return;
-    if (e.key === 'ArrowDown' && selected < docs.length - 1) { e.preventDefault(); select(selected + 1); }
-    if (e.key === 'ArrowUp' && selected > 0) { e.preventDefault(); select(selected - 1); }
+    // Nếu đang trong input
+    if (e.target.tagName === 'INPUT') {
+      if (e.key === 'Escape') {
+        e.target.value = '';
+        e.target.blur();
+        renderList();
+      }
+      return;
+    }
+
+    // Ctrl + F: Tìm kiếm tức thì
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+      e.preventDefault();
+      const qInp = $('q');
+      if (qInp) { qInp.focus(); qInp.select(); }
+      return;
+    }
+
+    // Ctrl + W: Đóng tab tài liệu đang xem
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) {
+      e.preventDefault();
+      if (selected >= 0) dongTab(selected);
+      return;
+    }
+
+    // Ctrl + D: Mở nhanh Dashboard
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+      e.preventDefault();
+      moDashboard(selectedFolder);
+      return;
+    }
+
+    // Escape: Đóng modal hoặc xóa tìm kiếm hoặc về Dashboard
+    if (e.key === 'Escape') {
+      const dlgMst = $('dlgMst');
+      const dlgDoiTen = $('dlgDoiTen');
+      const dlg = $('dlg');
+      if (dlgMst && dlgMst.open) { dlgMst.close(); return; }
+      if (dlgDoiTen && dlgDoiTen.open) { dlgDoiTen.close(); return; }
+      if (dlg && dlg.open) { dlg.close(); return; }
+      if ($('q') && $('q').value) {
+        $('q').value = '';
+        renderList();
+        return;
+      }
+      if (selected !== -2 && docs.length) {
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
+
+    // Phím mũi tên Lên / Xuống
+    if (selected >= 0) {
+      if (e.key === 'ArrowDown' && selected < docs.length - 1) { e.preventDefault(); select(selected + 1); }
+      if (e.key === 'ArrowUp' && selected > 0) { e.preventDefault(); select(selected - 1); }
+    }
   });
 
   // ---------- Tiện ích Kế toán: Đổi tên hàng loạt & MST Doanh nghiệp ----------
@@ -3038,5 +3217,12 @@ Read-Host
   };
 })();
 </script>
+  <div id="loadProgress" class="load-progress-toast" style="display:none">
+    <div class="load-spinner"></div>
+    <div style="flex:1">
+      <div id="loadProgressText" style="font-weight:600">Đang nạp hồ sơ: <b>0</b> / 0 file (0%)</div>
+      <div class="load-bar"><div id="loadProgressFill" class="load-bar-fill"></div></div>
+    </div>
+  </div>
 </body>
 </html>
