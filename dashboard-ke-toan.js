@@ -161,7 +161,7 @@
       return `<button type="button" class="ktt-huy ktt-${g.loai} ktt-bam" data-mo-doc="${i}" title="Mở tờ khai và đối chiếu">${g.nhan}</button>`
         + (g.loai === 'loi' || g.loai === 'xem' ? `<button type="button" class="ktt-huy ktt-bam ktt-phu" data-khbs="${i}" title="Lập tờ khai bổ sung theo hoá đơn">Lập bổ sung</button>` : '');
     };
-    const dongKy = g => `<tr class="ktt-dong-ky ktt-${g.loai}"><td><span class="ktt-ten-ky">${tenKy(g.k)}</span>${
+    const dongKy = g => `<tr class="ktt-dong-ky ktt-${g.loai}" data-trang-thai="${esc(g.nhan)}"><td><span class="ktt-ten-ky">${tenKy(g.k)}</span>${
         (g.loai === 'loi' || g.loai === 'xem') && g.moTa.length ? `<div class="ktt-ly-do" title="${esc(g.moTa.join(' · '))}">${esc(g.moTa[0])}${g.hdMo ? ` · <a class="ktt-lk" data-mo-doc="${g.hdMo.idx}">mở HĐ ${tenHd(g.hdMo.idx)}</a>` : ''}</div>`
         : !g.tkDoc && !khacKieu ? `<div class="ktt-nho">Hạn nộp ${hanNop(g.k)}</div>` : ''}</td>${oSo(g)}<td>${g.dc ? so(g.dc.tk.ct.ct40) : ''}</td><td>${g.nBan + g.nMua}</td><td class="ktt-o-tk">${oToKhai(g)}</td></tr>`;
     const dongNam = nam => {

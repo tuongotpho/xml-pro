@@ -163,7 +163,7 @@ def kiem_doi_chieu(ev, J, hd):
           const panel = document.querySelector('.dc-panel');
           A.select(-2); await new Promise(r => setTimeout(r, 300));
           return { dung: tom(f(iDung)), quen: tom(f(iQuen)), coKhungTrenToKhai: !!panel, khungMo: !!(panel && panel.open),
-                   dashboard: document.querySelectorAll('.ktt-ky [data-mo-doc]').length,
+                   dashboard: document.querySelectorAll('.ktt-dong-ky [data-mo-doc]').length,
                    nhan: [...document.querySelectorAll('#list .tag-pl')].map(e => e.textContent).filter(t => /HĐ/.test(t)) }; })()'''
            % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), J(tk_dung), J(tk_quen)))
     d, q = r['dung'], r['quen']
@@ -313,10 +313,10 @@ def kiem_dashboard(ev, J, hd):
           for (const [ten, vb] of %s) A.addText(vb, ten, 'db/' + ten);
           A.select(-2); await new Promise(r => setTimeout(r, 400));
           const q = s => document.querySelector(s);
-          const kq = { co: !!q('.ktt-dash'), ten: q('.ktt-dau h1')?.textContent, the: [...document.querySelectorAll('.ktt-ky .ktt-tren')].map(e => e.innerText.replace(/\\n/g, ' | ')),
-                       lap: !!q('.ktt-ky [data-lap-tk]'), banRa: q('.ktt-tong b')?.textContent, chu: q('.ktt-dash').innerText };
+          const kq = { co: !!q('.ktt-dash'), ten: q('.ktt-dau h1')?.textContent, the: [...document.querySelectorAll('.ktt-dong-ky')].map(e => e.querySelector('.ktt-ten-ky').textContent + ' | ' + e.dataset.trangThai),
+                       lap: !!q('.ktt-dong-ky [data-lap-tk]'), banRa: q('.ktt-tong b')?.textContent, chu: q('.ktt-dash').innerText };
           q('.ktt-chon-ky [data-kieu="M"]').click(); await new Promise(r => setTimeout(r, 300));
-          kq.thang = [...document.querySelectorAll('.ktt-ky .ktt-tren b')].map(e => e.textContent);
+          kq.thang = [...document.querySelectorAll('.ktt-dong-ky .ktt-ten-ky')].map(e => e.textContent);
           q('.ktt-chon-ky [data-kieu="Q"]').click();
           return kq; })()''' % J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
     emoji = [ch for ch in r['chu'] if ord(ch) >= 0x1F300 or 0x2600 <= ord(ch) <= 0x27BF]
@@ -337,7 +337,7 @@ def kiem_dashboard(ev, J, hd):
           const files = %s.map(([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); });
           await A.addFiles(files); A.select(-2); await new Promise(r => setTimeout(r, 500));
           const tong = [...document.querySelectorAll('.ktt-tong b')].map(e => e.textContent);
-          return { the: [...document.querySelectorAll('.ktt-ky')].map(e => e.querySelector('.ktt-tren').innerText.replace(/\\n/g, ' | ') + ' :: ' + e.querySelector('.ktt-mo-ta').innerText),
+          return { the: [...document.querySelectorAll('.ktt-dong-ky')].map(e => e.querySelector('.ktt-ten-ky').textContent + ' | ' + e.dataset.trangThai + ' :: ' + (e.querySelector('.ktt-ly-do')?.title || '')),
                    banRa: tong[0], muaVao: tong[2], thueVao: tong[3], phu: document.querySelector('.ktt-dau .ktt-nho').textContent }; })()'''
            % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
     fmt = lambda n: f'{n:,}'.replace(',', '.')
@@ -382,7 +382,7 @@ def kiem_tncn(ev, J, hd):
     r = ev("""(async () => { const A = window.__xemXmlThue;
           for (const [ten, vb] of %s) A.addText(vb, ten, 'tron/' + ten);
           A.select(-2); await new Promise(r => setTimeout(r, 400));
-          return { the: [...document.querySelectorAll('.ktt-ky .ktt-tren')].map(e => e.innerText.split(String.fromCharCode(10)).join(' | ')),
+          return { the: [...document.querySelectorAll('.ktt-dong-ky')].map(e => e.querySelector('.ktt-ten-ky').textContent + ' | ' + e.dataset.trangThai),
                    cty: [...document.querySelectorAll('[data-cty]')].map(e => e.dataset.cty) }; })()"""
            % J(tk + [[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
     danh_gia('Thư mục trộn hoá đơn + 05/KK-TNCN: Dashboard kế toán không lấy tờ khai TNCN làm tờ khai GTGT',
@@ -538,29 +538,30 @@ def kiem_thanh_ben(ev, J, hd):
 
 
 def kiem_nhieu_nam(ev, J, hd):
-    print('=== 12. Dashboard kho hoá đơn nhiều năm: gom theo năm, thẻ kỳ xếp lưới ===')
+    print('=== 12. Dashboard kho hoá đơn nhiều năm: sổ theo kỳ gom theo năm ===')
     nap_lai_trang(ev)
     r = ev('''(async () => { const A = window.__xemXmlThue;
           const goc = %s, files = []; let so = 900000;
           for (const y of [2023, 2024, 2025, 2026]) for (let m = 1; m <= 12; m++) goc.forEach(([ten, x], i) => { so++;
             files.push(new File([x.replace(/<NLap>[^<]*<\\/NLap>/, `<NLap>${y}-${String(m).padStart(2, '0')}-1${i}</NLap>`).replace(/<SHDon>[^<]*<\\/SHDon>/, `<SHDon>${so}</SHDon>`)], `nn-${y}-${m}-${i}.xml`)); });
           await A.addFiles(files); A.select(-2); await new Promise(r => setTimeout(r, 500));
-          const nam = [...document.querySelectorAll('.ktt-nam')].map(n => ({ nam: n.dataset.nam, mo: n.open, the: n.querySelectorAll('.ktt-ky').length }));
-          const the = [...document.querySelectorAll('.ktt-nam[open] .ktt-ky')];
-          const cungHang = the.length > 1 && the[0].getBoundingClientRect().top === the[1].getBoundingClientRect().top;
-          document.querySelector('.ktt-nam[data-nam="2024"] > summary').click(); await new Promise(r => setTimeout(r, 100));
+          const namDs = () => [...document.querySelectorAll('.ktt-dong-nam')].map(n => n.dataset.namTg + ':' + n.dataset.mo);
+          const nam = namDs(), soKy = document.querySelectorAll('.ktt-dong-ky').length;
+          document.querySelector('[data-nam-tg="2024"]').click(); await new Promise(r => setTimeout(r, 100));
           A.select(-2); await new Promise(r => setTimeout(r, 300));
-          const giu = document.querySelector('.ktt-nam[data-nam="2024"]').open;
+          const giu = namDs(), soKy2 = document.querySelectorAll('.ktt-dong-ky').length;
+          const hang = [...document.querySelectorAll('.ktt-so-sach tbody tr')], i24 = hang.findIndex(t => t.dataset.namTg === '2024');
+          const sau2024 = hang[i24 + 1]?.querySelector('.ktt-ten-ky')?.textContent;
           document.querySelector('.ktt-chon-ky [data-kieu="M"]').click(); await new Promise(r => setTimeout(r, 300));
-          const thang = [...document.querySelectorAll('.ktt-nam')].map(n => n.querySelectorAll('.ktt-ky').length);
-          return { nam, cungHang, giu, thang, congNam: [...document.querySelectorAll('.ktt-cong-nam td:first-child')].map(e => e.textContent),
+          const thang = document.querySelectorAll('.ktt-dong-ky').length;
+          const nutLap = document.querySelectorAll('.ktt-dong-ky button[data-lap-tk]').length, conThe = document.querySelectorAll('.ktt-ky, .ktt-nam').length;
+          return { nam, soKy, giu, soKy2, sau2024, thang, nutLap, conThe, cong: document.querySelector('.ktt-so-sach .ktt-cong td').textContent,
                    rong: document.querySelector('.ktt-dash').offsetWidth, khung: document.getElementById('main').clientWidth }; })()'''
            % J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
-    dat = ([x['nam'] for x in r['nam']] == ['2026', '2025', '2024', '2023'] and all(x['the'] == 4 for x in r['nam'])
-           and r['nam'][0]['mo'] and not any(x['mo'] for x in r['nam'][1:]) and r['cungHang'] and r['giu']
-           and r['thang'] == [12, 12, 12, 12] and r['congNam'] == ['Cộng năm 2023', 'Cộng năm 2024', 'Cộng năm 2025', 'Cộng năm 2026']
-           and r['rong'] > r['khung'] - 60)
-    danh_gia('4 năm hoá đơn: mỗi năm một khối (năm mới nhất mở, năm cũ gập, mở tay thì giữ khi vẽ lại), thẻ kỳ nhiều cột trên một hàng, sổ có dòng cộng từng năm, Dashboard giãn hết khung',
+    dat = (r['nam'] == ['2026:1', '2025:0', '2024:0', '2023:0'] and r['soKy'] == 4 and r['giu'] == ['2026:1', '2025:0', '2024:1', '2023:0']
+           and r['soKy2'] == 8 and r['sau2024'] == 'Quý 4/2024' and r['thang'] == 12 and r['nutLap'] == 12 and r['conThe'] == 0
+           and r['cong'] == 'Cộng 4 năm' and r['rong'] > r['khung'] - 60)
+    danh_gia('4 năm hoá đơn: không còn thẻ kỳ; sổ có dòng cộng năm ở đầu mỗi năm (năm mới nhất mở, năm cũ gập, bấm mở thì giữ khi vẽ lại), kỳ chưa lập có nút Lập tờ khai, Dashboard giãn hết khung',
              dat, J(r, ensure_ascii=False))
 
 

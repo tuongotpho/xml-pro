@@ -120,6 +120,13 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
     - bảng "Theo kỳ kê khai" có dòng "Cộng năm" khi có nhiều năm.
   - Đã thử với kho 4 năm (313 tệp): cả 4 năm cùng dải tổng nằm trong một màn 1600 px, xem bằng mắt cả giao diện sáng và tối, chế độ Quý và Tháng.
 
+- **Bỏ thẻ kỳ, dồn vào bảng "Theo kỳ kê khai"** (theo góp ý của anh sau khi xem bản thẻ lưới):
+  - mỗi năm có **dòng cộng năm nổi bật** đặt ở đầu nhóm (nền xanh nhạt, chữ đậm, có số kỳ lệch / cần xem / chưa lập / xong); bấm dòng năm để gập / mở các kỳ;
+  - các kỳ mới nhất trên cùng; thêm cột "Phải nộp [40]";
+  - cột Tờ khai: kỳ chưa có tờ khai có nút **"+ Lập tờ khai"** mở sẵn đúng kỳ; kỳ đã có thì bấm trạng thái để mở tờ khai; kỳ lệch có thêm nút "Lập bổ sung";
+  - dưới tên kỳ lệch có một dòng lý do (rê chuột xem đủ) kèm link mở hoá đơn nghi.
+  - Đã thử bằng tay: bấm "+ Lập tờ khai" Quý 2/2024 mở đúng hộp lập kỳ đó; "Lập bổ sung" Quý 1/2026 mở hộp tờ khai bổ sung; bấm "Đã xong" Quý 3/2026 mở tờ khai.
+
 ## D. Bằng chứng đo
 
 | Mục test | Kết quả |
@@ -132,7 +139,7 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
 | 04/GTGT: doanh thu = cộng `TgTTTBSo` bằng Python (1.130.646.600), thuế 1% | ĐẠT |
 | 04/GTGT: đổi 1 hoá đơn sang nhóm 5% → XML mã 847 đúng từng ô, mẫu iTax dựng được | ĐẠT |
 | Thanh bên: tự nhận MST đúng phép đếm Python; menu Công cụ; "Đóng tất cả" Huỷ thì giữ, OK mới đóng | ĐẠT (2 mục) |
-| Kho 4 năm: gom theo năm, năm cũ gập, thẻ nhiều cột một hàng, sổ có cộng từng năm, Dashboard giãn hết khung | ĐẠT |
+| Kho 4 năm: không còn thẻ; sổ có dòng cộng năm ở đầu mỗi năm, năm cũ gập, mở tay thì giữ, kỳ chưa lập có nút Lập tờ khai, Dashboard giãn hết khung | ĐẠT |
 | Toàn bộ test chính | **39/39** |
 | 4 bộ test cũ (cây thư mục & Dashboard, 8 ngành, kế toán, giai đoạn 3) | đạt cả 4 |
 | Bộ cài 3.0.2 chứa mã mới (`tinhKHBS`, `MA_TK_GTGT`, hộp thoại KHBS, nhóm 04) | đã kiểm |
