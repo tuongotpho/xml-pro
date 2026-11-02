@@ -17,6 +17,7 @@
   let curFilterTo = '';
   let curSortCol = 'ngay';
   let curSortAsc = false;
+  let activeFilter = null; // { type, val, label }
 
   function setDateFilter(from, to) {
     curFilterFrom = from || '';
@@ -30,6 +31,18 @@
       curSortCol = col;
       curSortAsc = (col === 'shd' || col === 'ngay' || col === 'tien' || col === 'thue') ? false : true;
     }
+  }
+
+  function setInteractiveFilter(type, val, label) {
+    if (activeFilter && activeFilter.type === type && activeFilter.val === val) {
+      activeFilter = null; // Bấm lại thì hủy lọc
+    } else {
+      activeFilter = { type, val, label };
+    }
+  }
+
+  function clearInteractiveFilter() {
+    activeFilter = null;
   }
 
   function sortIcon(col) {
@@ -268,24 +281,23 @@
     // Nhận diện phân loại theo cấu trúc nhánh thư mục đang xem
     const folderPl = phanLoaiTuPath(path) || phanLoaiTuPath(folderTitle);
 
+    
+    function laHoaDonBan(d) {
+      if (folderPl === 'ban') return true;
+      if (folderPl === 'mua') return false;
+      if (d.phanLoai === 'ban') return true;
+      if (d.phanLoai === 'mua') return false;
+      const filePl = phanLoaiTuPath(d.relPath || d.duongDan || d.source || '');
+      if (filePl === 'ban') return true;
+      if (filePl === 'mua') return false;
+      return true;
+    }
+
     filtered.forEach((d, idx) => {
       if (d.kind !== 'hd') return;
-      let isBan = false, isMua = false;
+      const isBan = laHoaDonBan(d);
+      const isMua = !isBan;
 
-      if (folderPl === 'ban') {
-        isBan = true;
-      } else if (folderPl === 'mua') {
-        isMua = true;
-      } else {
-        if (d.phanLoai === 'ban') isBan = true;
-        else if (d.phanLoai === 'mua') isMua = true;
-        else {
-          const filePl = phanLoaiTuPath(d.relPath || d.duongDan || d.source || '');
-          if (filePl === 'ban') isBan = true;
-          else if (filePl === 'mua') isMua = true;
-          else isBan = true;
-        }
-      }
 
       const tienHang = d.tongTruocThue || d.tong || 0;
       const tienThue = d.tongThue || 0;
@@ -303,11 +315,13 @@
         const tenBan = d.ban?.Ten || d.ban?.MST || 'Nhà cung cấp khác';
         nhaCungCapMap[tenBan] = (nhaCungCapMap[tenBan] || 0) + (d.tong || (tienHang + tienThue));
       }
-
-      // Thuế suất
-      (d.thueSuat || []).forEach(ts => {
-        const k = ts.ts || 'KCT';
-        thueSuatMap[k] = (thueSuatMap[k] || 0) + (ts.tien || 0);
+      // Thuế suất (hỗ trợ cả THTTLTSuat lẫn từng dòng hàng HHDVu)
+      const tsList = (d.thueSuat && d.thueSuat.length)
+        ? d.thueSuat
+        : (d.lines || []).map(l => ({ ts: l.ts, tien: l.thTien || l.thanhTien || 0, thue: l.tThue || 0 }));
+      tsList.forEach(ts => {
+        const k = (ts.ts || 'KCT').trim();
+        thueSuatMap[k] = (thueSuatMap[k] || 0) + (ts.tien || tienHang);
       });
 
       // Cảnh báo
@@ -337,14 +351,14 @@
           </div>
         </div>
 
-        <!-- 4 KPI Cards -->
+        <!-- 4 KPI Cards có lọc tương tác khi bấm -->
         <div class="kpi-grid">
-          <div class="kpi-card ban">
+          <div class="kpi-card ban dash-filter-trigger ${activeFilter?.type === 'pl' && activeFilter?.val === 'ban' ? 'active-filter' : ''}" data-filter-type="pl" data-filter-val="ban" data-filter-label="Hóa đơn BÁN RA" title="Bấm để lọc bảng kê phía dưới chỉ hiện HĐ Bán ra">
             <div class="kpi-title">📤 TỔNG DOANH THU BÁN RA (${countBan} HĐ)</div>
             <div class="kpi-val">${money(tienBan)} <small>đ</small></div>
             <div class="kpi-sub">Thuế GTGT đầu ra: <b>${money(thueBan)} đ</b></div>
           </div>
-          <div class="kpi-card mua">
+          <div class="kpi-card mua dash-filter-trigger ${activeFilter?.type === 'pl' && activeFilter?.val === 'mua' ? 'active-filter' : ''}" data-filter-type="pl" data-filter-val="mua" data-filter-label="Hóa đơn MUA VÀO" title="Bấm để lọc bảng kê phía dưới chỉ hiện HĐ Mua vào">
             <div class="kpi-title">📥 TỔNG CHI PHÍ MUA VÀO (${countMua} HĐ)</div>
             <div class="kpi-val">${money(tienMua)} <small>đ</small></div>
             <div class="kpi-sub">Thuế GTGT đầu vào: <b>${money(thueMua)} đ</b></div>
@@ -354,7 +368,7 @@
             <div class="kpi-val">${thueChenh >= 0 ? '+' : '-'}${money(Math.abs(thueChenh))} <small>đ</small></div>
             <div class="kpi-sub">${thueChenh >= 0 ? '🔴 Dự kiến PHẢI NỘP ngân sách' : '🟢 Thuế GTGT CÒN ĐƯỢC KHẤU TRỪ'}</div>
           </div>
-          <div class="kpi-card warn">
+          <div class="kpi-card warn dash-filter-trigger ${activeFilter?.type === 'warn' ? 'active-filter' : ''}" data-filter-type="warn" data-filter-val="1" data-filter-label="Hóa đơn CẦN CHÚ Ý" title="Bấm để lọc bảng kê phía dưới chỉ hiện HĐ Cần kiểm tra">
             <div class="kpi-title">⚠️ HÓA ĐƠN CẦN CHÚ Ý</div>
             <div class="kpi-val">${countWarn} <small>HĐ</small></div>
             <div class="kpi-sub">${countWarn ? 'Cần đối chiếu số học & pháp lý' : '100% dữ liệu hợp lệ'}</div>
@@ -370,7 +384,7 @@
               ${Object.entries(thueSuatMap).map(([ts, val]) => {
                 const pct = Math.round((val / tongDoanhSo) * 100);
                 return `
-                  <div class="rate-item">
+                  <div class="rate-item dash-filter-trigger ${activeFilter?.type === 'ts' && activeFilter?.val === ts ? 'active-filter' : ''}" data-filter-type="ts" data-filter-val="${esc(ts)}" data-filter-label="Thuế suất ${esc(ts)}" title="Bấm để lọc bảng kê theo thuế suất ${esc(ts)}">
                     <div class="rate-lbl"><span>Thuế suất: <b>${esc(ts)}</b></span> <span>${money(val)} đ (${pct}%)</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
                   </div>
@@ -378,22 +392,28 @@
               }).join('') || '<div class="empty-hint">Chưa có số liệu thuế suất</div>'}
             </div>
 
-            <h3 style="margin-top:16px">🏆 Top 5 Khách Hàng Lớn Nhất</h3>
+            <h3 style="margin-top:16px">🏆 Top 5 Khách Hàng Lớn Nhất <small style="font-weight:400;color:#64748b">(Bấm dòng để lọc)</small></h3>
             <table class="dash-tbl">
               <thead><tr><th>#</th><th>Khách hàng</th><th style="text-align:right">Doanh số (VND)</th></tr></thead>
               <tbody>
-                ${topKhach.map((k, i) => `<tr><td>${i+1}</td><td><b>${esc(k[0])}</b></td><td style="text-align:right">${money(k[1])}</td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center">Chưa có số liệu</td></tr>'}
+                ${topKhach.map((k, i) => {
+                  const isAct = activeFilter?.type === 'khach' && activeFilter?.val === k[0];
+                  return `<tr class="dash-filter-trigger ${isAct ? 'active-filter' : ''}" data-filter-type="khach" data-filter-val="${esc(k[0])}" data-filter-label="Khách hàng: ${esc(k[0])}"><td>${i+1}</td><td><b>${esc(k[0])}</b></td><td style="text-align:right">${money(k[1])}</td></tr>`;
+                }).join('') || '<tr><td colspan="3" style="text-align:center">Chưa có số liệu</td></tr>'}
               </tbody>
             </table>
           </div>
 
           <!-- Cột 2: Top Nhà cung cấp & Cảnh báo -->
           <div class="dash-box">
-            <h3>🏭 Top 5 Nhà Cung Cấp Chi Phí Lớn Nhất</h3>
+            <h3>🏭 Top 5 Nhà Cung Cấp Chi Phí Lớn Nhất <small style="font-weight:400;color:#64748b">(Bấm dòng để lọc)</small></h3>
             <table class="dash-tbl">
               <thead><tr><th>#</th><th>Nhà cung cấp</th><th style="text-align:right">Giá trị mua (VND)</th></tr></thead>
               <tbody>
-                ${topNCC.map((k, i) => `<tr><td>${i+1}</td><td><b>${esc(k[0])}</b></td><td style="text-align:right">${money(k[1])}</td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center">Chưa có số liệu</td></tr>'}
+                ${topNCC.map((k, i) => {
+                  const isAct = activeFilter?.type === 'ncc' && activeFilter?.val === k[0];
+                  return `<tr class="dash-filter-trigger ${isAct ? 'active-filter' : ''}" data-filter-type="ncc" data-filter-val="${esc(k[0])}" data-filter-label="Nhà cung cấp: ${esc(k[0])}"><td>${i+1}</td><td><b>${esc(k[0])}</b></td><td style="text-align:right">${money(k[1])}</td></tr>`;
+                }).join('') || '<tr><td colspan="3" style="text-align:center">Chưa có số liệu</td></tr>'}
               </tbody>
             </table>
 
@@ -409,20 +429,23 @@
           </div>
         </div>
 
-        <!-- Bảng kê Hóa đơn chi tiết có Sắp xếp & Lọc theo ngày -->
+        <!-- Bảng kê Hóa đơn chi tiết có Sắp xếp, Lọc ngày & Lọc tương tác -->
         <div class="dash-box" style="margin-top:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:10px">
-            <h3 style="margin:0;border:0;padding:0">📋 Bảng Kê Chi Tiết Hóa Đơn (${filtered.length} HĐ)</h3>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <h3 style="margin:0;border:0;padding:0">📋 Bảng Kê Chi Tiết Hóa Đơn</h3>
+              ${activeFilter ? `<div class="active-filter-indicator">🔍 Đang lọc: <b>${esc(activeFilter.label)}</b> <button type="button" class="btn-clear-dash-filter" title="Hủy bộ lọc này">✕ Bỏ lọc</button></div>` : ''}
+            </div>
             <div class="dash-filter-group" style="display:flex;align-items:center;gap:8px;font-size:12px">
               <span>Khoảng ngày:</span>
               <input type="date" id="dashDateFrom" class="dash-inp-date" value="${curFilterFrom}">
               <span>-</span>
               <input type="date" id="dashDateTo" class="dash-inp-date" value="${curFilterTo}">
               <button type="button" id="btnApplyDateFilter" class="btn-dash-sm">Lọc</button>
-              <button type="button" id="btnResetDateFilter" class="btn-dash-sm alt">Tất cả</button>
+              <button type="button" id="btnResetDateFilter" class="btn-dash-sm alt">Tất cả ngày</button>
             </div>
           </div>
-          <div style="max-height:450px;overflow-y:auto">
+          <div style="max-height:480px;overflow-y:auto">
             <table class="dash-tbl sortable-tbl">
               <thead>
                 <tr>
@@ -440,7 +463,33 @@
               </thead>
               <tbody>
                 ${(() => {
-                  const sorted = [...filtered].sort((a, b) => {
+                  // Lọc theo bộ lọc tương tác nếu có
+                  const tableFiltered = filtered.filter(d => {
+                    if (!activeFilter) return true;
+                    if (activeFilter.type === 'pl') {
+                      const isB = laHoaDonBan(d);
+                      return activeFilter.val === 'ban' ? isB : !isB;
+                    }
+                    if (activeFilter.type === 'warn') {
+                      return (d.notes || []).some(n => n[0] === 'warn');
+                    }
+                    if (activeFilter.type === 'ts') {
+                        const hasTs = (d.thueSuat || []).some(t => String(t.ts || 'KCT').trim() === activeFilter.val);
+                        const hasLine = (d.lines || []).some(l => String(l.ts || 'KCT').trim() === activeFilter.val);
+                        return hasTs || hasLine;
+                      }
+                    if (activeFilter.type === 'khach') {
+                      const ten = d.mua?.Ten || d.mua?.MST || '';
+                      return ten === activeFilter.val;
+                    }
+                    if (activeFilter.type === 'ncc') {
+                      const ten = d.ban?.Ten || d.ban?.MST || '';
+                      return ten === activeFilter.val;
+                    }
+                    return true;
+                  });
+
+                  const sorted = [...tableFiltered].sort((a, b) => {
                     let vA, vB;
                     if (curSortCol === 'ngay') {
                       vA = layNgayChuan(a); vB = layNgayChuan(b);
@@ -465,7 +514,7 @@
                   });
 
                   return sorted.slice(0, 150).map((d, i) => {
-                    const isB = d.phanLoai === 'ban';
+                    const isB = laHoaDonBan(d);
                     const plTag = isB ? '<span class="tag-pl ban">BÁN RA</span>' : '<span class="tag-pl mua">MUA VÀO</span>';
                     const doiTac = (isB ? (d.mua?.Ten || d.mua?.ten) : (d.ban?.Ten || d.ban?.ten)) || d.ten || 'Chưa rõ';
                     const mst = (isB ? (d.mua?.MST || d.mua?.mst) : (d.ban?.MST || d.ban?.mst)) || d.mst || '';
@@ -921,6 +970,9 @@
     toggleNode,
     setSort,
     setDateFilter,
+    setInteractiveFilter,
+    clearInteractiveFilter,
+    getInteractiveFilter: () => activeFilter,
     getDateFilter: () => ({ from: curFilterFrom, to: curFilterTo }),
     getSort: () => ({ col: curSortCol, asc: curSortAsc }),
     DOMAIN_INFO

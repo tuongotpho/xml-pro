@@ -84,7 +84,7 @@
   .foot a { color: var(--muted); }
   .foot a.dn-link { color: var(--accent); font-weight: 600; text-decoration: none; }
   .foot a.dn-link:hover { text-decoration: underline; }
-  main { overflow: auto; padding: 20px; min-width: 0; }
+  main { overflow: auto; padding: 16px 24px; min-width: 0; }
   .empty { max-width: 700px; margin: 26px auto; color: var(--muted); }
   .empty h2 { color: var(--ink); font-size: 18px; margin-top: 0; }
   .bar { max-width: 1000px; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
@@ -470,7 +470,19 @@
   .btn-xs-close:hover { color: #b91c1c; }
 
   /* Executive Adaptive Dashboard */
-  .dash-exec { max-width: 1060px; margin: 0 auto 30px; animation: fadeIn .2s ease-in-out; }
+  .dash-exec { width: 100%; max-width: none; margin: 0 0 24px; animation: fadeIn .2s ease-in-out; }
+  .dash-filter-trigger { cursor: pointer; transition: all .15s ease; user-select: none; }
+  .dash-filter-trigger:hover { filter: brightness(0.96); transform: translateY(-1px); }
+  .kpi-card.dash-filter-trigger { cursor: pointer; }
+  .kpi-card.active-filter { outline: 3px solid #0284c7; outline-offset: 2px; box-shadow: 0 4px 12px rgba(2,132,199,.25); }
+  .rate-item.dash-filter-trigger { cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background .15s ease; }
+  .rate-item.dash-filter-trigger:hover { background: #f1f5f9; }
+  .rate-item.active-filter { background: #e0f2fe !important; border: 1px solid #bae6fd; }
+  tr.dash-filter-trigger:hover td { background: #f1f5f9; }
+  tr.active-filter td { background: #e0f2fe !important; font-weight: 700; color: #0284c7; }
+  .active-filter-indicator { display: inline-flex; align-items: center; gap: 8px; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #bae6fd; font-weight: 500; }
+  .btn-clear-dash-filter { background: #0284c7; color: #fff; border: 0; border-radius: 4px; padding: 2px 7px; font-size: 11px; cursor: pointer; font-weight: 600; }
+  .btn-clear-dash-filter:hover { background: #0369a1; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
   .dash-header { padding: 18px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
@@ -566,7 +578,6 @@
         </button>
       </div>
     </div>
-    <div id="ktDash" class="kt-dash" style="display:none"></div>
     <div class="summary" id="summary">Chưa có file nào.</div>
     <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay" title="Khám phá cấu trúc thư mục & tập tin (Explorer)">📁 Explorer</button><button id="segLs">Lịch sử</button></div>
     <div id="folderFilterBar" class="folder-filter-bar" style="display:none">
@@ -575,12 +586,6 @@
         <button type="button" id="btnViewFolderDash" class="btn-xs-dash">📊 Xem Dashboard</button>
         <button type="button" id="btnClearFolderFilter" class="btn-xs-close" title="Xem tất cả file (Bỏ lọc thư mục)">×</button>
       </div>
-    </div>
-    <div id="filterPills" class="filter-pills" style="display:none">
-      <button class="pill on" data-filter="all">Tất cả <span id="cntAll">0</span></button>
-      <button class="pill mua" data-filter="mua">📥 Mua vào <span id="cntMua">0</span></button>
-      <button class="pill ban" data-filter="ban">📤 Bán ra <span id="cntBan">0</span></button>
-      <button class="pill warn" data-filter="warn">⚠ Chú ý <span id="cntWarn">0</span></button>
     </div>
     <div class="list" id="list"></div>
     <div class="foot"><a href="#" id="about" class="dn-link">Giới thiệu · Ủng hộ ☕</a><br>(C) August87 - 0982722036 · <span id="pbChan"></span></div>
@@ -2480,74 +2485,6 @@
 
     // Lấy tập hợp docs theo thư mục đang chọn (nếu có lọc thư mục)
     const curDocs = layDanhSachTheoThuMuc();
-
-    // Tính toán số liệu thống kê kế toán (Dashboard mini) & số lượng theo bộ lọc
-    let cntMua = 0, cntBan = 0, cntWarn = 0;
-    let tienBan = 0, thueBan = 0, countBan = 0;
-    let tienMua = 0, thueMua = 0, countMua = 0;
-
-    for (const d of curDocs) {
-      if (d.error) continue;
-      if (d.kind === 'hd') {
-        if (d.phanLoai === 'ban') {
-          countBan++;
-          tienBan += (d.tongTruocThue || d.tong || 0);
-          thueBan += (d.tongThue || 0);
-          cntBan++;
-        } else if (d.phanLoai === 'mua') {
-          countMua++;
-          tienMua += (d.tongTruocThue || d.tong || 0);
-          thueMua += (d.tongThue || 0);
-          cntMua++;
-        }
-        if (d.notes && d.notes.some(n => n[0] === 'warn')) cntWarn++;
-      }
-    }
-
-    // Cập nhật số đếm trên filter pills
-    if ($('cntAll')) $('cntAll').textContent = curDocs.length;
-    if ($('cntMua')) $('cntMua').textContent = cntMua;
-    if ($('cntBan')) $('cntBan').textContent = cntBan;
-    if ($('cntWarn')) $('cntWarn').textContent = cntWarn;
-    document.querySelectorAll('#filterPills .pill').forEach(btn => {
-      btn.classList.toggle('on', btn.dataset.loc === locPhanLoai);
-    });
-
-    // Cập nhật Dashboard kế toán
-    const dash = $('ktDash');
-    if (dash) {
-      if (countBan > 0 || countMua > 0) {
-        dash.style.display = 'block';
-        const thueChenh = thueBan - thueMua;
-        let chenhHtml = '';
-        if (thueChenh > 0) {
-          chenhHtml = `<span class="kt-chenh duong" title="Thuế GTGT đầu ra > đầu vào: Dự kiến phát sinh thuế GTGT phải nộp">Phải nộp: +${money(thueChenh)} đ</span>`;
-        } else if (thueChenh < 0) {
-          chenhHtml = `<span class="kt-chenh am" title="Thuế GTGT đầu vào > đầu ra: Còn được khấu trừ chuyển kỳ sau">Khấu trừ: ${money(Math.abs(thueChenh))} đ</span>`;
-        } else {
-          chenhHtml = `<span class="kt-chenh can">Cân bằng (0 đ)</span>`;
-        }
-        dash.innerHTML = `
-          <div class="kt-dash-row">
-            <span class="kt-tag ban">📤 BÁN RA (${countBan})</span>
-            <span>Tiền hàng: <b>${money(tienBan)}</b></span>
-            <span>Thuế: <b>${money(thueBan)}</b></span>
-          </div>
-          <div class="kt-dash-row">
-            <span class="kt-tag mua">📥 MUA VÀO (${countMua})</span>
-            <span>Tiền hàng: <b>${money(tienMua)}</b></span>
-            <span>Thuế: <b>${money(thueMua)}</b></span>
-          </div>
-          <div class="kt-dash-row" style="border-top:1px dashed #cbd5e1;padding-top:4px;margin-top:2px">
-            <span style="font-weight:600;color:#334155">GTGT tạm tính:</span>
-            ${chenhHtml}
-          </div>
-        `;
-      } else {
-        dash.style.display = 'none';
-      }
-    }
-
     let hienThiCount = 0;
     $('list').innerHTML = curDocs.map(d => {
       const i = docs.indexOf(d);
@@ -2844,6 +2781,27 @@
   $('main').addEventListener('click', e => {
     if (e.target.closest('#btnEmptyFile')) return chonTep();
     if (e.target.closest('#btnEmptyDir')) return chonThuMuc();
+
+    // Bộ lọc tương tác từ Dashboard (Cross-filtering: Click KPI, Thuế suất, Top KH, Top NCC)
+    const fTrigger = e.target.closest('.dash-filter-trigger');
+    if (fTrigger && fTrigger.dataset.filterType) {
+      if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.setInteractiveFilter) {
+        window.DASHBOARD_DONG.setInteractiveFilter(
+          fTrigger.dataset.filterType,
+          fTrigger.dataset.filterVal,
+          fTrigger.dataset.filterLabel || fTrigger.dataset.filterVal
+        );
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
+    if (e.target.closest('.btn-clear-dash-filter')) {
+      if (window.DASHBOARD_DONG && window.DASHBOARD_DONG.clearInteractiveFilter) {
+        window.DASHBOARD_DONG.clearInteractiveFilter();
+        moDashboard(selectedFolder);
+      }
+      return;
+    }
 
     // Bấm tiêu đề cột bảng kê để sắp xếp (Click-to-sort)
     const thSort = e.target.closest('.th-sort');
