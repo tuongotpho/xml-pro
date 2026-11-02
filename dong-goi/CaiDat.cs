@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 static class CaiDat
 {
-    static readonly string[] Tep = { "XemXmlThue.exe", "index.html", "dashboard-dong.js", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
+    static readonly string[] Tep = { "XML-Pro.exe", "index.html", "dashboard-dong.js", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
 
     [STAThread]
     static int Main(string[] args)
@@ -39,6 +39,9 @@ static class CaiDat
             }
             string exe = Path.Combine(dich, Chung.TenExe);
             Chung.DangKy(exe);
+            // Dọn lối tắt cũ tiếng Việt nếu có
+            try { File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Xem XML thuế.lnk")); } catch { }
+            try { File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Xem XML thuế.lnk")); } catch { }
             Chung.TaoLoiTat(Chung.LoiTat, exe);
             Chung.TaoLoiTat(Chung.LoiTatDesktop, exe);
         }

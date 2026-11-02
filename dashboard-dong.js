@@ -193,6 +193,26 @@
   // 3. CÁC MODULE DASHBOARD ĐỘNG THEO CHUYÊN NGÀNH
   // =========================================================================
 
+  function phanLoaiTuPath(p) {
+    if (!p) return null;
+    const parts = String(p).replace(/^[A-Za-z]:[\/]/, '').replace(/\\/g, '/').split(/[\/\s*›\s*]+/).filter(Boolean);
+    const folderParts = (parts.length > 1 && parts[parts.length - 1].toLowerCase().endsWith('.xml'))
+      ? parts.slice(0, -1)
+      : parts;
+    for (let i = folderParts.length - 1; i >= 0; i--) {
+      const seg = folderParts[i].toLowerCase();
+      const hasMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input|inbound)(?:$|[_\W])/i.test(seg);
+      const hasBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output|outbound)(?:$|[_\W])/i.test(seg);
+      if (hasMua && hasBan) continue;
+      if (hasBan) return 'ban';
+      if (hasMua) return 'mua';
+    }
+    const fileName = parts[parts.length - 1] || '';
+    if (/^(ban[-_]|xuat[-_]|output[-_])/i.test(fileName)) return 'ban';
+    if (/^(mua[-_]|nhap[-_]|input[-_])/i.test(fileName)) return 'mua';
+    return null;
+  }
+
   // --- 3.1. DASHBOARD HÓA ĐƠN & THUẾ GTGT ---
   function renderDashboardHoaDon(docs, folderTitle, path) {
     let countBan = 0, tienBan = 0, thueBan = 0;
@@ -203,26 +223,24 @@
     const nhaCungCapMap = {};
     const warnList = [];
 
-    const pFolder = (path || folderTitle || '').toLowerCase();
-    const folderIsBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output)(?:$|[_\W])/i.test(pFolder);
-    const folderIsMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input)(?:$|[_\W])/i.test(pFolder);
+    // Nhận diện phân loại theo cấu trúc nhánh thư mục đang xem
+    const folderPl = phanLoaiTuPath(path) || phanLoaiTuPath(folderTitle);
 
     docs.forEach((d, idx) => {
       if (d.kind !== 'hd') return;
-      let isBan = d.phanLoai === 'ban';
-      let isMua = d.phanLoai === 'mua';
+      let isBan = false, isMua = false;
 
-      if (!isBan && !isMua) {
-        if (folderIsBan && !folderIsMua) {
-          isBan = true;
-        } else if (folderIsMua && !folderIsBan) {
-          isMua = true;
-        } else {
-          const pFile = (d.relPath || d.duongDan || d.source || '').toLowerCase();
-          const pBan = /(?:^|[_\W])(ban[-_ ]*ra|dau[-_ ]*ra|daura|xuat|ban|output)(?:$|[_\W])/i.test(pFile);
-          const pMua = /(?:^|[_\W])(mua[-_ ]*vao|dau[-_ ]*vao|dauvao|nhap|mua|input)(?:$|[_\W])/i.test(pFile);
-          if (pBan && !pMua) isBan = true;
-          else if (pMua && !pBan) isMua = true;
+      if (folderPl === 'ban') {
+        isBan = true;
+      } else if (folderPl === 'mua') {
+        isMua = true;
+      } else {
+        if (d.phanLoai === 'ban') isBan = true;
+        else if (d.phanLoai === 'mua') isMua = true;
+        else {
+          const filePl = phanLoaiTuPath(d.relPath || d.duongDan || d.source || '');
+          if (filePl === 'ban') isBan = true;
+          else if (filePl === 'mua') isMua = true;
           else isBan = true;
         }
       }

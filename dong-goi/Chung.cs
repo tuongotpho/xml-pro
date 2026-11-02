@@ -15,12 +15,12 @@ using Microsoft.Win32;
 
 static class Chung
 {
-    public const string TenApp = "Xem XML thuế";
+    public const string TenApp = "XML-Pro";
     public const string PhienBan = global::PhienBanApp.So;
-    public const string ProgId = "XemXmlThue.xml";
-    public const string TenExe = "XemXmlThue.exe";
-    const string KhoaGoCai = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\XemXmlThue";
-    const string KhoaApp = @"Software\XemXmlThue";
+    public const string ProgId = "XMLPro.xml";
+    public const string TenExe = "XML-Pro.exe";
+    const string KhoaGoCai = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\XMLPro";
+    const string KhoaApp = @"Software\XMLPro";
 
     // Cài riêng cho tài khoản đang dùng: không cần quyền quản trị.
     public static string ThuMucCai
@@ -124,7 +124,7 @@ static class Chung
         st.InvokeMember("TargetPath", BindingFlags.SetProperty, null, sc, new object[] { exe });
         st.InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, sc, new object[] { Path.GetDirectoryName(exe) });
         st.InvokeMember("IconLocation", BindingFlags.SetProperty, null, sc, new object[] { exe + ",0" });
-        st.InvokeMember("Description", BindingFlags.SetProperty, null, sc, new object[] { "Xem tờ khai, thông báo thuế, chứng từ, hoá đơn (XML)" });
+        st.InvokeMember("Description", BindingFlags.SetProperty, null, sc, new object[] { "XML-Pro - Phan tich & Xem ho so XML chuyen nghiep" });
         st.InvokeMember("Save", BindingFlags.InvokeMethod, null, sc, null);
         if (File.Exists(lnk)) File.Delete(lnk);
         File.Move(tam, lnk);

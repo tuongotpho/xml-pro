@@ -29,14 +29,14 @@ if ($moi -notmatch '^\d+\.\d+\.\d+$') { throw "Số phiên bản không hợp l�
 
 # --- Biên dịch ---
 New-Item -ItemType Directory -Force $ra | Out-Null
-Get-ChildItem $ra -Filter 'CaiDat-XemXmlThue*.exe' | Remove-Item -Force
+Get-ChildItem $ra -Filter 'CaiDat-XML-Pro*.exe' | Remove-Item -Force
 $chung = @('/nologo', '/target:winexe', '/codepage:65001', '/optimize+', "/win32icon:$dg\XemXmlThue.ico",
            '/r:System.Windows.Forms.dll', '/r:System.Core.dll')
 
-& $csc @chung "/out:$ra\XemXmlThue.exe" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
-if ($LASTEXITCODE) { throw 'Biên dịch XemXmlThue.exe lỗi' }
+& $csc @chung "/out:$ra\XML-Pro.exe" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
+if ($LASTEXITCODE) { throw 'Biên dịch XML-Pro.exe lỗi' }
 
-$nhung = @("/resource:$ra\XemXmlThue.exe,XemXmlThue.exe",
+$nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
            "/resource:$app\index.html,index.html",
            "/resource:$app\dashboard-dong.js,dashboard-dong.js",
            "/resource:$app\phien-ban.js,phien-ban.js",
@@ -46,7 +46,7 @@ $nhung = @("/resource:$ra\XemXmlThue.exe,XemXmlThue.exe",
            "/resource:$app\mau-itax.js,mau-itax.js",
            "/resource:$app\ten-chi-tieu.js,ten-chi-tieu.js",
            "/resource:$app\HUONG-DAN.md,HUONG-DAN.md")
-$caiDat = "$ra\CaiDat-XemXmlThue-$moi.exe"
+$caiDat = "$ra\CaiDat-XML-Pro-$moi.exe"
 & $csc @chung @nhung "/out:$caiDat" "$dg\CaiDat.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
 if ($LASTEXITCODE) { throw 'Biên dịch bộ cài lỗi' }
 
