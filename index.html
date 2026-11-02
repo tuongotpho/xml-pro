@@ -325,6 +325,11 @@
   .itax-tabs button:hover { background: #f6f8fa; }
   .itax-tabs button.on { background: #1f3a52; border-color: #1f3a52; color: #fff; font-weight: 600; }
   .itax-wrap { overflow-x: auto; padding-bottom: 4px; }
+  
+  /* Định dạng chữ ký số trong template iTax */
+  .itax-sig-stamped { margin-top: 8px; }
+  .itax-sig-stamped .sigs { border-top: 0; margin-top: 4px; padding-top: 0; }
+
   .itax-sheet { display: flow-root; width: 920px; margin: 0 auto 18px; background: #fff; padding: 24px 30px 16px; box-shadow: 0 1px 5px rgba(0,0,0,.14); color: #000; font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.35; box-sizing: border-box; }
   .itax-sheet * { box-sizing: content-box; }
   .itax-sheet.ngang { width: 1262px; }
@@ -463,8 +468,7 @@
     .kv, .party .row, .hd-head { grid-template-columns: 1fr; }
     table.grid, table.lines { font-size: 12px; }
   }
-  /* Ẩn các sheet không được chọn trên màn hình khi xem theo tab */
-  .itax-sheet.itax-screen-hide { display: none; }
+  
 
   @media print {
     @page {
@@ -498,7 +502,7 @@
       margin: 0 !important;
       padding: 0 !important;
     }
-    aside, .bar, .top-strip, dialog, .tabs, .itax-tabs, #loadProgress, .btn-capnhat-pill, .btn-xuat-excel, .filter-pills, .folder-filter-bar {
+    aside, .bar, .top-strip, .notes, details.ttfile, dialog, .tabs, .itax-tabs, #loadProgress, .btn-capnhat-pill, .btn-xuat-excel, .filter-pills, .folder-filter-bar {
       display: none !important;
     }
     .right {
@@ -553,21 +557,9 @@
       background: #fff !important;
       border: 1px solid #cbd5e1 !important;
     }
-    /* Thông tin file metadata */
-    .notes {
-      display: block !important;
-      margin: 0 0 10px !important;
-      padding: 0 !important;
-      max-width: none !important;
-    }
-    .notes .note {
+    /* Ẩn hoàn toàn khối thông tin kỹ thuật file khi in - chỉ in nội dung tờ khai chính thức */
+    .notes, details.ttfile {
       display: none !important;
-    }
-    .notes details.ttfile {
-      display: block !important;
-      border: 1px solid #cbd5e1 !important;
-      padding: 6px 10px !important;
-      margin-bottom: 10px !important;
     }
     /* Biểu mẫu và bảng tính iTax */
     .itax-wrap {
@@ -581,31 +573,23 @@
       max-width: none !important;
       box-shadow: none !important;
       margin: 0 !important;
-      padding: 0 0 20px 0 !important;
-      page-break-after: always;
-      break-after: page;
+      padding: 0 0 15px 0 !important;
+      page-break-after: auto !important;
+      break-after: auto !important;
       box-sizing: border-box !important;
     }
     .itax-sheet.ngang {
       width: 100% !important;
     }
-    .itax-sheet:last-of-type {
-      page-break-after: auto;
-      break-after: auto;
+    .itax-sig-stamped {
+      margin-top: 8px !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
-    .itax-sheet.itax-screen-hide {
-      display: block !important; /* Khi in/xuất PDF sẽ in ĐẦY ĐỦ TẤT CẢ các sheet & phụ lục */
-    }
-    .itax-wrap.print-only-current .itax-sheet.itax-screen-hide {
-      display: none !important; /* Nếu người dùng chọn Chỉ in biểu này */
-    }
-    .sheet-print-title {
-      display: block !important;
-      font-weight: 700 !important;
-      font-size: 13pt !important;
-      text-align: center !important;
-      margin-bottom: 12px !important;
-      color: #0f172a !important;
+    .itax-sig-stamped .sigs {
+      border-top: none !important;
+      margin-top: 4px !important;
+      padding-top: 0 !important;
     }
     .itax-sigs {
       box-shadow: none !important;
@@ -2437,7 +2421,21 @@
                 const args = Array.from(el.children).map(c => c.textContent);
                 el.replaceWith(document.createTextNode(ITAX.callIh(fn, args)));
               });
-              box.querySelectorAll('#sigDiv').forEach(el => el.removeAttribute('id'));
+              // Định dạng tất cả các ô số liệu (class number, td.align-r...) theo chuẩn phân cách hàng nghìn VN (.)
+              box.querySelectorAll('.number, td.align-r, td.align-right, td.number').forEach(el => {
+                if (el.children.length === 0) {
+                  const raw = el.textContent.trim();
+                  if (/^-?\d+(?:\.\d+)?$/.test(raw)) {
+                    el.textContent = ITAX.formatNumber(raw);
+                  }
+                }
+              });
+              // Điền chữ ký số vào placeholder #sigDiv trong template XSLT
+              box.querySelectorAll('#sigDiv').forEach(el => {
+                el.innerHTML = sigStamps(d.sigs);
+                el.removeAttribute('id');
+                el.classList.add('itax-sig-stamped');
+              });
               if (box.textContent.replace(/\s+/g, '').length > 10) {
                 out.push({ id: sp.id, label: sp.label, orient: sp.orient, html: box.innerHTML });
                 continue;
@@ -2947,17 +2945,10 @@
       : d.kind === 'thau' ? (window.NGANH_DOC ? window.NGANH_DOC.renderProcurement(d) : renderDoc(d))
       : renderDoc(d);
     $('main').scrollTop = 0;
-    document.title = (d.title || d.fileName || 'Tài liệu') + ' — XML-Pro';
+    const curShObj = d._itaxSheets && d._shIdx >= 0 && d._shIdx < d._itaxSheets.length ? d._itaxSheets[d._shIdx] : null;
+    const shSuffix = curShObj ? ` - ${curShObj.label}` : '';
+    document.title = (d.title || d.fileName || 'Tài liệu') + shSuffix + ' — XML-Pro';
     const p = $('printBtn'); if (p) p.onclick = () => window.print();
-    const pCur = $('printCurBtn');
-    if (pCur) {
-      pCur.onclick = () => {
-        const wrap = $('main').querySelector('.itax-wrap');
-        if (wrap) wrap.classList.add('print-only-current');
-        window.print();
-        setTimeout(() => { if (wrap) wrap.classList.remove('print-only-current'); }, 1000);
-      };
-    }
     const e = $('showEmpty'); if (e) e.onchange = () => { showEmpty = e.checked; select(selected); };
     $('main').querySelectorAll('.itax-tabs button[data-sh]').forEach(btn => {
       btn.onclick = () => { d._shIdx = Number(btn.dataset.sh); select(selected); };
@@ -2965,20 +2956,18 @@
   }
 
   window.addEventListener('beforeprint', () => {
-    document.querySelectorAll('details').forEach(d => {
+    document.querySelectorAll('details:not(.ttfile)').forEach(d => {
       d._wasOpen = d.open;
       d.open = true;
     });
   });
   window.addEventListener('afterprint', () => {
-    document.querySelectorAll('details').forEach(d => {
+    document.querySelectorAll('details:not(.ttfile)').forEach(d => {
       if (d._wasOpen !== undefined) {
         d.open = d._wasOpen;
         delete d._wasOpen;
       }
     });
-    const wrap = $('main')?.querySelector('.itax-wrap');
-    if (wrap) wrap.classList.remove('print-only-current');
   });
 
   function renderDoc(d) {
@@ -2986,33 +2975,29 @@
     // Ưu tiên hiển thị bằng bộ mẫu XSLT chuẩn của iTax Viewer nếu khớp biểu mẫu
     if (d._itaxSheets && d._itaxSheets.length) {
       const shs = d._itaxSheets;
-      const curSh = (d._shIdx == null || d._shIdx < -1 || d._shIdx >= shs.length) ? -1 : d._shIdx;
+      const curSh = (d._shIdx == null || d._shIdx < 0 || d._shIdx >= shs.length) ? 0 : d._shIdx;
+      d._shIdx = curSh;
+      const curSheet = shs[curSh];
       const shBar = shs.length > 1 ? `<div class="itax-tabs">
-        <button type="button" data-sh="-1" class="${curSh === -1 ? 'on' : ''}">Xem tất cả (${shs.length})</button>
         ${shs.map((s, idx) => `<button type="button" data-sh="${idx}" class="${curSh === idx ? 'on' : ''}">${esc(s.label)}</button>`).join('')}
       </div>` : '';
+      const hasSig = curSheet.html.includes('itax-sig-stamped') || curSheet.html.includes('sig-row');
+      const sigFoot = hasSig ? '' : `<div class="itax-sig-foot">${sigStamps(d.sigs)}</div>`;
       return `
         <div class="top-strip">
-          <div class="note ok">✔ Chuẩn mẫu iTax Viewer${shs.length > 1 ? ` (${shs.length} biểu)` : ''} · <span style="color:var(--muted)">Nguồn: ${esc(d.source)}</span></div>
+          <div class="note ok">✔ Chuẩn mẫu iTax Viewer${shs.length > 1 ? ` (${curSh + 1}/${shs.length}: ${esc(curSheet.label)})` : ''} · <span style="color:var(--muted)">Nguồn: ${esc(d.source)}</span></div>
           <div style="display:flex;gap:8px;align-items:center">
             <button type="button" class="btn-xuat-excel" style="background:#15803d;color:#fff;border-color:#15803d;font-weight:600">📊 Xuất Excel</button>
-            <button class="primary" id="printBtn" title="In / Lưu PDF toàn bộ hồ sơ (tất cả ${shs.length} biểu & phụ lục)">In / Lưu PDF (${shs.length > 1 ? 'Toàn bộ ' + shs.length + ' biểu' : 'In file'})</button>
-            ${(shs.length > 1 && curSh >= 0) ? `<button type="button" id="printCurBtn" style="font-size:12px;padding:5px 9px" title="Chỉ in biểu ${curSh + 1} (${esc(shs[curSh].label)}) đang chọn trên màn hình">Chỉ in biểu này</button>` : ''}
+            <button class="primary" id="printBtn" title="In / Lưu PDF biểu đang xem (${esc(curSheet.label)})">In / Lưu PDF</button>
           </div>
         </div>
         ${info.length ? `<div class="notes" style="max-width:920px"><details class="ttfile"><summary>Thông tin file (mã mẫu, loại tờ khai, phần mềm lập…)</summary><div class="kv">${info.map(r => `<span>${esc(r[0])}</span><span>${esc(r[1])}</span>`).join('')}</div></details></div>` : ''}
         ${shBar}
         <div class="itax-wrap">
-          ${shs.map((s, idx) => {
-            const isHiddenOnScreen = (curSh >= 0 && curSh !== idx);
-            const cls = `itax-sheet${s.orient === '1' ? ' ngang' : ''}${isHiddenOnScreen ? ' itax-screen-hide' : ''}`;
-            const sigFoot = (idx === shs.length - 1 || curSh === idx) ? `<div class="itax-sig-foot">${sigStamps(d.sigs)}</div>` : '';
-            return `<section class="${cls}" data-sheet-idx="${idx}">
-              <div class="sheet-print-title" style="display:none">${esc(s.label)}</div>
-              ${s.html}
-              ${sigFoot}
-            </section>`;
-          }).join('')}
+          <section class="itax-sheet${curSheet.orient === '1' ? ' ngang' : ''}" data-sheet-idx="${curSh}">
+            ${curSheet.html}
+            ${sigFoot}
+          </section>
         </div>
         <div class="copyright">(C) August87 - 0982722036</div>`;
     }
