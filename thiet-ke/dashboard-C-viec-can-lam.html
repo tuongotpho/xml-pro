@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XML-Pro — Phương án C: Việc cần làm</title>
+<style>
+  :root {
+    --nen: #f5f6f8; --the: #ffffff; --muc: #17202a; --phu: #55606e; --nhat: #8b95a1; --ke: #e4e7eb;
+    --ben: #1f2933; --ben-chu: #cbd2d9; --ben-nhat: #7b8794; --ben-chon: #323f4b;
+    --chinh: #2563eb; --xanh: #15803d; --xanh-nen: #e9f6ee; --vang: #a15c07; --vang-nen: #fdf3e2; --do: #b91c1c; --do-nen: #fdecec; --xam-nen: #eef0f3;
+  }
+  :root[data-theme="dark"] {
+    --nen: #12161c; --the: #1a2029; --muc: #e9edf1; --phu: #a9b2bd; --nhat: #747e8a; --ke: #2a323d;
+    --ben: #0e1217; --ben-chu: #c4ccd5; --ben-nhat: #6b7582; --ben-chon: #1f2731;
+    --chinh: #7aa7ff; --xanh: #6fd394; --xanh-nen: #15291d; --vang: #f0b860; --vang-nen: #2f2410; --do: #ff8f8f; --do-nen: #351818; --xam-nen: #232a34;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, Arial, sans-serif; font-size: 13px; color: var(--muc); background: var(--nen); }
+  .so { font-variant-numeric: tabular-nums; }
+  .app { display: grid; grid-template-columns: 250px minmax(0, 1fr); height: 100vh; }
+  aside { background: var(--ben); color: var(--ben-chu); display: flex; flex-direction: column; min-height: 0; }
+  .logo { display: flex; justify-content: space-between; align-items: center; padding: 18px 16px; }
+  .logo b { color: #fff; font-size: 15px; font-weight: 600; }
+  .nut-toi { font: inherit; font-size: 12px; background: transparent; color: var(--ben-chu); border: 1px solid var(--ben-chon); border-radius: 6px; padding: 4px 9px; cursor: pointer; }
+  .nhom { padding: 14px 16px 6px; font-size: 11.5px; color: var(--ben-nhat); }
+  .cty { margin: 0 8px; padding: 9px 10px; border-radius: 6px; cursor: pointer; }
+  .cty:hover { background: var(--ben-chon); }
+  .cty.sel { background: var(--ben-chon); color: #fff; }
+  .cty .p { color: var(--ben-nhat); font-size: 11.5px; margin-top: 2px; display: flex; justify-content: space-between; }
+  .cty .p b { font-weight: 600; color: #f0b860; }
+  .them { margin: 6px 8px; padding: 9px 10px; border: 1px dashed var(--ben-chon); border-radius: 6px; color: var(--ben-nhat); font-size: 12px; }
+  .menu { margin-top: 6px; }
+  .menu div { padding: 8px 18px; color: var(--ben-chu); cursor: pointer; font-size: 12.5px; }
+  .menu div:hover { color: #fff; }
+  .day { margin-top: auto; padding: 12px 16px; color: var(--ben-nhat); font-size: 11.5px; border-top: 1px solid var(--ben-chon); }
+  main { overflow: auto; }
+  .noi-dung { padding: 24px 32px 40px; max-width: 1100px; }
+  .dau { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 16px; }
+  .dau h1 { margin: 0; font-size: 19px; font-weight: 600; }
+  .dau .phu { color: var(--phu); margin-top: 4px; }
+  .nut { font: inherit; font-size: 12.5px; border: 1px solid var(--ke); background: var(--the); color: var(--muc); border-radius: 6px; padding: 7px 12px; cursor: pointer; white-space: nowrap; }
+  .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .nut.chinh { color: #0e1217; }
+  .tom { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tom span { padding: 6px 12px; border-radius: 999px; font-size: 12.5px; }
+  .ky { background: var(--the); border: 1px solid var(--ke); border-radius: 10px; margin-bottom: 12px; display: grid; grid-template-columns: 6px minmax(0, 1fr); overflow: hidden; }
+  .ky .vach { background: var(--ke); }
+  .ky .than { padding: 14px 18px; }
+  .ky .tren { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .ky .tren b { font-size: 14.5px; font-weight: 600; }
+  .trang-thai { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .ky .mo-ta { color: var(--phu); margin: 6px 0 10px; line-height: 1.55; }
+  .ky .so-lieu { display: flex; gap: 22px; flex-wrap: wrap; color: var(--phu); font-size: 12px; }
+  .ky .so-lieu b { color: var(--muc); font-weight: 600; font-size: 13px; }
+  .ky .hanh-dong { display: flex; gap: 8px; margin-top: 12px; }
+  .ky.xong .vach { background: var(--xanh); } .ky.xong .trang-thai { background: var(--xanh-nen); color: var(--xanh); }
+  .ky.xem .vach { background: var(--vang); } .ky.xem .trang-thai { background: var(--vang-nen); color: var(--vang); }
+  .ky.loi .vach { background: var(--do); } .ky.loi .trang-thai { background: var(--do-nen); color: var(--do); }
+  .ky.cho .vach { background: var(--chinh); } .ky.cho .trang-thai { background: var(--xam-nen); color: var(--phu); }
+  .loi-chi { color: var(--do); font-weight: 600; }
+  .duoi { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+  .duoi > div { background: var(--the); border: 1px solid var(--ke); border-radius: 10px; padding: 12px 14px; }
+  .duoi .n { color: var(--phu); font-size: 12px; }
+  .duoi .v { font-size: 17px; font-weight: 600; margin-top: 3px; }
+  .ban-quyen { color: var(--nhat); font-size: 11.5px; text-align: center; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><b>XML-Pro</b><button class="nut-toi" id="doiMau">Tối</button></div>
+    <div class="nhom">Công ty đang mở</div>
+    <div class="cty sel"><div>Nga Anh Phú Thọ</div><div class="p"><span>2601102955</span><b>2 việc</b></div></div>
+    <div class="them">Kéo thư mục của công ty khác vào để thêm</div>
+    <div class="menu">
+      <div>Tờ khai và đối chiếu</div>
+      <div>Hoá đơn (92)</div>
+      <div>Chứng từ nộp tiền (1)</div>
+      <div>Xuất Excel</div>
+    </div>
+    <div class="day">Bản 3.0.0 · (C) August87 - 0982722036</div>
+  </aside>
+  <main>
+    <div class="noi-dung">
+      <div class="dau">
+        <div><h1>Công ty TNHH thương mại Nga Anh Phú Thọ</h1><div class="phu">MST 2601102955 · khai thuế GTGT theo quý · dữ liệu tháng 1–10/2026</div></div>
+        <div style="display:flex;gap:8px"><button class="nut">Chọn thư mục…</button><button class="nut chinh">Lập tờ khai</button></div>
+      </div>
+      <div class="tom">
+        <span style="background:var(--do-nen);color:var(--do)">1 kỳ lệch thuế</span>
+        <span style="background:var(--vang-nen);color:var(--vang)">1 kỳ cần xem lại</span>
+        <span style="background:var(--xanh-nen);color:var(--xanh)">1 kỳ đã xong</span>
+        <span style="background:var(--xam-nen);color:var(--phu)">1 kỳ chưa lập</span>
+      </div>
+
+      <div class="ky cho"><div class="vach"></div><div class="than">
+        <div class="tren"><b>Quý 4/2026</b><span class="trang-thai">Chưa lập tờ khai</span></div>
+        <div class="mo-ta">Đã có hoá đơn tháng 10. Hạn nộp tờ khai quý 4: 31/01/2027.</div>
+        <div class="so-lieu"><span>Bán ra <b class="so">1.046.895.000</b></span><span>Mua vào <b class="so">990.934.212</b></span><span>Tạm tính phải nộp <b class="so">4.754.708</b></span><span>21 hoá đơn</span></div>
+        <div class="hanh-dong"><button class="nut chinh">Lập tờ khai quý 4</button><button class="nut">Xem hoá đơn</button></div>
+      </div></div>
+
+      <div class="ky loi"><div class="vach"></div><div class="than">
+        <div class="tren"><b>Quý 1/2026</b><span class="trang-thai">Lệch thuế</span></div>
+        <div class="mo-ta">Tờ khai kê cả <b>HĐ C26TKL-18</b> (Bảo Khánh Linh, 26/02/2026) đã bị thay thế bởi <b>C26TKL-19</b> → <span class="loi-chi">khấu trừ thừa 7.172.480 đ</span>. Phụ lục còn kê Thanh Bình Phú Thọ ở mục hàng 8% nhưng không có hoá đơn 8%.</div>
+        <div class="so-lieu"><span>[23] tờ khai <b class="so">1.723.790.094</b></span><span>theo hoá đơn <b class="so">1.634.134.094</b></span><span>[24] lệch <b class="so loi-chi">7.172.480</b></span></div>
+        <div class="hanh-dong"><button class="nut">Xem đối chiếu</button><button class="nut">Mở HĐ C26TKL-18</button></div>
+      </div></div>
+
+      <div class="ky xem"><div class="vach"></div><div class="than">
+        <div class="tren"><b>Quý 2/2026</b><span class="trang-thai">Cần xem lại</span></div>
+        <div class="mo-ta">[23] dư 600.036 đ — HĐ C26TMA-15367 (02/07/2026) đã kê cả ở quý 3; không lệch tiền thuế. Phụ lục giảm thuế phần mua vào để trống dù có 4 người bán hàng 8%.</div>
+        <div class="so-lieu"><span>Phải nộp <b class="so">3.806.127</b></span><span>[22] = [43] quý 1 <b>khớp</b></span><span>15 hoá đơn</span></div>
+        <div class="hanh-dong"><button class="nut">Xem đối chiếu</button></div>
+      </div></div>
+
+      <div class="ky xong"><div class="vach"></div><div class="than">
+        <div class="tren"><b>Quý 3/2026</b><span class="trang-thai">Đã xong</span></div>
+        <div class="mo-ta">Khớp 15 hoá đơn, phụ lục khớp 8/8 đối tác, 11/11 công thức đúng. Đã nộp đủ theo giấy nộp tiền 9531196 ngày 06/10/2026.</div>
+        <div class="so-lieu"><span>Phải nộp <b class="so">3.729.616</b></span><span>Đã nộp <b class="so">3.729.616</b></span></div>
+      </div></div>
+
+      <div class="duoi">
+        <div><div class="n">Bán ra năm nay</div><div class="v so">3.743.973.650</div></div>
+        <div><div class="n">Mua vào năm nay</div><div class="v so">3.497.515.467</div></div>
+        <div><div class="n">Chênh lệch thuế</div><div class="v so">19.462.931</div></div>
+        <div><div class="n">Hoá đơn bị thay thế</div><div class="v">1 · đã loại</div></div>
+      </div>
+      <div class="ban-quyen">(C) August87 - 0982722036</div>
+    </div>
+  </main>
+</div>
+<script>
+  const nut = document.getElementById('doiMau');
+  nut.onclick = () => { const toi = document.documentElement.dataset.theme === 'dark'; document.documentElement.dataset.theme = toi ? 'light' : 'dark'; nut.textContent = toi ? 'Tối' : 'Sáng'; };
+</script>
+</body>
+</html>

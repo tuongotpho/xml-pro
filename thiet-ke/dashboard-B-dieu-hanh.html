@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XML-Pro — Phương án B: Báo cáo điều hành</title>
+<style>
+  :root {
+    --nen: #f7f8fa; --the: #ffffff; --ben: #ffffff; --muc: #101828; --phu: #475467; --nhat: #98a2b3;
+    --ke: #eaecf0; --chinh: #1d4ed8; --chinh-nhat: #eff4ff; --mua: #c7ccd6; --do: #c4320a; --xanh: #067647; --vang: #b54708;
+    --chon: #f2f4f7;
+  }
+  :root[data-theme="dark"] {
+    --nen: #0c111d; --the: #161b26; --ben: #111622; --muc: #f5f5f6; --phu: #a4a7ae; --nhat: #6f7480;
+    --ke: #242a36; --chinh: #6ea0ff; --chinh-nhat: #18233d; --mua: #3c4454; --do: #ff8a65; --xanh: #6ddca0; --vang: #f5b25c;
+    --chon: #1c2230;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, Arial, sans-serif; font-size: 13px; color: var(--muc); background: var(--nen); }
+  .so { font-variant-numeric: tabular-nums; }
+  .app { display: grid; grid-template-columns: 260px minmax(0, 1fr); height: 100vh; }
+  aside { background: var(--ben); border-right: 1px solid var(--ke); display: flex; flex-direction: column; min-height: 0; }
+  .logo { display: flex; justify-content: space-between; align-items: center; padding: 18px 18px 14px; }
+  .logo b { font-size: 16px; font-weight: 600; }
+  .logo b i { font-style: normal; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--chinh); margin-right: 8px; vertical-align: 1px; }
+  .nut { font: inherit; font-size: 12.5px; border: 1px solid var(--ke); background: var(--the); color: var(--muc); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+  .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .nut.chinh { color: #0c111d; }
+  .cot-nut { display: grid; gap: 6px; padding: 0 18px 14px; }
+  .nhom { padding: 6px 18px; color: var(--nhat); font-size: 11.5px; }
+  .ds { overflow: auto; flex: 1; padding: 0 10px; }
+  .muc { padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
+  .muc:hover, .muc.sel { background: var(--chon); }
+  .muc .t { font-size: 12.5px; }
+  .muc .p { color: var(--nhat); font-size: 11.5px; }
+  .cham { width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex: none; }
+  .chan { padding: 12px 18px; color: var(--nhat); font-size: 11.5px; border-top: 1px solid var(--ke); }
+  main { overflow: auto; }
+  .noi-dung { padding: 28px 36px 40px; max-width: 1160px; }
+  .dau { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+  .dau .ten { font-size: 13px; color: var(--phu); }
+  .dau .ten b { color: var(--muc); font-weight: 600; font-size: 15px; display: block; margin-bottom: 2px; }
+  .ky { display: flex; gap: 4px; background: var(--chon); padding: 3px; border-radius: 8px; }
+  .ky span { padding: 5px 12px; border-radius: 6px; color: var(--phu); cursor: pointer; }
+  .ky span.on { background: var(--the); color: var(--muc); font-weight: 600; box-shadow: 0 1px 2px rgba(16,24,40,.08); }
+  .anh-hung { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: 36px; align-items: end; margin-bottom: 30px; }
+  .lon .n { color: var(--phu); }
+  .lon .v { font-family: Georgia, "Times New Roman", serif; font-size: 54px; line-height: 1.05; margin: 6px 0 4px; letter-spacing: -1px; }
+  .lon .v small { font-family: "Segoe UI", sans-serif; font-size: 16px; color: var(--phu); letter-spacing: 0; }
+  .lon .g { color: var(--phu); }
+  .bo-so { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .o { background: var(--the); border: 1px solid var(--ke); border-radius: 12px; padding: 14px 16px; }
+  .o .n { color: var(--phu); font-size: 12px; }
+  .o .v { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  .o .g { color: var(--nhat); font-size: 11.5px; margin-top: 2px; }
+  .the { background: var(--the); border: 1px solid var(--ke); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .the h2 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+  .the .phu { color: var(--phu); font-size: 12px; margin-bottom: 14px; display: flex; gap: 16px; }
+  .chu-giai { display: inline-flex; align-items: center; gap: 6px; }
+  .chu-giai i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .hai { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  .xep { display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 4px 12px; align-items: center; }
+  .xep .ten { font-size: 12.5px; }
+  .xep .thanh { grid-column: 1 / -1; height: 6px; background: var(--chon); border-radius: 3px; margin-bottom: 8px; }
+  .xep .thanh i { display: block; height: 100%; border-radius: 3px; background: var(--chinh); }
+  .xep .gt { text-align: right; font-variant-numeric: tabular-nums; }
+  .ban-quyen { color: var(--nhat); font-size: 11.5px; text-align: center; margin-top: 8px; }
+  svg text { font-family: "Segoe UI", sans-serif; font-size: 11px; fill: var(--nhat); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><b><i></i>XML-Pro</b><button class="nut" id="doiMau">Tối</button></div>
+    <div class="cot-nut">
+      <button class="nut chinh">Chọn tệp hoặc thư mục…</button>
+      <button class="nut">Lập tờ khai 01/GTGT</button>
+    </div>
+    <div class="nhom">Đang mở · 95 tệp</div>
+    <div class="ds">
+      <div class="muc sel"><div><div class="t">Tổng hợp năm 2026</div><div class="p">Nga Anh Phú Thọ</div></div></div>
+      <div class="muc"><div><div class="t">Tờ khai Quý 3/2026</div><div class="p">Khớp hoá đơn · đã nộp</div></div><span class="cham" style="background:var(--xanh)"></span></div>
+      <div class="muc"><div><div class="t">Tờ khai Quý 2/2026</div><div class="p">Lệch 5 điểm</div></div><span class="cham" style="background:var(--vang)"></span></div>
+      <div class="muc"><div><div class="t">Tờ khai Quý 1/2026</div><div class="p">Kê cả HĐ đã bị thay thế</div></div><span class="cham" style="background:var(--do)"></span></div>
+      <div class="muc"><div><div class="t">Hoá đơn bán ra</div><div class="p">20 hoá đơn</div></div></div>
+      <div class="muc"><div><div class="t">Hoá đơn mua vào</div><div class="p">72 hoá đơn · 1 bị thay thế</div></div></div>
+      <div class="muc"><div><div class="t">Giấy nộp tiền</div><div class="p">1 chứng từ</div></div></div>
+    </div>
+    <div class="chan">Bản 3.0.0 · (C) August87 - 0982722036</div>
+  </aside>
+  <main>
+    <div class="noi-dung">
+      <div class="dau">
+        <div class="ten"><b>Công ty TNHH thương mại Nga Anh Phú Thọ</b>MST 2601102955 · năm 2026, tháng 1–10</div>
+        <div class="ky"><span>Tháng</span><span>Quý</span><span class="on">Năm</span></div>
+      </div>
+      <div class="anh-hung">
+        <div class="lon">
+          <div class="n">Thuế GTGT tạm tính theo hoá đơn</div>
+          <div class="v so">19.462.931 <small>đ</small></div>
+          <div class="g">Đầu ra lớn hơn đầu vào · chưa trừ thuế kỳ trước chuyển sang</div>
+        </div>
+        <div class="bo-so">
+          <div class="o"><div class="n">Bán ra</div><div class="v so">3,74 tỷ</div><div class="g">20 hoá đơn · thuế 299,5 tr</div></div>
+          <div class="o"><div class="n">Mua vào</div><div class="v so">3,50 tỷ</div><div class="g">72 hoá đơn · thuế 280,1 tr</div></div>
+          <div class="o"><div class="n">Tờ khai cần xem</div><div class="v so" style="color:var(--do)">2 / 3</div><div class="g">Quý 1 và quý 2 lệch hoá đơn</div></div>
+        </div>
+      </div>
+      <div class="the">
+        <h2>Bán ra và mua vào theo tháng</h2>
+        <div class="phu"><span class="chu-giai"><i style="background:var(--chinh)"></i>Bán ra</span><span class="chu-giai"><i style="background:var(--mua)"></i>Mua vào</span><span>Đơn vị: triệu đồng</span></div>
+        <svg id="bieuDo" viewBox="0 0 860 220" width="100%" role="img" aria-label="Biểu đồ cột bán ra và mua vào theo tháng"></svg>
+      </div>
+      <div class="hai">
+        <div class="the">
+          <h2>Khách hàng lớn</h2><div class="phu">Tỷ trọng trong doanh thu bán ra</div>
+          <div class="xep">
+            <span class="ten">Rentech</span><span class="gt">3.026,3 tr · 81%</span><div class="thanh"><i style="width:81%"></i></div>
+            <span class="ten">Đầu tư SX Năng lượng xanh</span><span class="gt">516,6 tr · 14%</span><div class="thanh"><i style="width:14%"></i></div>
+            <span class="ten">Năng lượng xanh Thăng Long</span><span class="gt">201,1 tr · 5%</span><div class="thanh"><i style="width:5%"></i></div>
+          </div>
+        </div>
+        <div class="the">
+          <h2>Nhà cung cấp lớn</h2><div class="phu">Tỷ trọng trong giá trị mua vào</div>
+          <div class="xep">
+            <span class="ten">SX Năng lượng xanh VNG</span><span class="gt">1.304,7 tr · 37%</span><div class="thanh"><i style="width:37%"></i></div>
+            <span class="ten">Viên nén Hưng Thịnh Phát</span><span class="gt">938,1 tr · 27%</span><div class="thanh"><i style="width:27%"></i></div>
+            <span class="ten">Võ Thuận Phát</span><span class="gt">426,0 tr · 12%</span><div class="thanh"><i style="width:12%"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="ban-quyen">(C) August87 - 0982722036</div>
+    </div>
+  </main>
+</div>
+<script>
+  const ban = [626, 731, 294, 389, 0, 0, 0, 294, 363, 1047], mua = [643, 656, 336, 257, 1, 1, 1, 267, 346, 991];
+  const svg = document.getElementById('bieuDo'), max = 1100, cao = 180, day = 196, rong = 860, buoc = (rong - 50) / 10;
+  let h = '';
+  [0, 250, 500, 750, 1000].forEach(v => { const y = day - v / max * cao; h += `<line x1="44" x2="${rong}" y1="${y}" y2="${y}" stroke="var(--ke)"/><text x="38" y="${y + 4}" text-anchor="end">${v.toLocaleString('vi-VN')}</text>`; });
+  ban.forEach((v, i) => {
+    const x = 50 + i * buoc + buoc / 2;
+    const hb = v / max * cao, hm = mua[i] / max * cao;
+    h += `<rect x="${x - 15}" y="${day - hb}" width="13" height="${hb}" rx="3" fill="var(--chinh)"><title>Bán ra T${i + 1}: ${v} triệu</title></rect>`;
+    h += `<rect x="${x + 2}" y="${day - hm}" width="13" height="${hm}" rx="3" fill="var(--mua)"><title>Mua vào T${i + 1}: ${mua[i]} triệu</title></rect>`;
+    h += `<text x="${x}" y="214" text-anchor="middle">T${i + 1}</text>`;
+  });
+  svg.innerHTML = h;
+  const nut = document.getElementById('doiMau');
+  nut.onclick = () => { const toi = document.documentElement.dataset.theme === 'dark'; document.documentElement.dataset.theme = toi ? 'light' : 'dark'; nut.textContent = toi ? 'Tối' : 'Sáng'; };
+</script>
+</body>
+</html>

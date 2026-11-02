@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XML-Pro — Phương án A: Sổ sách</title>
+<style>
+  :root {
+    --nen: #f4f3ef; --giay: #ffffff; --ben: #fbfaf7; --muc: #1c2430; --phu: #5b6470; --nhat: #8a9099;
+    --ke: #e3e1da; --ke-dam: #c9c6bc; --chinh: #1f5f5b; --chinh-nhat: #e3efed; --do: #b42318; --do-nhat: #fdecea;
+    --xanh: #1d6b3a; --xanh-nhat: #e6f2ea; --vang: #8a5a00; --vang-nhat: #fbf1dc; --chon: #eceae3;
+  }
+  :root[data-theme="dark"] {
+    --nen: #15181c; --giay: #1c2026; --ben: #181b20; --muc: #e7e5df; --phu: #a7aab0; --nhat: #7c8088;
+    --ke: #2c3138; --ke-dam: #3a4049; --chinh: #6cc2b9; --chinh-nhat: #1d3533; --do: #f1867a; --do-nhat: #3a1d1a;
+    --xanh: #7fd19c; --xanh-nhat: #18301f; --vang: #e6b95c; --vang-nhat: #33280f; --chon: #262b32;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, Arial, sans-serif; font-size: 13px; color: var(--muc); background: var(--nen); }
+  .so { font-variant-numeric: tabular-nums; }
+  .app { display: grid; grid-template-columns: 280px minmax(0, 1fr); height: 100vh; }
+  aside { background: var(--ben); border-right: 1px solid var(--ke); display: flex; flex-direction: column; min-height: 0; }
+  .logo { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px; }
+  .logo b { font-size: 15px; font-weight: 600; letter-spacing: .2px; }
+  .logo b span { color: var(--chinh); }
+  .nut { font: inherit; font-size: 12.5px; border: 1px solid var(--ke-dam); background: var(--giay); color: var(--muc); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+  .nut:hover { border-color: var(--phu); }
+  .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .nut.chinh { color: #0f1a19; }
+  .hang-nut { display: flex; gap: 6px; padding: 0 16px 10px; }
+  .hang-nut .nut { flex: 1; }
+  .tim { margin: 0 16px 10px; width: calc(100% - 32px); font: inherit; padding: 6px 9px; border: 1px solid var(--ke-dam); border-radius: 4px; background: var(--giay); color: var(--muc); }
+  .tab-ben { display: flex; border-bottom: 1px solid var(--ke); padding: 0 16px; gap: 16px; }
+  .tab-ben span { padding: 8px 0; color: var(--phu); cursor: pointer; }
+  .tab-ben span.on { color: var(--muc); border-bottom: 2px solid var(--chinh); font-weight: 600; }
+  .ds { overflow: auto; flex: 1; }
+  .muc { padding: 9px 16px; border-bottom: 1px solid var(--ke); cursor: pointer; }
+  .muc:hover { background: var(--chon); }
+  .muc.sel { background: var(--chon); box-shadow: inset 3px 0 0 var(--chinh); }
+  .muc .t1 { display: flex; justify-content: space-between; gap: 8px; }
+  .muc .t1 b { font-weight: 600; font-size: 12.5px; }
+  .muc .t2 { color: var(--nhat); font-size: 11.5px; margin-top: 2px; }
+  .nhan { font-size: 10.5px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; align-self: flex-start; }
+  .nhan.do { background: var(--do-nhat); color: var(--do); }
+  .nhan.xanh { background: var(--xanh-nhat); color: var(--xanh); }
+  .nhan.xam { background: var(--chon); color: var(--phu); }
+  .chan { padding: 10px 16px; border-top: 1px solid var(--ke); color: var(--nhat); font-size: 11.5px; }
+  main { overflow: auto; }
+  .thanh-tab { display: flex; gap: 2px; padding: 8px 20px 0; background: var(--nen); border-bottom: 1px solid var(--ke); position: sticky; top: 0; }
+  .thanh-tab span { padding: 7px 14px; border: 1px solid transparent; border-bottom: 0; border-radius: 4px 4px 0 0; color: var(--phu); font-size: 12.5px; }
+  .thanh-tab span.on { background: var(--giay); border-color: var(--ke); color: var(--muc); font-weight: 600; margin-bottom: -1px; }
+  .noi-dung { padding: 20px 24px 32px; max-width: 1180px; }
+  .dau { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 14px; }
+  .dau h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  .dau .phu { color: var(--phu); margin-top: 3px; }
+  .ky { display: flex; border: 1px solid var(--ke-dam); border-radius: 4px; overflow: hidden; }
+  .ky span { padding: 5px 12px; color: var(--phu); border-right: 1px solid var(--ke-dam); cursor: pointer; }
+  .ky span:last-child { border-right: 0; }
+  .ky span.on { background: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .ky span.on { color: #0f1a19; }
+  .tong { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--giay); border: 1px solid var(--ke); border-radius: 4px; margin-bottom: 18px; }
+  .tong div { padding: 12px 14px; border-right: 1px solid var(--ke); }
+  .tong div:last-child { border-right: 0; }
+  .tong .n { color: var(--phu); font-size: 12px; }
+  .tong .v { font-size: 18px; font-weight: 600; margin-top: 3px; }
+  .tong .v.do { color: var(--do); }
+  .khoi { background: var(--giay); border: 1px solid var(--ke); border-radius: 4px; margin-bottom: 18px; }
+  .khoi h2 { font-size: 13.5px; font-weight: 600; margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--ke); display: flex; justify-content: space-between; align-items: center; }
+  .khoi h2 small { font-weight: 400; color: var(--phu); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-weight: 600; color: var(--phu); font-size: 12px; text-align: right; padding: 8px 14px; background: var(--ben); border-bottom: 1px solid var(--ke-dam); white-space: nowrap; }
+  td { padding: 8px 14px; text-align: right; border-bottom: 1px solid var(--ke); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  tr.cong td { font-weight: 600; background: var(--ben); border-top: 1px solid var(--ke-dam); }
+  tbody tr:hover td { background: var(--chon); }
+  .am { color: var(--do); }
+  .hai-cot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+  .ban-quyen { color: var(--nhat); font-size: 11.5px; text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo"><b>XML<span>-Pro</span></b><button class="nut" id="doiMau" title="Đổi giao diện sáng / tối">Tối</button></div>
+    <div class="hang-nut"><button class="nut chinh">Chọn tệp…</button><button class="nut">Chọn thư mục…</button></div>
+    <div class="hang-nut"><button class="nut">MST: 2601102955</button><button class="nut">Lập tờ khai</button></div>
+    <input class="tim" placeholder="Tìm: số hoá đơn, MST, tên đối tác, kỳ…">
+    <div class="tab-ben"><span class="on">Đang mở</span><span>Thư mục</span><span>Lịch sử</span></div>
+    <div class="ds">
+      <div class="muc"><div class="t1"><b>Tờ khai 01/GTGT · Quý 3/2026</b><span class="nhan xanh">Khớp HĐ</span></div><div class="t2">Lần đầu · phải nộp 3.729.616 · đã nộp</div></div>
+      <div class="muc"><div class="t1"><b>Tờ khai 01/GTGT · Quý 2/2026</b><span class="nhan do">Lệch 5</span></div><div class="t2">Lần đầu · phải nộp 3.806.127</div></div>
+      <div class="muc"><div class="t1"><b>Tờ khai 01/GTGT · Quý 1/2026</b><span class="nhan do">Lệch 4</span></div><div class="t2">Lần đầu · tải từ eTax</div></div>
+      <div class="muc"><div class="t1"><b>Giấy nộp tiền 9531196</b><span class="nhan xam">Chứng từ</span></div><div class="t2">06/10/2026 · 3.729.616 · tiểu mục 1701</div></div>
+      <div class="muc"><div class="t1"><b>HĐ C26TNA-16 · Rentech</b><span class="nhan xam">Bán ra</span></div><div class="t2">30/09/2026 · 392.275.710</div></div>
+      <div class="muc"><div class="t1"><b>HĐ C26TKL-19 · Bảo Khánh Linh</b><span class="nhan xam">Mua vào</span></div><div class="t2">27/02/2026 · thay thế C26TKL-18</div></div>
+      <div class="muc"><div class="t1"><b>HĐ C26TKL-18 · Bảo Khánh Linh</b><span class="nhan do">Đã bị thay thế</span></div><div class="t2">26/02/2026 · không tính</div></div>
+    </div>
+    <div class="chan">95 tệp · bản 3.0.0 · (C) August87 - 0982722036</div>
+  </aside>
+  <main>
+    <div class="thanh-tab"><span class="on">Tổng hợp</span><span>Tờ khai Quý 3/2026</span><span>HĐ C26TNA-16</span></div>
+    <div class="noi-dung">
+      <div class="dau">
+        <div><h1>Công ty TNHH thương mại Nga Anh Phú Thọ</h1><div class="phu">MST 2601102955 · Năm 2026, tháng 1–10 · 92 hoá đơn còn hiệu lực (1 hoá đơn bị thay thế đã loại)</div></div>
+        <div class="ky"><span>Tháng</span><span class="on">Quý</span><span>Năm</span></div>
+      </div>
+      <div class="tong">
+        <div><div class="n">Bán ra</div><div class="v so">3.743.973.650</div></div>
+        <div><div class="n">Thuế đầu ra</div><div class="v so">299.517.892</div></div>
+        <div><div class="n">Mua vào</div><div class="v so">3.497.515.467</div></div>
+        <div><div class="n">Thuế đầu vào</div><div class="v so">280.054.961</div></div>
+        <div><div class="n">Chênh lệch thuế</div><div class="v so do">+19.462.931</div></div>
+      </div>
+      <div class="khoi">
+        <h2>Theo kỳ kê khai <small>Đơn vị: đồng · bấm một dòng để mở tờ khai</small></h2>
+        <table>
+          <thead><tr><th>Kỳ</th><th>Bán ra</th><th>Thuế ra</th><th>Mua vào</th><th>Thuế vào</th><th>Chênh lệch</th><th>Số HĐ</th><th>Tờ khai</th></tr></thead>
+          <tbody>
+            <tr><td>Quý 1/2026</td><td>1.650.522.000</td><td>132.041.760</td><td>1.634.134.094</td><td>131.639.819</td><td>401.941</td><td>41</td><td><span class="nhan do">Lệch 4</span></td></tr>
+            <tr><td>Quý 2/2026</td><td>388.944.000</td><td>31.115.520</td><td>258.994.594</td><td>20.538.854</td><td>10.576.666</td><td>15</td><td><span class="nhan do">Lệch 5</span></td></tr>
+            <tr><td>Quý 3/2026</td><td>657.612.650</td><td>52.609.012</td><td>613.452.567</td><td>48.879.396</td><td>3.729.616</td><td>15</td><td><span class="nhan xanh">Khớp</span></td></tr>
+            <tr><td>Quý 4/2026 (T10)</td><td>1.046.895.000</td><td>83.751.600</td><td>990.934.212</td><td>78.996.892</td><td>4.754.708</td><td>21</td><td><span class="nhan xam">Chưa lập</span></td></tr>
+            <tr class="cong"><td>Cộng</td><td>3.743.973.650</td><td>299.517.892</td><td>3.497.515.467</td><td>280.054.961</td><td>19.462.931</td><td>92</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hai-cot">
+        <div class="khoi">
+          <h2>Khách hàng <small>Giá trị bán ra</small></h2>
+          <table><tbody>
+            <tr><td>CÔNG TY TNHH MTV RENTECH</td><td>3.026.305.250</td><td>80,8%</td></tr>
+            <tr><td>CP Đầu tư SX Năng lượng xanh</td><td>516.568.000</td><td>13,8%</td></tr>
+            <tr><td>CP Năng lượng xanh Thăng Long</td><td>201.100.400</td><td>5,4%</td></tr>
+          </tbody></table>
+        </div>
+        <div class="khoi">
+          <h2>Nhà cung cấp <small>Giá trị mua vào</small></h2>
+          <table><tbody>
+            <tr><td>TNHH SX Năng lượng xanh VNG</td><td>1.304.731.000</td><td>37,3%</td></tr>
+            <tr><td>TNHH SX TM Viên nén Hưng Thịnh Phát</td><td>938.054.400</td><td>26,8%</td></tr>
+            <tr><td>CP SX và TM Võ Thuận Phát</td><td>426.027.500</td><td>12,2%</td></tr>
+            <tr><td>TNHH MTV Nam Vương</td><td>369.343.510</td><td>10,6%</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="ban-quyen">(C) August87 - 0982722036</div>
+    </div>
+  </main>
+</div>
+<script>
+  const nut = document.getElementById('doiMau');
+  nut.onclick = () => { const toi = document.documentElement.dataset.theme === 'dark'; document.documentElement.dataset.theme = toi ? 'light' : 'dark'; nut.textContent = toi ? 'Tối' : 'Sáng'; };
+</script>
+</body>
+</html>
