@@ -22,7 +22,7 @@
   - toàn bộ test trang: **27/27** (kể cả dữ liệu thật);
   - 4 bộ test cũ: đạt;
   - đã chụp riêng cửa sổ chính và hộp chọn thư mục để xem bằng mắt.
-- **Phát hiện ngoài lề, cần anh xem** (mục B): tờ khai thật quý 1 và quý 2/2026 trong `HD-TK` **lệch so với hoá đơn**.
+- **Phát hiện ngoài lề, cần anh xem** (mục B): tờ khai thật quý 1 và quý 2/2026 trong `HD-TK` **lệch so với hoá đơn**. Quý 1 **kê cả hoá đơn đã bị thay thế → khấu trừ thừa 7.172.480 đ** (đã đính chính nhận định ban đầu).
 
 ---
 
@@ -52,15 +52,13 @@ Lệch chưa chắc là sai. Dưới đây là số liệu app đo được, đ�
 - **Phụ lục giảm thuế, phần mua vào, để trống**, trong khi trong kỳ có hàng 8% mua của 4 người bán: VNG 236.327.000 đ, Mạnh Vinh 13.810.150 đ, KG Home 5.315.000 đ, Đăng kiểm 19-01V 227.273 đ.
 
 **Quý 1/2026** (tệp `842-1.007014-20260501083733.xml`, lần đầu):
-- [23] **nhiều hơn hoá đơn 89.656.000 đ**, [24] **nhiều hơn 7.172.480 đ** (đúng 8% của 89.656.000).
-- Phụ lục kê **Bảo Khánh Linh 184.912.000 đ**, nhưng thư mục chỉ có hoá đơn của bên này **95.256.000 đ**. Phần chênh đúng bằng phần lệch ở [23].
+- [23] **nhiều hơn hoá đơn 89.656.000 đ**, [24] **nhiều hơn 7.172.480 đ**.
+- ⚠️ **Đính chính (cùng ngày, khi dựng mẫu Dashboard):** bản đầu của báo cáo này đoán "có thể tệp zip thiếu hoá đơn" — **đoán sai**. Kiểm lại zip thì thấy:
+  - HĐ **C26TKL-18** ngày 26/02/2026 của Bảo Khánh Linh (89.656.000 đ, thuế 7.172.480 đ) **đã bị thay thế** bởi HĐ **C26TKL-19** ngày 27/02/2026 (95.256.000 đ, thuế 7.620.480 đ). Hoá đơn 19 ghi rõ là hoá đơn thay thế cho hoá đơn 18.
+  - Phụ lục của tờ khai kê Bảo Khánh Linh 184.912.000 đ = 89.656.000 + 95.256.000, tức là **kê cả hoá đơn gốc đã bị thay thế**. Như vậy quý 1 **khấu trừ thừa 7.172.480 đ thuế GTGT** trên một hoá đơn không còn hiệu lực.
+  - Bản quý 1 do app khai thuế lập (`Downloads°1102955000-01_GTGT_TT80-Q12026-L00.xml`) có [23] = 1.634.134.094, [24] = 131.639.819: **đúng** (đã loại hoá đơn bị thay thế). Bản lệch là bản tải từ eTax.
 - Phụ lục còn kê **Thanh Bình Phú Thọ 45.454.545 đ, thuế 4.545.455 đ** (tức 10%) ở mục hàng 8%, mà thư mục không có hoá đơn 8% nào của bên này.
-- Có hai khả năng:
-  - tệp zip tải từ cổng thuế thiếu vài hoá đơn. Chính tệp `CAN-XEM-LAI.txt` trong zip ghi có 3 hoá đơn "không có XML trên cổng thuế", nhưng đều không phải của Bảo Khánh Linh;
-  - tờ khai kê nhầm.
-
-  App không tự phân xử được.
-- Trong máy còn một bản quý 1 khác (`Downloads\2601102955000-01_GTGT_TT80-Q12026-L00.xml`) có [23] = 1.634.134.094, **đúng bằng** cộng hoá đơn. Tức là có hai bản quý 1 khác số liệu; bản trong `HD-TK` (tải từ eTax) là bản lệch.
+- **Dashboard hiện tại cũng cộng cả hoá đơn bị thay thế** (mua vào cả năm hiện 3.587.171.467 thay vì 3.497.515.467). Lỗi này sẽ sửa khi làm lại Dashboard.
 
 Bộ test đã sửa cho đúng ý: chỉ đòi **quý 3 khớp và đã nộp đủ**; các kỳ khác chỉ cần đối chiếu chạy được và liệt kê kết quả. Phần lập lại tờ khai chỉ so từng ô với tờ khai khớp hoá đơn (quý 3: vẫn 109/109).
 
