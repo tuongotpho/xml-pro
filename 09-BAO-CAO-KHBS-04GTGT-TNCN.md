@@ -34,7 +34,7 @@
    - **Cách dùng:** chọn Mẫu "04/GTGT" trong hộp lập tờ khai. Chọn nhóm ngành mặc định (1%, 5%, 3% hoặc 2%) rồi đổi nhóm cho từng hoá đơn nếu cần. App xuất XML mã 847.
    - **Đo:** 4 hoá đơn mẫu, doanh thu 1.130.646.600 đ, thuế 1% là 11.306.466 đ — đúng phép cộng Python độc lập. Mẫu iTax 04/GTGT dựng được tờ khai.
 4. **Test:**
-   - bộ test chính **38/38** (trước 29/29), thêm 9 mục mới;
+   - bộ test chính **39/39** (trước 29/29), thêm 10 mục mới;
    - 4 bộ test cũ: đạt;
    - đã có bộ cài **`CaiDat-XML-Pro-3.0.2.exe`** và đã kiểm mã mới nằm trong bộ cài.
 5. **Chưa kiểm được — cần anh:**
@@ -110,6 +110,16 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
 - **Gom "Lập tờ khai GTGT", "Đổi tên file", "MST công ty" vào một menu "🧰 Công cụ"** ở thanh bên.
   - Đổi tên file vẫn giữ: app nhận diện tệp theo nội dung, nhưng tên tệp dễ đọc giúp anh tìm trong Windows Explorer.
 
+- **Dashboard cho kho hoá đơn nhiều năm.**
+  - Trước: Dashboard khoá rộng 1180 px; mỗi kỳ là một thẻ dài hết chiều ngang, các kỳ của mọi năm xếp dọc một cột.
+  - Giờ:
+    - Dashboard giãn theo màn hình;
+    - thẻ kỳ gọn (số liệu 2 cột, mô tả tối đa 3 dòng, rê chuột xem đủ), xếp lưới nhiều thẻ một hàng;
+    - các kỳ gom theo **năm**, mỗi năm có dòng tóm tắt (số kỳ, số hoá đơn, bán ra, chênh thuế, số kỳ lệch / cần xem / chưa lập / xong);
+    - năm mới nhất và năm có kỳ lệch / cần xem mở sẵn, năm cũ gập lại; năm anh tự mở / gập thì giữ nguyên khi Dashboard vẽ lại;
+    - bảng "Theo kỳ kê khai" có dòng "Cộng năm" khi có nhiều năm.
+  - Đã thử với kho 4 năm (313 tệp): cả 4 năm cùng dải tổng nằm trong một màn 1600 px, xem bằng mắt cả giao diện sáng và tối, chế độ Quý và Tháng.
+
 ## D. Bằng chứng đo
 
 | Mục test | Kết quả |
@@ -122,7 +132,8 @@ Hộp thoại cho chọn ngày lập, ngày tính chậm nộp và lý do. Nó h
 | 04/GTGT: doanh thu = cộng `TgTTTBSo` bằng Python (1.130.646.600), thuế 1% | ĐẠT |
 | 04/GTGT: đổi 1 hoá đơn sang nhóm 5% → XML mã 847 đúng từng ô, mẫu iTax dựng được | ĐẠT |
 | Thanh bên: tự nhận MST đúng phép đếm Python; menu Công cụ; "Đóng tất cả" Huỷ thì giữ, OK mới đóng | ĐẠT (2 mục) |
-| Toàn bộ test chính | **38/38** |
+| Kho 4 năm: gom theo năm, năm cũ gập, thẻ nhiều cột một hàng, sổ có cộng từng năm, Dashboard giãn hết khung | ĐẠT |
+| Toàn bộ test chính | **39/39** |
 | 4 bộ test cũ (cây thư mục & Dashboard, 8 ngành, kế toán, giai đoạn 3) | đạt cả 4 |
 | Bộ cài 3.0.2 chứa mã mới (`tinhKHBS`, `MA_TK_GTGT`, hộp thoại KHBS, nhóm 04) | đã kiểm |
 

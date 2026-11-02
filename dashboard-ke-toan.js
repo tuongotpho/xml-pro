@@ -11,7 +11,7 @@
   const MA_THUE = new Set(['[24]', '[25]', '[31]', '[33]', '[35]']); // lệch các dòng này là lệch tiền thuế
 
   // Lựa chọn của người xem (giữ khi vẽ lại)
-  const chon = { mst: '', kieu: '' };
+  const chon = { mst: '', kieu: '', namMo: {} }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
 
   function coDuLieu(docs) {
     const DC = window.DOI_CHIEU;
@@ -146,14 +146,30 @@
     const bangDoiTac = (tieuDe, phu, dsDt, tong) => `<div class="ktt-khoi"><div class="ktt-khoi-dau"><b>${tieuDe}</b><span>${phu}</span></div>
       <table class="ktt-bang"><tbody>${dsDt.slice(0, 6).map(g => `<tr><td>${esc(g.ten)}<div class="ktt-nho">${esc(g.mst)} · ${g.n} HĐ</div></td><td>${so(g.v)}</td><td class="ktt-nho">${tong ? (g.v / tong * 100).toFixed(1).replace('.', ',') + '%' : ''}</td></tr>`).join('') || '<tr><td class="ktt-nho">Chưa có</td></tr>'}</tbody></table></div>`;
 
+    // Thẻ kỳ gọn: xếp lưới nhiều cột, mô tả dài thì cắt còn 3 dòng (rê chuột xem đủ)
     const theKy = g => `<div class="ktt-ky ktt-${g.loai}"><div class="ktt-vach"></div><div class="ktt-than">
         <div class="ktt-tren"><b>${tenKy(g.k)}</b><span class="ktt-trang-thai">${g.nhan}</span></div>
-        <div class="ktt-mo-ta">${g.moTa.map(x => `<div>${esc(x)}</div>`).join('')}</div>
-        <div class="ktt-so-lieu"><span>Bán ra <b>${so(g.banV)}</b></span><span>Mua vào <b>${so(g.muaV)}</b></span><span>Thuế ra − vào <b>${so(g.banT - g.muaT)}</b></span>${g.dc ? `<span>Phải nộp [40] <b>${so(g.dc.tk.ct.ct40)}</b></span>` : ''}<span>${g.nBan + g.nMua} hoá đơn</span></div>
-        <div class="ktt-hanh-dong">${g.tkDoc ? `<button type="button" class="ktt-nut" data-mo-doc="${docs.indexOf(g.tkDoc)}">Xem tờ khai và đối chiếu</button>` : khacKieu ? '' : `<button type="button" class="ktt-nut ktt-chinh" data-lap-tk="${esc(JSON.stringify({ mst, ky: kyLap(g.k) }))}">Lập tờ khai ${tenKy(g.k).toLowerCase()}</button>`}
-          ${g.tkDoc && (g.loai === 'loi' || g.loai === 'xem') ? `<button type="button" class="ktt-nut" data-khbs="${docs.indexOf(g.tkDoc)}">Lập tờ khai bổ sung</button>` : ''}
-          ${g.hdMo ? `<button type="button" class="ktt-nut" data-mo-doc="${g.hdMo.idx}">Mở ${esc(docs[g.hdMo.idx].kyHieu + '-' + docs[g.hdMo.idx].so)}</button>` : ''}</div>
+        <div class="ktt-mo-ta" title="${esc(g.moTa.join('\n'))}">${g.moTa.map(x => `<div>${esc(x)}</div>`).join('')}</div>
+        <div class="ktt-so-lieu"><span>Bán ra<b>${so(g.banV)}</b></span><span>Mua vào<b>${so(g.muaV)}</b></span><span title="Thuế GTGT đầu ra − đầu vào trên hoá đơn">Chênh thuế<b>${so(g.banT - g.muaT)}</b></span>${g.dc ? `<span>Phải nộp [40]<b>${so(g.dc.tk.ct.ct40)}</b></span>` : `<span>Hoá đơn<b>${g.nBan + g.nMua}</b></span>`}</div>
+        <div class="ktt-hanh-dong">${g.tkDoc ? `<button type="button" class="ktt-nut" data-mo-doc="${docs.indexOf(g.tkDoc)}" title="Xem tờ khai và đối chiếu với hoá đơn">Xem tờ khai</button>` : khacKieu ? '' : `<button type="button" class="ktt-nut ktt-chinh" data-lap-tk="${esc(JSON.stringify({ mst, ky: kyLap(g.k) }))}">Lập tờ khai</button>`}
+          ${g.tkDoc && (g.loai === 'loi' || g.loai === 'xem') ? `<button type="button" class="ktt-nut" data-khbs="${docs.indexOf(g.tkDoc)}" title="Lập tờ khai bổ sung theo hoá đơn">Lập bổ sung</button>` : ''}
+          ${g.hdMo ? `<button type="button" class="ktt-nut" data-mo-doc="${g.hdMo.idx}" title="Mở hoá đơn nghi gây lệch">HĐ ${esc(docs[g.hdMo.idx].kyHieu + '-' + docs[g.hdMo.idx].so)}</button>` : ''}</div>
       </div></div>`;
+
+    // Gom thẻ theo năm (mới nhất trên cùng). Mở sẵn năm mới nhất và năm có kỳ lệch / cần xem; năm cũ chỉ "chưa lập"
+    // thường là chưa nạp tờ khai năm đó, không phải việc gấp — gập lại cho gọn
+    const nams = [...new Set(dsKy.map(g => g.k.slice(0, 4)))].sort().reverse();
+    const khoiNam = nam => {
+      const dsN = dsKy.filter(g => g.k.startsWith(nam)).reverse();
+      const demN = l => dsN.filter(g => g.loai === l).length;
+      const conViec = demN('loi') + demN('xem');
+      const mo = nam in chon.namMo ? chon.namMo[nam] : (nam === nams[0] || conViec > 0);
+      const cong = dsN.reduce((a, g) => ({ banV: a.banV + g.banV, thue: a.thue + g.banT - g.muaT, n: a.n + g.nBan + g.nMua }), { banV: 0, thue: 0, n: 0 });
+      return `<details class="ktt-nam" data-nam="${nam}"${mo ? ' open' : ''}><summary>
+          <b>Năm ${nam}</b><span class="ktt-nho">${dsN.length} ${kieu === 'Q' ? 'quý' : 'tháng'} · ${cong.n} hoá đơn · bán ra ${so(cong.banV)} · thuế ra − vào ${so(cong.thue)}</span>
+          <span class="ktt-nam-huy">${demN('loi') ? `<span class="ktt-huy ktt-loi">${demN('loi')} lệch thuế</span>` : ''}${demN('xem') ? `<span class="ktt-huy ktt-xem">${demN('xem')} cần xem</span>` : ''}${demN('cho') && !khacKieu ? `<span class="ktt-huy ktt-cho">${demN('cho')} chưa lập</span>` : ''}${demN('xong') ? `<span class="ktt-huy ktt-xong">${demN('xong')} xong</span>` : ''}</span>
+        </summary><div class="ktt-luoi-ky">${dsN.map(theKy).join('')}</div></details>`;
+    };
 
     const huyHieu = g => `<span class="ktt-huy ktt-${g.loai}">${g.nhan}</span>`;
     return `<div class="ktt-dash">
@@ -169,7 +185,7 @@
       <div class="ktt-tom">
         ${dem('loi') ? `<span class="ktt-loi">${dem('loi')} kỳ lệch thuế</span>` : ''}${dem('xem') ? `<span class="ktt-xem">${dem('xem')} kỳ cần xem lại</span>` : ''}${dem('xong') ? `<span class="ktt-xong">${dem('xong')} kỳ đã xong</span>` : ''}${dem('cho') && !khacKieu ? `<span class="ktt-cho">${dem('cho')} kỳ chưa lập</span>` : ''}
       </div>
-      ${dsKy.slice().reverse().map(theKy).join('')}
+      ${nams.map(khoiNam).join('')}
       <div class="ktt-tong">
         <div><span>Bán ra</span><b>${so(t.banV)}</b></div><div><span>Thuế đầu ra</span><b>${so(t.banT)}</b></div>
         <div><span>Mua vào</span><b>${so(t.muaV)}</b></div><div><span>Thuế đầu vào</span><b>${so(t.muaT)}</b></div>
@@ -177,7 +193,12 @@
       </div>
       <div class="ktt-khoi"><div class="ktt-khoi-dau"><b>Theo kỳ kê khai</b><span>Đơn vị: đồng · bấm một dòng có tờ khai để mở</span></div>
         <table class="ktt-bang ktt-so-sach"><thead><tr><th>Kỳ</th><th>Bán ra</th><th>Thuế ra</th><th>Mua vào</th><th>Thuế vào</th><th>Chênh lệch</th><th>Số HĐ</th><th>Tờ khai</th></tr></thead><tbody>
-          ${dsKy.map(g => `<tr${g.tkDoc ? ` data-mo-doc="${docs.indexOf(g.tkDoc)}" class="ktt-mo"` : ''}><td>${tenKy(g.k)}</td><td>${so(g.banV)}</td><td>${so(g.banT)}</td><td>${so(g.muaV)}</td><td>${so(g.muaT)}</td><td>${so(g.banT - g.muaT)}</td><td>${g.nBan + g.nMua}</td><td>${huyHieu(g)}</td></tr>`).join('')}
+          ${nams.slice().reverse().map(nam => {
+            const dsN = dsKy.filter(g => g.k.startsWith(nam));
+            const c = dsN.reduce((x, g) => ({ banV: x.banV + g.banV, banT: x.banT + g.banT, muaV: x.muaV + g.muaV, muaT: x.muaT + g.muaT, n: x.n + g.nBan + g.nMua }), { banV: 0, banT: 0, muaV: 0, muaT: 0, n: 0 });
+            return dsN.map(g => `<tr${g.tkDoc ? ` data-mo-doc="${docs.indexOf(g.tkDoc)}" class="ktt-mo"` : ''}><td>${tenKy(g.k)}</td><td>${so(g.banV)}</td><td>${so(g.banT)}</td><td>${so(g.muaV)}</td><td>${so(g.muaT)}</td><td>${so(g.banT - g.muaT)}</td><td>${g.nBan + g.nMua}</td><td>${huyHieu(g)}</td></tr>`).join('')
+              + (nams.length > 1 ? `<tr class="ktt-cong-nam"><td>Cộng năm ${nam}</td><td>${so(c.banV)}</td><td>${so(c.banT)}</td><td>${so(c.muaV)}</td><td>${so(c.muaT)}</td><td>${so(c.banT - c.muaT)}</td><td>${c.n}</td><td></td></tr>` : '');
+          }).join('')}
           <tr class="ktt-cong"><td>Cộng</td><td>${so(t.banV)}</td><td>${so(t.banT)}</td><td>${so(t.muaV)}</td><td>${so(t.muaT)}</td><td>${so(t.banT - t.muaT)}</td><td>${t.n}</td><td></td></tr>
         </tbody></table></div>
       <div class="ktt-hai">${bangDoiTac('Khách hàng', 'Giá trị bán ra', kh, t.banV)}${bangDoiTac('Nhà cung cấp', 'Giá trị mua vào', ncc, t.muaV)}</div>
@@ -188,11 +209,12 @@
   /** Gắn sự kiện một lần lên khung chính. veLai(): vẽ lại Dashboard; moLapTk(preset): mở hộp lập tờ khai;
    *  chonCty(mst): báo app công ty vừa chọn, để danh sách bên trái gắn nhãn Mua vào / Bán ra theo công ty đó */
   function ganSuKien(khung, veLai, moLapTk, chonCty) {
+    khung.addEventListener('toggle', e => { const n = e.target.closest && e.target.closest('.ktt-nam'); if (n === e.target) chon.namMo[n.dataset.nam] = n.open; }, true);
     khung.addEventListener('click', e => {
       const cty = e.target.closest('[data-cty]');
-      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; if (chonCty) chonCty(chon.mst); veLai(); return; }
+      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; chon.namMo = {}; if (chonCty) chonCty(chon.mst); veLai(); return; }
       const k = e.target.closest('.ktt-chon-ky [data-kieu]');
-      if (k) { chon.kieu = k.dataset.kieu; veLai(); return; }
+      if (k) { chon.kieu = k.dataset.kieu; chon.namMo = {}; veLai(); return; }
       const l = e.target.closest('[data-lap-tk]');
       if (l) { let p = {}; try { p = JSON.parse(l.dataset.lapTk); } catch (err) { } moLapTk(p); }
     });

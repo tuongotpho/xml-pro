@@ -537,6 +537,33 @@ def kiem_thanh_ben(ev, J, hd):
              J({k: r[k] for k in ('mo', 'hop', 'menuDong', 'n0', 'huy', 'dong', 'nut', 'conNutCu')}, ensure_ascii=False))
 
 
+def kiem_nhieu_nam(ev, J, hd):
+    print('=== 12. Dashboard kho hoá đơn nhiều năm: gom theo năm, thẻ kỳ xếp lưới ===')
+    nap_lai_trang(ev)
+    r = ev('''(async () => { const A = window.__xemXmlThue;
+          const goc = %s, files = []; let so = 900000;
+          for (const y of [2023, 2024, 2025, 2026]) for (let m = 1; m <= 12; m++) goc.forEach(([ten, x], i) => { so++;
+            files.push(new File([x.replace(/<NLap>[^<]*<\\/NLap>/, `<NLap>${y}-${String(m).padStart(2, '0')}-1${i}</NLap>`).replace(/<SHDon>[^<]*<\\/SHDon>/, `<SHDon>${so}</SHDon>`)], `nn-${y}-${m}-${i}.xml`)); });
+          await A.addFiles(files); A.select(-2); await new Promise(r => setTimeout(r, 500));
+          const nam = [...document.querySelectorAll('.ktt-nam')].map(n => ({ nam: n.dataset.nam, mo: n.open, the: n.querySelectorAll('.ktt-ky').length }));
+          const the = [...document.querySelectorAll('.ktt-nam[open] .ktt-ky')];
+          const cungHang = the.length > 1 && the[0].getBoundingClientRect().top === the[1].getBoundingClientRect().top;
+          document.querySelector('.ktt-nam[data-nam="2024"] > summary').click(); await new Promise(r => setTimeout(r, 100));
+          A.select(-2); await new Promise(r => setTimeout(r, 300));
+          const giu = document.querySelector('.ktt-nam[data-nam="2024"]').open;
+          document.querySelector('.ktt-chon-ky [data-kieu="M"]').click(); await new Promise(r => setTimeout(r, 300));
+          const thang = [...document.querySelectorAll('.ktt-nam')].map(n => n.querySelectorAll('.ktt-ky').length);
+          return { nam, cungHang, giu, thang, congNam: [...document.querySelectorAll('.ktt-cong-nam td:first-child')].map(e => e.textContent),
+                   rong: document.querySelector('.ktt-dash').offsetWidth, khung: document.getElementById('main').clientWidth }; })()'''
+           % J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
+    dat = ([x['nam'] for x in r['nam']] == ['2026', '2025', '2024', '2023'] and all(x['the'] == 4 for x in r['nam'])
+           and r['nam'][0]['mo'] and not any(x['mo'] for x in r['nam'][1:]) and r['cungHang'] and r['giu']
+           and r['thang'] == [12, 12, 12, 12] and r['congNam'] == ['Cộng năm 2023', 'Cộng năm 2024', 'Cộng năm 2025', 'Cộng năm 2026']
+           and r['rong'] > r['khung'] - 60)
+    danh_gia('4 năm hoá đơn: mỗi năm một khối (năm mới nhất mở, năm cũ gập, mở tay thì giữ khi vẽ lại), thẻ kỳ nhiều cột trên một hàng, sổ có dòng cộng từng năm, Dashboard giãn hết khung',
+             dat, J(r, ensure_ascii=False))
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -721,6 +748,7 @@ def main():
         kiem_khbs(ev, J, hd)
         kiem_04(ev, J, hd)
         kiem_thanh_ben(ev, J, hd)
+        kiem_nhieu_nam(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)
