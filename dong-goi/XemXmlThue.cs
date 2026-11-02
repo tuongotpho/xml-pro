@@ -40,19 +40,34 @@ static class XemXmlThue
             try { khoa.WaitOne(30000); } catch (AbandonedMutexException) { }
             try
             {
-                DonTepCu(hang);
-                string tepSo = Path.Combine(hang, "so.txt");
-                int so = 1;
-                try { so = Math.Max(1, int.Parse(File.ReadAllText(tepSo).Trim())); } catch { }
-                int soDau = so;
-                if (tep.Count > 0)
+                IntPtr cuaSo = TimCuaSo();
+                if (cuaSo != IntPtr.Zero)
                 {
-                    GhiHang(Path.Combine(hang, so + ".js"), so, tep);
-                    File.WriteAllText(tepSo, (so + 1).ToString());
+                    string tepSo = Path.Combine(hang, "so.txt");
+                    int so = 1;
+                    try { so = Math.Max(1, int.Parse(File.ReadAllText(tepSo).Trim())); } catch { }
+                    if (tep.Count > 0)
+                    {
+                        GhiHang(Path.Combine(hang, so + ".js"), so, tep);
+                        File.WriteAllText(tepSo, (so + 1).ToString());
+                    }
+                    DuaLenTruoc(cuaSo);
+                    return 0;
                 }
 
-                IntPtr cuaSo = TimCuaSo();
-                if (cuaSo != IntPtr.Zero) { DuaLenTruoc(cuaSo); return 0; }
+                // Chưa có cửa sổ Edge XML-Pro: Khởi tạo phiên mới, dọn sạch hàng chờ cũ
+                XoaSachHang(hang);
+                string tepSoMoi = Path.Combine(hang, "so.txt");
+                int soDau = 1;
+                if (tep.Count > 0)
+                {
+                    GhiHang(Path.Combine(hang, "1.js"), 1, tep);
+                    File.WriteAllText(tepSoMoi, "2");
+                }
+                else
+                {
+                    File.WriteAllText(tepSoMoi, "1");
+                }
 
                 string edge = TimEdge();
                 if (edge == null)
@@ -68,7 +83,7 @@ static class XemXmlThue
                     "--app=\"" + url + "\" --user-data-dir=\"" + hoSo + "\" --no-first-run --no-default-browser-check --disable-sync" +
                     " --allow-file-access-from-files --disable-background-mode" +
                     " --start-maximized --window-position=0,0 --disable-pinch --overscroll-history-navigation=0" +
-                    // Giao diện trình duyệt tiếng Việt trùng ngôn ngữ trang + tắt tính năng dịch: không còn hỏi "Dịch trang này?"
+                    // Giao diện trình duyệt tiếng Việt trùng ngôn ngữ trang + tắt tính năng dịch: không còn hỏi \"Dịch trang này?\"
                     " --lang=vi --disable-features=Translate,TranslateUI,msEdgeTranslate,msEdgeSidebarV2");
                 psi.UseShellExecute = false;
                 Process.Start(psi);
@@ -98,7 +113,7 @@ static class XemXmlThue
         File.Move(tam, tepJs);
     }
 
-    // ---- Tìm cửa sổ "Xem XML thuế" của Edge (tiêu đề đúng bằng tên app) ----
+    // ---- Tìm cửa sổ "XML-Pro" của Edge (tiêu đề đúng bằng tên app) ----
     delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr l);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
@@ -107,22 +122,40 @@ static class XemXmlThue
     [DllImport("user32.dll")] static extern bool IsIconic(IntPtr h);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int c);
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+    [DllImport("user32.dll")] static extern IntPtr OpenInputDesktop(uint dwFlags, bool fInherit, uint dwDesiredAccess);
+    [DllImport("user32.dll")] static extern bool EnumDesktopWindows(IntPtr hDesktop, EnumProc lpfn, IntPtr lParam);
+    [DllImport("user32.dll")] static extern bool CloseDesktop(IntPtr hDesktop);
 
     [DllImport("user32.dll")] static extern void SwitchToThisWindow(IntPtr h, bool fAltTab);
 
     static IntPtr TimCuaSo()
     {
         IntPtr thay = IntPtr.Zero;
-        EnumWindows(delegate (IntPtr h, IntPtr l)
+        EnumProc proc = delegate (IntPtr h, IntPtr l)
         {
             if (!IsWindowVisible(h)) return true;
-            var t = new StringBuilder(512); GetWindowText(h, t, 512);
-            string title = t.ToString();
-            if (string.IsNullOrEmpty(title)) return true;
 
             var c = new StringBuilder(128); GetClassName(h, c, 128);
             string cls = c.ToString();
             if (!cls.StartsWith("Chrome_WidgetWin")) return true;
+
+            uint pid;
+            GetWindowThreadProcessId(h, out pid);
+            if (pid == 0) return true;
+            try
+            {
+                using (var p = Process.GetProcessById((int)pid))
+                {
+                    if (!p.ProcessName.Equals("msedge", StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            catch { return true; }
+
+            var t = new StringBuilder(512); GetWindowText(h, t, 512);
+            string title = t.ToString();
+            if (string.IsNullOrEmpty(title)) return true;
 
             // Kiểm tra tiêu đề: chứa XML-Pro hoặc Xem XML hoặc Bảng Điều Hành
             if (title.IndexOf(Chung.TenApp, StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -134,7 +167,22 @@ static class XemXmlThue
                 return false;
             }
             return true;
-        }, IntPtr.Zero);
+        };
+
+        EnumWindows(proc, IntPtr.Zero);
+        if (thay == IntPtr.Zero)
+        {
+            try
+            {
+                IntPtr hDesk = OpenInputDesktop(0, false, 0x0100 /* DESKTOP_READOBJECTS */);
+                if (hDesk != IntPtr.Zero)
+                {
+                    EnumDesktopWindows(hDesk, proc, IntPtr.Zero);
+                    CloseDesktop(hDesk);
+                }
+            }
+            catch { }
+        }
         return thay;
     }
 
@@ -156,6 +204,20 @@ static class XemXmlThue
             else b.Append(c);
         }
         return b.Append('"').ToString();
+    }
+
+    // Xoá sạch toàn bộ hàng chờ cũ khi khởi động phiên làm việc mới
+    static void XoaSachHang(string thuMuc)
+    {
+        try
+        {
+            if (!Directory.Exists(thuMuc)) return;
+            foreach (string f in Directory.GetFiles(thuMuc, "*.js*"))
+                try { File.Delete(f); } catch { }
+            string tepSo = Path.Combine(thuMuc, "so.txt");
+            if (File.Exists(tepSo)) try { File.Delete(tepSo); } catch { }
+        }
+        catch { }
     }
 
     // Tệp tạm cũ hơn 1 ngày thì xoá (trang đã đọc xong từ lâu).

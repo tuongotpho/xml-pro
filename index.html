@@ -189,6 +189,8 @@
   .item .tag.ct { background: var(--warn-soft); color: var(--warn); }
   .item .tag.hd { background: var(--accent-soft); color: var(--accent); }
   .item.err .l1 { color: var(--accent); }
+  .btn-item-close { border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 1px 4px; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; opacity: 0.6; transition: opacity .15s, background .15s; }
+  .btn-item-close:hover { opacity: 1; background: var(--border); color: #dc2626; }
   .foot { padding: 8px 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); }
   .foot a { color: var(--muted); }
   .foot a.dn-link { color: var(--accent); font-weight: 600; text-decoration: none; }
@@ -461,21 +463,207 @@
     .kv, .party .row, .hd-head { grid-template-columns: 1fr; }
     table.grid, table.lines { font-size: 12px; }
   }
+  /* Ẩn các sheet không được chọn trên màn hình khi xem theo tab */
+  .itax-sheet.itax-screen-hide { display: none; }
+
   @media print {
-    body { background: #fff; }
-    .app { display: block; height: auto; }
-    aside, .bar, .top-strip, .notes, dialog, .tabs, .itax-tabs, details.hd-more { display: none !important; }
-    .right { display: block; }
-    main { padding: 0; overflow: visible; }
-    .paper { box-shadow: none; max-width: none; padding: 0; }
-    .itax-wrap { overflow: visible; padding: 0; }
-    .itax-sheet, .itax-sheet.ngang { width: auto; box-shadow: none; margin: 0; padding: 0; }
-    .itax-sheet + .itax-sheet { page-break-before: always; }
-    .itax-sigs { box-shadow: none; max-width: none; padding: 10px 0 0; }
-    .wide { overflow: visible; }
-    tr { page-break-inside: avoid; }
-    section.trang + section.trang { page-break-before: always; border-top: 0; margin-top: 0; }
-    h3.sheet { display: none; }
+    @page {
+      margin: 8mm 10mm;
+      size: auto;
+    }
+    html, body {
+      position: static !important;
+      overflow: visible !important;
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      max-width: none !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #000 !important;
+      font-size: 11pt !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .app {
+      display: block !important;
+      position: static !important;
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      max-width: none !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    aside, .bar, .top-strip, dialog, .tabs, .itax-tabs, #loadProgress, .btn-capnhat-pill, .btn-xuat-excel, .filter-pills, .folder-filter-bar {
+      display: none !important;
+    }
+    .right {
+      display: block !important;
+      position: static !important;
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    main {
+      display: block !important;
+      position: static !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      width: 100% !important;
+    }
+    .paper, .paper.hd-paper, .paper.hq-paper, .paper.yte-paper, .paper.tncn-paper, .paper.bhxh-paper, .paper.nh-paper, .paper.thau-paper {
+      box-shadow: none !important;
+      max-width: none !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+    }
+    /* Mở rộng toàn bộ chi tiết kỹ thuật và trường mở rộng khi in */
+    details {
+      display: block !important;
+    }
+    details summary {
+      display: block !important;
+      font-weight: 700 !important;
+      margin-bottom: 4px !important;
+    }
+    details[open] > *:not(summary), details > *:not(summary) {
+      display: block !important;
+    }
+    details.hd-more {
+      display: block !important;
+      margin-top: 10px !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    details.hd-more .more-box {
+      background: #fff !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+    /* Thông tin file metadata */
+    .notes {
+      display: block !important;
+      margin: 0 0 10px !important;
+      padding: 0 !important;
+      max-width: none !important;
+    }
+    .notes .note {
+      display: none !important;
+    }
+    .notes details.ttfile {
+      display: block !important;
+      border: 1px solid #cbd5e1 !important;
+      padding: 6px 10px !important;
+      margin-bottom: 10px !important;
+    }
+    /* Biểu mẫu và bảng tính iTax */
+    .itax-wrap {
+      overflow: visible !important;
+      padding: 0 !important;
+      width: 100% !important;
+    }
+    .itax-sheet {
+      display: block !important;
+      width: 100% !important;
+      max-width: none !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: 0 0 20px 0 !important;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box !important;
+    }
+    .itax-sheet.ngang {
+      width: 100% !important;
+    }
+    .itax-sheet:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    .itax-sheet.itax-screen-hide {
+      display: block !important; /* Khi in/xuất PDF sẽ in ĐẦY ĐỦ TẤT CẢ các sheet & phụ lục */
+    }
+    .itax-wrap.print-only-current .itax-sheet.itax-screen-hide {
+      display: none !important; /* Nếu người dùng chọn Chỉ in biểu này */
+    }
+    .sheet-print-title {
+      display: block !important;
+      font-weight: 700 !important;
+      font-size: 13pt !important;
+      text-align: center !important;
+      margin-bottom: 12px !important;
+      color: #0f172a !important;
+    }
+    .itax-sigs {
+      box-shadow: none !important;
+      max-width: none !important;
+      padding: 10px 0 0 !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    h3.sheet {
+      display: block !important;
+      font-size: 13pt !important;
+      text-align: center !important;
+      margin: 14px 0 8px !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+    }
+    .wide {
+      overflow: visible !important;
+    }
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+    thead {
+      display: table-header-group !important;
+    }
+    tfoot {
+      display: table-footer-group !important;
+    }
+    tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    section.trang {
+      page-break-after: always;
+      break-after: page;
+    }
+    section.trang:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    .hd-sigs, .itax-sig-foot, .sigs {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .stamp {
+      border-color: #15803d !important;
+      color: #15803d !important;
+      background: #f0fdf4 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .copyright {
+      margin-top: 15px !important;
+      color: #64748b !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
   }
 
   /* Thanh công cụ Kế toán */
@@ -697,14 +885,12 @@
       </div>
     </div>
     <div class="list" id="list"></div>
-    <div class="foot">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <a href="#" id="about" class="dn-link">Giới thiệu · Ủng hộ ☕</a>
-        <button type="button" id="btnMoCapNhat" class="btn-capnhat-pill" title="Kiểm tra & Cập nhật phiên bản mới">🔄 Cập nhật</button>
+    <div class="foot" style="text-align:center">
+      <div style="margin-bottom:4px">
+        <a href="#" id="about" class="dn-link">Giới thiệu</a> · <span id="pbChan" style="font-weight:600;color:#0284c7"></span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11.5px">
-        <span>(C) August87 - 0982722036</span>
-        <span id="pbChan" style="font-weight:600;color:#0284c7"></span>
+      <div style="color:var(--muted);font-size:11.5px">
+        (C) August87 - 0982722036
       </div>
     </div>
   </aside>
@@ -727,23 +913,7 @@
       </ul>
       <p>Tờ khai, phụ lục, BCTC được dựng bằng <b>chính bộ mẫu chuẩn của iTax Viewer</b>; đồng thời hỗ trợ <b>Xuất bảng kê Excel (.xlsx)</b> chuẩn OpenXML cho toàn bộ hồ sơ.</p>
       <p>Trang <b>không kiểm tra chữ ký số là thật hay giả</b> — chỉ đọc tên người ký và thời điểm ký ghi trong file.</p>
-      <div class="dn-box">
-        <div class="dn-info">
-          <div class="dn-head"><span class="dn-free">FREE VĨNH VIỄN</span><span>☕ Thích thì "nuôi" tác giả ly cà phê!</span></div>
-          <p>App làm tặng anh chị em đọc XML thuế gọn nhẹ, <b>miễn phí vĩnh viễn</b> — không thu phí, không quảng cáo, không giới hạn tính năng.</p>
-          <p>Nếu thấy app hữu ích, giúp bạn đỡ vật lộn với iTax Viewer mỗi mùa báo cáo thì quét mã ủng hộ mình ly cà phê lấy tinh thần cập nhật mẫu mới nhé!</p>
-          <div class="dn-bank">
-            Ngân hàng: <b>MB Bank</b> (Quân đội)<br>
-            Số tài khoản: <span class="stk">938118</span> <button type="button" class="dn-copy" data-stk="938118">Sao chép</button><br>
-            Chủ tài khoản: <b>LE VIET THANH</b>
-          </div>
-        </div>
-        <div class="dn-qr">
-          <div class="dn-qr-top"><span>MB BANK</span><span class="vq">VietQR 24/7</span></div>
-          <svg class="dn-qr-svg" viewBox="0 0 45 45" width="156" height="156" shape-rendering="crispEdges" role="img" aria-label="Mã QR ủng hộ MB Bank 938118 LE VIET THANH"><use href="#qrMb938118"/></svg>
-          <div class="dn-qr-cap">Quét bằng mọi app ngân hàng</div>
-        </div>
-      </div>
+
     </div>
   </main>
   </div>
@@ -755,13 +925,16 @@
   </symbol>
 </svg>
 <dialog id="dlg">
-  <h3>Giới thiệu</h3>
-  <p style="margin:6px 0"><b>Xem XML thuế</b> <span id="pbGioiThieu"></span> — chạy ngay trên máy, không cần mạng, không gửi dữ liệu đi đâu.</p>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <h3 style="margin:0">Giới thiệu</h3>
+    <button type="button" id="btnMoCapNhat" class="btn-capnhat-pill" title="Kiểm tra & Cập nhật phiên bản mới">🔄 Cập nhật</button>
+  </div>
+  <p style="margin:6px 0"><b>XML-Pro</b> <span id="pbGioiThieu"></span> — chạy ngay trên máy, không cần mạng, không gửi dữ liệu đi đâu.</p>
   <p style="margin:6px 0">Đọc: tờ khai/BCTC HTKK, thông báo thuế, chứng từ nộp tiền (hiển thị chuẩn theo mẫu iTax Viewer), và cả hoá đơn điện tử (.xml, .zip, hoặc cả thư mục).</p>
   <p style="margin:6px 0">Chữ ký số: chỉ hiển thị người ký và thời điểm ký ghi trong file; <b>không kiểm tra chữ ký có hợp lệ hay không</b>. Muốn kiểm thật thì tra trên cổng thuế điện tử.</p>
       <div class="dn-box">
         <div class="dn-info">
-          <div class="dn-head"><span class="dn-free">FREE VĨNH VIỄN</span><span>☕ Thích thì "nuôi" tác giả ly cà phê!</span></div>
+          <div class="dn-head"><span class="dn-free">FREE VĨNH VIỄN</span><span>☕ Thích thì donate tác giả ly cà phê!</span></div>
           <p>App làm tặng anh chị em đọc XML thuế gọn nhẹ, <b>miễn phí vĩnh viễn</b> — không thu phí, không quảng cáo, không giới hạn tính năng.</p>
           <p>Nếu thấy app hữu ích, giúp bạn đỡ vật lộn với iTax Viewer mỗi mùa báo cáo thì quét mã ủng hộ mình ly cà phê lấy tinh thần cập nhật mẫu mới nhé!</p>
           <div class="dn-bank">
@@ -772,14 +945,14 @@
         </div>
         <div class="dn-qr">
           <div class="dn-qr-top"><span>MB BANK</span><span class="vq">VietQR 24/7</span></div>
-          <svg class="dn-qr-svg" viewBox="0 0 45 45" width="156" height="156" shape-rendering="crispEdges" role="img" aria-label="Mã QR ủng hộ MB Bank 938118 LE VIET THANH"><use href="#qrMb938118"/></svg>
+          <svg class="dn-qr-svg" viewBox="0 0 45 45" width="156" height="156" shape-rendering="crispEdges" role="img" aria-label="Mã QR donate MB Bank 938118 LE VIET THANH"><use href="#qrMb938118"/></svg>
           <div class="dn-qr-cap">Quét bằng mọi app ngân hàng</div>
         </div>
       </div>
   <p id="dlgStat" style="color:var(--muted);font-size:13px;margin:8px 0 0"></p>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-    <span style="color:var(--muted);font-size:12.5px">(C) August87 - 0982722036</span>
-    <form method="dialog" style="margin:0"><button class="primary" autofocus>Đóng</button></form>
+  <div style="text-align:center;margin-top:14px;border-top:1px solid #f1f5f9;padding-top:12px">
+    <div style="color:var(--muted);font-size:12px;margin-bottom:10px">(C) August87 - 0982722036</div>
+    <form method="dialog" style="margin:0"><button class="primary" autofocus style="min-width:100px">Đóng</button></form>
   </div>
 </dialog>
 
@@ -2016,9 +2189,13 @@
         ${partyBlock(inv.ban, true, inv)}
         ${partyBlock(inv.mua, false, inv, inlineBuyer)}
         <table class="lines">
-          <tr><th style="width:36px">STT</th><th>Tên hàng hóa, dịch vụ</th><th style="width:58px">ĐVT</th><th style="width:74px">Số lượng</th><th style="width:96px">Đơn giá</th>${hasCk ? '<th style="width:88px">Chiết khấu</th>' : ''}<th style="width:64px">Thuế suất</th><th style="width:112px">Thành tiền</th></tr>
-          ${lineRows || `<tr><td colspan="${colCount}" class="c"><i>Không có dòng hàng</i></td></tr>`}
-          ${sumRows.join('')}
+          <thead>
+            <tr><th style="width:36px">STT</th><th>Tên hàng hóa, dịch vụ</th><th style="width:58px">ĐVT</th><th style="width:74px">Số lượng</th><th style="width:96px">Đơn giá</th>${hasCk ? '<th style="width:88px">Chiết khấu</th>' : ''}<th style="width:64px">Thuế suất</th><th style="width:112px">Thành tiền</th></tr>
+          </thead>
+          <tbody>
+            ${lineRows || `<tr><td colspan="${colCount}" class="c"><i>Không có dòng hàng</i></td></tr>`}
+            ${sumRows.join('')}
+          </tbody>
         </table>
         ${shortOther.length ? `<div class="hd-extra">${shortOther.map(x => { const f = fmtVal(x.k, x.v); return `<span><span class="p-lbl">${esc(x.k)}:</span> <b>${esc(typeof f === 'object' ? f.n : f)}</b></span>`; }).join('')}</div>` : ''}
         <div class="hd-sigs ${inv.kyCqt ? 'c3' : 'c2'}">
@@ -2606,16 +2783,30 @@
       if (openTabs.length > 0) {
         select(openTabs[Math.max(0, pos - 1)]);
       } else {
-        moDashboard(selectedFolder);
+        if (docs.length > 1) {
+          moDashboard(selectedFolder);
+        } else {
+          selected = -1;
+          docs.length = 0;
+          $('main').innerHTML = HOME_HTML;
+        }
       }
-    } else {
-      renderTabs();
     }
+    renderTabs();
+    renderList();
   }
 
   function dongTatCaTab() {
     openTabs.length = 0;
-    moDashboard(selectedFolder);
+    if (docs.length > 1) {
+      moDashboard(selectedFolder);
+    } else {
+      selected = -1;
+      docs.length = 0;
+      $('main').innerHTML = HOME_HTML;
+    }
+    renderTabs();
+    renderList();
   }
 
   function renderLichSu(q) {
@@ -2646,8 +2837,34 @@
     if (cheDo === 'ls') return renderLichSu(q);
     if (cheDo === 'cay') return renderCayThuMuc();
 
-    // Lấy tập hợp docs theo thư mục đang chọn (nếu có lọc thư mục)
-    const curDocs = layDanhSachTheoThuMuc();
+    // Chế độ 'mo' (Đang mở): Chỉ hiển thị các file đang có tab mở
+    let curDocs = [];
+    if (cheDo === 'mo') {
+      curDocs = openTabs.map(idx => docs[idx]).filter(Boolean);
+      if (selectedFolder) {
+        curDocs = curDocs.filter(d => (d.duongDan || d.source || '').replace(/\\/g, '/').toLowerCase().startsWith(selectedFolder.toLowerCase()));
+      }
+    } else {
+      curDocs = layDanhSachTheoThuMuc();
+    }
+
+    if (cheDo === 'mo' && !curDocs.length) {
+      $('summary').innerHTML = docs.length
+        ? `Không có file đang mở tab (Đã nạp <b>${docs.length}</b> file trong <a href="#" id="lnkToCay">Explorer</a>)`
+        : 'Chưa có file nào.';
+      const lnk = $('lnkToCay');
+      if (lnk) lnk.onclick = (e) => { e.preventDefault(); cheDo = 'cay'; renderList(); };
+      $('list').innerHTML = `
+        <div style="text-align:center;padding:32px 14px;color:var(--muted)">
+          <div style="font-size:26px;margin-bottom:8px">📂</div>
+          <div style="font-weight:600;font-size:13px;color:var(--fg);margin-bottom:4px">Chưa có tab file nào đang mở</div>
+          <div style="font-size:12px;line-height:1.5">
+            ${docs.length ? 'Bấm vào thẻ <b>Explorer</b> ở trên hoặc bấm <b>📊 Dashboard</b> để xem các file.' : 'Kéo thả file XML hoặc bấm Chọn tệp / thư mục để mở.'}
+          </div>
+        </div>`;
+      return;
+    }
+
     let hienThiCount = 0;
     $('list').innerHTML = curDocs.map(d => {
       const i = docs.indexOf(d);
@@ -2655,7 +2872,13 @@
         if (locPhanLoai !== 'all') return '';
         if (q && !d.source.toLowerCase().includes(q)) return '';
         hienThiCount++;
-        return `<div class="item err ${i === selected ? 'sel' : ''}" data-i="${i}"><div class="l1"><span>Không đọc được</span></div><div class="l2">${esc(d.source)}</div></div>`;
+        return `<div class="item err ${i === selected ? 'sel' : ''}" data-i="${i}">
+          <div class="l1">
+            <span>Không đọc được</span>
+            <button type="button" class="btn-item-close" data-dong-i="${i}" title="Đóng tab này">×</button>
+          </div>
+          <div class="l2">${esc(d.source)}</div>
+        </div>`;
       }
       // Áp dụng bộ lọc phân loại
       if (locPhanLoai === 'mua' && d.phanLoai !== 'mua') return '';
@@ -2680,17 +2903,24 @@
         : '';
 
       return `<div class="item ${i === selected ? 'sel' : ''}" data-i="${i}">
-        <div class="l1"><span>${esc(d.title)}${warn ? ' <span style="color:var(--warn)" title="Có điểm cần kiểm tra đối chiếu">⚠</span>' : ''}</span><span class="tag ${cls}">${lab}</span></div>
+        <div class="l1">
+          <span>${esc(d.title)}${warn ? ' <span style="color:var(--warn)" title="Có điểm cần kiểm tra đối chiếu">⚠</span>' : ''}</span>
+          <span style="display:flex;align-items:center;gap:4px">
+            <span class="tag ${cls}">${lab}</span>
+            <button type="button" class="btn-item-close" data-dong-i="${i}" title="Đóng tab này">×</button>
+          </span>
+        </div>
         <div class="l2">${esc([d.ky || date(d.ngay), right, d.ten || d.mst].filter(Boolean).join(' · '))}</div>
         <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
     }).join('');
 
-    if (!docs.length) { $('summary').textContent = 'Chưa có file nào.'; return; }
+    if (!curDocs.length) { $('summary').textContent = 'Chưa có file nào.'; return; }
     const dem = {};
     for (const d of curDocs) { const k = d.error ? 'Lỗi' : KIND[d.kind][1]; dem[k] = (dem[k] || 0) + 1; }
-    const tongSummary = `${curDocs.length} file: ` + Object.entries(dem).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(' · ');
+    const chiTiet = Object.entries(dem).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(', ');
+    const tongSummary = `${curDocs.length} file đang mở${chiTiet ? ' (' + chiTiet + ')' : ''}`;
     const locSummary = (locPhanLoai !== 'all' || selectedFolder) ? ` (Đang lọc: ${hienThiCount} file)` : '';
-    $('summary').innerHTML = tongSummary + locSummary + (skipped ? ` · Đã bỏ qua ${skipped} file không phải .xml/.zip` : '');
+    $('summary').innerHTML = tongSummary + locSummary + (docs.length > curDocs.length ? ` · Tổng nạp: <b>${docs.length}</b> file` : '');
   }
 
   function select(i) {
@@ -2717,12 +2947,39 @@
       : d.kind === 'thau' ? (window.NGANH_DOC ? window.NGANH_DOC.renderProcurement(d) : renderDoc(d))
       : renderDoc(d);
     $('main').scrollTop = 0;
+    document.title = (d.title || d.fileName || 'Tài liệu') + ' — XML-Pro';
     const p = $('printBtn'); if (p) p.onclick = () => window.print();
+    const pCur = $('printCurBtn');
+    if (pCur) {
+      pCur.onclick = () => {
+        const wrap = $('main').querySelector('.itax-wrap');
+        if (wrap) wrap.classList.add('print-only-current');
+        window.print();
+        setTimeout(() => { if (wrap) wrap.classList.remove('print-only-current'); }, 1000);
+      };
+    }
     const e = $('showEmpty'); if (e) e.onchange = () => { showEmpty = e.checked; select(selected); };
     $('main').querySelectorAll('.itax-tabs button[data-sh]').forEach(btn => {
       btn.onclick = () => { d._shIdx = Number(btn.dataset.sh); select(selected); };
     });
   }
+
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('details').forEach(d => {
+      d._wasOpen = d.open;
+      d.open = true;
+    });
+  });
+  window.addEventListener('afterprint', () => {
+    document.querySelectorAll('details').forEach(d => {
+      if (d._wasOpen !== undefined) {
+        d.open = d._wasOpen;
+        delete d._wasOpen;
+      }
+    });
+    const wrap = $('main')?.querySelector('.itax-wrap');
+    if (wrap) wrap.classList.remove('print-only-current');
+  });
 
   function renderDoc(d) {
     const info = (d.info || []).filter(r => r[1]);
@@ -2730,7 +2987,6 @@
     if (d._itaxSheets && d._itaxSheets.length) {
       const shs = d._itaxSheets;
       const curSh = (d._shIdx == null || d._shIdx < -1 || d._shIdx >= shs.length) ? -1 : d._shIdx;
-      const vis = curSh < 0 ? shs : [shs[curSh]];
       const shBar = shs.length > 1 ? `<div class="itax-tabs">
         <button type="button" data-sh="-1" class="${curSh === -1 ? 'on' : ''}">Xem tất cả (${shs.length})</button>
         ${shs.map((s, idx) => `<button type="button" data-sh="${idx}" class="${curSh === idx ? 'on' : ''}">${esc(s.label)}</button>`).join('')}
@@ -2738,15 +2994,25 @@
       return `
         <div class="top-strip">
           <div class="note ok">✔ Chuẩn mẫu iTax Viewer${shs.length > 1 ? ` (${shs.length} biểu)` : ''} · <span style="color:var(--muted)">Nguồn: ${esc(d.source)}</span></div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center">
             <button type="button" class="btn-xuat-excel" style="background:#15803d;color:#fff;border-color:#15803d;font-weight:600">📊 Xuất Excel</button>
-            <button class="primary" id="printBtn">In / Lưu PDF</button>
+            <button class="primary" id="printBtn" title="In / Lưu PDF toàn bộ hồ sơ (tất cả ${shs.length} biểu & phụ lục)">In / Lưu PDF (${shs.length > 1 ? 'Toàn bộ ' + shs.length + ' biểu' : 'In file'})</button>
+            ${(shs.length > 1 && curSh >= 0) ? `<button type="button" id="printCurBtn" style="font-size:12px;padding:5px 9px" title="Chỉ in biểu ${curSh + 1} (${esc(shs[curSh].label)}) đang chọn trên màn hình">Chỉ in biểu này</button>` : ''}
           </div>
         </div>
         ${info.length ? `<div class="notes" style="max-width:920px"><details class="ttfile"><summary>Thông tin file (mã mẫu, loại tờ khai, phần mềm lập…)</summary><div class="kv">${info.map(r => `<span>${esc(r[0])}</span><span>${esc(r[1])}</span>`).join('')}</div></details></div>` : ''}
         ${shBar}
         <div class="itax-wrap">
-          ${vis.map((s, idx) => `<section class="itax-sheet${s.orient === '1' ? ' ngang' : ''}">${s.html}${idx === vis.length - 1 ? `<div class="itax-sig-foot">${sigStamps(d.sigs)}</div>` : ''}</section>`).join('')}
+          ${shs.map((s, idx) => {
+            const isHiddenOnScreen = (curSh >= 0 && curSh !== idx);
+            const cls = `itax-sheet${s.orient === '1' ? ' ngang' : ''}${isHiddenOnScreen ? ' itax-screen-hide' : ''}`;
+            const sigFoot = (idx === shs.length - 1 || curSh === idx) ? `<div class="itax-sig-foot">${sigStamps(d.sigs)}</div>` : '';
+            return `<section class="${cls}" data-sheet-idx="${idx}">
+              <div class="sheet-print-title" style="display:none">${esc(s.label)}</div>
+              ${s.html}
+              ${sigFoot}
+            </section>`;
+          }).join('')}
         </div>
         <div class="copyright">(C) August87 - 0982722036</div>`;
     }
@@ -2879,6 +3145,13 @@
     else if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
   });
   $('list').onclick = e => {
+    const btnDong = e.target.closest('.btn-item-close');
+    if (btnDong) {
+      e.stopPropagation();
+      const iDong = Number(btnDong.dataset.dongI);
+      if (!isNaN(iDong)) dongTab(iDong);
+      return;
+    }
     if (cheDo === 'cay') {
       const toggle = e.target.closest('.tree-toggle');
       if (toggle) {
@@ -3299,6 +3572,11 @@ Read-Host
     window.__NHAN_FILE = (n, ds) => {
       if (n !== so) return;
       so++;
+      try {
+        const u = new URL(location.href);
+        u.searchParams.set('so', so);
+        history.replaceState(null, '', u.toString());
+      } catch (e) {}
       const files = ds.map(x => {
         const bin = atob(x.b64); const b = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
@@ -3350,7 +3628,8 @@ Read-Host
     const btnTaiCapNhatTuDong = $('btnTaiCapNhatTuDong');
 
     function moModalCapNhat() {
-      if (txtPhienBanHienTai) txtPhienBanHienTai.textContent = 'v' + (window.PHIEN_BAN || '1.7.2');
+      if ($('dlg') && $('dlg').open) $('dlg').close();
+      if (txtPhienBanHienTai) txtPhienBanHienTai.textContent = 'v' + (window.PHIEN_BAN || '1.7.5');
       if (dlgCapNhat) dlgCapNhat.showModal();
     }
     if (btnMoCapNhat) btnMoCapNhat.onclick = moModalCapNhat;
