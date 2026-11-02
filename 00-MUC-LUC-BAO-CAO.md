@@ -1,6 +1,6 @@
 # [00] Mục lục báo cáo — thư mục `F:\AI\7.xml-pro`
 
-> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `05-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
+> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `06-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
 
 | Số | Báo cáo | Ngày | Tiếp nối | Nguồn dữ liệu chính | Kết luận một câu |
 |---|---|---|---|---|---|
@@ -8,3 +8,4 @@
 | 02 | [Kế hoạch sửa toàn bộ lỗi v2.0.0](02-BAO-CAO-KE-HOACH-SUA-LOI-V2.md) | 02/11/2026 | 01 | Lỗi và số đo của báo cáo 01; phần sửa chưa commit của `XemXmlThue.cs` | 9 bước, khoảng 1 ngày: viết test có điều kiện bắt buộc trước, sửa chữ ký số (kể cả kiểm chữ ký thật), bỏ máy chủ nội bộ, gỡ trung tâm cập nhật rỗng; ra bộ cài 2.0.1 |
 | 03 | [Kết quả sửa toàn bộ lỗi → bộ cài 2.0.1](03-BAO-CAO-KET-QUA-SUA-LOI-V2.md) | 02/11/2026 | 02 | 5 bộ test sau khi sửa; kiểm chéo .NET `SignedXml`; chạy thật `XML-Pro.exe` 2.0.1 | Đã sửa hết lỗi của báo cáo 01: test mới 15/15 (trước 6/14), chữ ký 12/12 khớp Windows, bỏ máy chủ nội bộ (0 cổng), `.ps1` đổi được tên có dấu; chưa cài đè, chưa gộp `main` |
 | 04 | [Rà soát giao diện, làm lại thẻ tờ khai kiểu iTax, nghiên cứu thị trường](04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md) | 02/11/2026 | 03 | Chạy app trong trình duyệt với 8 tờ khai/BCTC; iTax Viewer trên máy (XSLT 3.0.9); bản gốc `6.chrome-ex`; tìm kiếm web | Hiển thị tờ khai theo mẫu iTax hỏng từ 2.0.0 (`ITAX is not defined`) → đã sửa, mỗi biểu một thẻ, in tất cả; cập nhật bộ mẫu có BCTC TT99/TT58; sửa tờ bị cắt mép và chế độ tối; test 19/19; đề xuất 6 nâng cấp offline, đứng đầu là đối chiếu HĐ ↔ tờ khai |
+| 05 | [Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền](05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md) | 02/11/2026 | 04 (mục D số 1) | Thư mục `HD-TK` (dữ liệu thật quý 3/2026, không lên git); quy tắc `gtgt.ts` của app khai thuế; 6 HĐ mẫu | Làm xong đối chiếu nhiều công ty, tháng/quý: dữ liệu thật quý 3 khớp 100% với phép cộng Python độc lập, đã nộp đủ [40]; 2 ca lệch giả lập đều chỉ đúng hoá đơn gây lệch; test 23/23; bộ cài 2.0.3 |

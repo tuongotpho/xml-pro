@@ -6,6 +6,15 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
+## Phiên bản 2.0.3 — đối chiếu tờ khai 01/GTGT với hoá đơn và giấy nộp tiền
+
+Chi tiết ở [05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md](05-BAO-CAO-DOI-CHIEU-TO-KHAI-HOA-DON.md).
+
+* Nạp cùng lúc tờ khai 01/GTGT, hoá đơn mua vào / bán ra (XML hoặc .zip) và giấy nộp tiền → app tự ghép theo **MST + kỳ (tháng hoặc quý)** của từng tờ khai, nên dùng được cho **nhiều công ty** (kế toán dịch vụ).
+* So từng chỉ tiêu [23] [24] [26] [29]–[35] [32a] với tổng cộng từ hoá đơn; so **phụ lục giảm thuế NQ142 theo từng đối tác**; kiểm 11 công thức số học trong tờ khai; kiểm **[22] = [43] tờ khai lần đầu kỳ trước** (nếu có nạp); kiểm **số phải nộp [40] = số đã nộp** theo giấy nộp tiền (tiểu mục 1701).
+* Lệch thì chỉ đích danh hoá đơn nghi ngờ ("HĐ C26TNV-29 ngày 24/08/2026 có đúng 73.301.000 đ — có thể chưa kê"), bấm vào là mở hoá đơn đó.
+* Hiện ở 3 chỗ: khung "🔎 Đối chiếu với hoá đơn đã nạp" trên tờ khai (tự mở khi lệch), bảng tổng hợp mọi tờ khai trên Dashboard, nhãn **KHỚP HĐ / LỆCH HĐ** ở danh sách. Xuất Excel có thêm sheet "Đối chiếu tờ khai GTGT".
+
 ## Phiên bản 2.0.2 — tờ khai mở từng thẻ như iTax Viewer
 
 Chi tiết ở [04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md](04-BAO-CAO-RA-SOAT-GIAO-DIEN-THE-ITAX.md).

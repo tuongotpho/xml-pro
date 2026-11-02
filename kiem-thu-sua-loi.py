@@ -81,6 +81,123 @@ $kq | ConvertTo-Json -Depth 4 -Compress
     return json.loads(out.stdout)
 
 
+def cong_hoa_don(cac_tep, mst, tu, den):
+    """Phép cộng ĐỘC LẬP với app (đọc XML bằng ElementTree): giá trị / thuế mua vào, bán ra theo thuế suất trong kỳ."""
+    kq = {'mua_V': 0, 'mua_T': 0, 'ban': {}, 'pl_mua': {}, 'pl_ban': {}, 'hd': []}
+    for f in cac_tep:
+        dl = etree.parse(f).getroot().find('DLHDon')
+        t = lambda p: (dl.findtext(p) or '').strip()
+        ngay = t('TTChung/NLap')
+        if not (tu <= ngay <= den):
+            continue
+        V, T = float(t('NDHDon/TToan/TgTCThue') or 0), float(t('NDHDon/TToan/TgTThue') or 0)
+        lts = [(l.findtext('TSuat'), float(l.findtext('ThTien') or 0), float(l.findtext('TThue') or 0)) for l in dl.findall('NDHDon/TToan/THTTLTSuat/LTSuat')]
+        if t('NDHDon/NMua/MST') == mst:
+            kq['mua_V'] += V; kq['mua_T'] += T
+            for ts, v, tx in lts:
+                if ts == '8%':
+                    g = kq['pl_mua'].setdefault(t('NDHDon/NBan/Ten'), [0, 0]); g[0] += v; g[1] += tx
+        elif t('NDHDon/NBan/MST') == mst:
+            for ts, v, tx in lts:
+                g = kq['ban'].setdefault(ts, [0, 0]); g[0] += v; g[1] += tx
+                if ts == '8%':
+                    kq['pl_ban'][t('NDHDon/NMua/Ten')] = kq['pl_ban'].get(t('NDHDon/NMua/Ten'), 0) + v
+            kq['hd'].append((f, t('TTChung/KHHDon') + '-' + t('TTChung/SHDon'), lts))
+    return kq
+
+
+def to_khai_gtgt(mst, ten, kieu, ky, tu_vn, den_vn, ct, pl_mua, pl_ban):
+    """Dựng tờ khai 01/GTGT (TT80, mã 842) tối giản để kiểm phần đối chiếu."""
+    dong = ''.join(f'<{k}>{int(round(v))}</{k}>' for k, v in ct.items())
+    mua = ''.join(f'<BangKeTenHHDV ID="ID_{i}"><tenHHDVMuaVao>{tn}</tenHHDVMuaVao><giaTriHHDVMuaVao>{int(v[0])}</giaTriHHDVMuaVao><thueGTGTHHDV>{int(v[1])}</thueGTGTHHDV></BangKeTenHHDV>'
+                  for i, (tn, v) in enumerate(pl_mua.items(), 1))
+    ban = ''.join(f'<BangKeTenHHDV ID="ID_{i}"><tenHHDV>{tn}</tenHHDV><giaTriHHDV>{int(v)}</giaTriHHDV><thueSuatTheoQuyDinh>10</thueSuatTheoQuyDinh><thueSuatSauGiam>8</thueSuatSauGiam><thueGTGTDuocGiam>{round(v * 0.02)}</thueGTGTDuocGiam></BangKeTenHHDV>'
+                  for i, (tn, v) in enumerate(pl_ban.items(), 1))
+    return ('<?xml version="1.0" encoding="UTF-8"?><HSoThueDTu xmlns="http://kekhaithue.gdt.gov.vn/TKhaiThue"><HSoKhaiThue><TTinChung><TTinTKhaiThue>'
+            '<TKhaiThue><maTKhai>842</maTKhai><tenTKhai>TỜ KHAI THUẾ GIÁ TRỊ GIA TĂNG (Mẫu số 01/GTGT)</tenTKhai><pbanTKhaiXML>2.5.1</pbanTKhaiXML><loaiTKhai>C</loaiTKhai><soLan>0</soLan>'
+            f'<KyKKhaiThue><kieuKy>{kieu}</kieuKy><kyKKhai>{ky}</kyKKhai><kyKKhaiTuNgay>{tu_vn}</kyKKhaiTuNgay><kyKKhaiDenNgay>{den_vn}</kyKKhaiDenNgay></KyKKhaiThue></TKhaiThue>'
+            f'<NNT><mst>{mst}</mst><tenNNT>{ten}</tenNNT></NNT></TTinTKhaiThue></TTinChung>'
+            f'<CTieuTKhaiChinh>{dong}</CTieuTKhaiChinh>'
+            f'<PLuc><PL_NQ142_GTGT><HH_DV_MuaVaoTrongKy>{mua}</HH_DV_MuaVaoTrongKy><HH_DV_BanRaTrongKy>{ban}</HH_DV_BanRaTrongKy></PL_NQ142_GTGT></PLuc>'
+            '</HSoKhaiThue></HSoThueDTu>')
+
+
+def kiem_doi_chieu(ev, J, hd):
+    print('=== 5. Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền (báo cáo 05) ===')
+    ev('location.reload(); true')
+    time.sleep(1.5)
+    for _ in range(40):
+        try:
+            if ev('!!window.__xemXmlThue && !!window.DOI_CHIEU') is True:
+                break
+        except Exception:
+            pass
+        time.sleep(0.3)
+    MST = '2601102955'
+    kq = cong_hoa_don(hd, MST, '2026-10-01', '2026-10-31')
+    v8 = sum(v for ts, (v, _) in kq['ban'].items() if ts in ('8%', '10%'))
+    t8 = sum(t for ts, (_, t) in kq['ban'].items() if ts in ('8%', '10%'))
+    giam = sum(round(v * 0.02) for v in kq['pl_ban'].values())
+    ct = {'ct22': 0, 'ct23': kq['mua_V'], 'ct24': kq['mua_T'], 'ct23a': 0, 'ct24a': 0, 'ct25': kq['mua_T'], 'ct26': 0, 'ct27': v8, 'ct28': t8, 'ct29': 0,
+          'ct30': 0, 'ct31': 0, 'ct32': v8, 'ct33': t8, 'ct32a': 0, 'ct34': v8, 'ct35': t8, 'ct36': t8 - kq['mua_T'], 'ct37': 0, 'ct38': 0, 'ct39a': 0,
+          'ct40a': max(t8 - kq['mua_T'], 0), 'ct40b': 0, 'ct40': max(t8 - kq['mua_T'], 0), 'ct41': 0, 'ct42': 0, 'ct43': 0}
+    assert abs(round(v8 * 0.1) - giam - t8) <= 5, 'mẫu hoá đơn không còn đúng 8% — sửa lại test'
+    tk_dung = to_khai_gtgt(MST, 'Công ty mẫu', 'M', '10/2026', '01/10/2026', '31/10/2026', ct, kq['pl_mua'], kq['pl_ban'])
+    # Ca lệch: kế toán quên 1 hoá đơn bán ra
+    f_quen, so_quen, lts_quen = kq['hd'][2]
+    v_q = sum(v for _, v, _ in lts_quen); t_q = sum(t for _, _, t in lts_quen)
+    ct2 = dict(ct, ct27=v8 - v_q, ct28=t8 - t_q, ct32=v8 - v_q, ct33=t8 - t_q, ct34=v8 - v_q, ct35=t8 - t_q,
+               ct36=t8 - t_q - kq['mua_T'], ct40a=t8 - t_q - kq['mua_T'], ct40=t8 - t_q - kq['mua_T'])
+    tk_quen = to_khai_gtgt(MST, 'Công ty mẫu', 'M', '10/2026', '01/10/2026', '31/10/2026', ct2, kq['pl_mua'], kq['pl_ban'])
+    r = ev('''(async () => { const A = window.__xemXmlThue, DC = window.DOI_CHIEU;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'dc/' + ten);
+          const iDung = A.addText(%s, 'tk-dung.xml', 'dc/tk-dung'), iQuen = A.addText(%s, 'tk-quen.xml', 'dc/tk-quen');
+          const kq = DC.tinh(A.docs), f = i => kq.find(k => k.tkIdx === i);
+          const tom = k => ({ trangThai: k.trangThai, mua: k.soMua, ban: k.soBan, lech: k.dong.filter(r => !r.khop).map(r => r.ma),
+                              goiY: k.dong.flatMap(r => r.goiY.map(g => g.text)), plSai: k.phuLuc.filter(r => !r.khop).length, soPl: k.phuLuc.length,
+                              noiBoSai: k.noiBo.filter(r => !r.khop).length, soNoiBo: k.noiBo.length });
+          A.select(iDung); await new Promise(r => setTimeout(r, 300));
+          A.select(iQuen);
+          for (let n = 0; n < 200 && !A.docs[iQuen]._itaxDone; n++) await new Promise(r => setTimeout(r, 50));
+          await new Promise(r => setTimeout(r, 300));
+          const panel = document.querySelector('.dc-panel');
+          A.select(-2); await new Promise(r => setTimeout(r, 300));
+          return { dung: tom(f(iDung)), quen: tom(f(iQuen)), coKhungTrenToKhai: !!panel, khungMo: !!(panel && panel.open),
+                   dashboard: document.querySelectorAll('.dc-dash tr[data-mo-doc]').length,
+                   nhan: [...document.querySelectorAll('#list .tag-pl')].map(e => e.textContent).filter(t => /HĐ/.test(t)) }; })()'''
+           % (J([[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]), J(tk_dung), J(tk_quen)))
+    d, q = r['dung'], r['quen']
+    danh_gia('Đối chiếu: tờ khai đúng (tháng 10/2026) → KHỚP mọi chỉ tiêu, phụ lục, công thức',
+             d['trangThai'] == 'khop' and d['mua'] == 2 and d['ban'] == 4 and d['plSai'] == 0 and d['soPl'] == 2 and d['noiBoSai'] == 0 and d['soNoiBo'] >= 10, J(d, ensure_ascii=False))
+    danh_gia(f'Đối chiếu: tờ khai quên 1 HĐ bán ra → LỆCH [32]–[35], chỉ đích danh HĐ {so_quen}',
+             q['trangThai'] == 'lech' and {'[32]', '[33]', '[34]', '[35]'} <= set(q['lech']) and any(so_quen in g and 'chưa kê' in g for g in q['goiY']), J(q, ensure_ascii=False))
+    danh_gia('Đối chiếu: khung trên tờ khai (tự mở khi lệch), bảng trên Dashboard, nhãn KHỚP/LỆCH ở danh sách',
+             r['coKhungTrenToKhai'] and r['khungMo'] and r['dashboard'] == 2 and 'KHỚP HĐ' in r['nhan'] and any(t.startswith('LỆCH HĐ') for t in r['nhan']), J(r['nhan'] + [r['dashboard']], ensure_ascii=False))
+
+    # Dữ liệu thật (thư mục HD-TK chỉ có trên máy anh, không đưa lên git): quý 3/2026 + giấy nộp tiền + zip hoá đơn
+    that = os.path.join(APP, 'HD-TK')
+    if not os.path.isdir(that):
+        print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
+        return
+    tep = [os.path.join(that, f) for f in sorted(os.listdir(that)) if f.lower().endswith(('.xml', '.zip'))]
+    ev('location.reload(); true'); time.sleep(1.5)
+    for _ in range(40):
+        try:
+            if ev('!!window.__xemXmlThue && !!window.DOI_CHIEU') is True:
+                break
+        except Exception:
+            pass
+        time.sleep(0.3)
+    r = ev('''(async () => { const A = window.__xemXmlThue;
+          const files = %s.map(([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); });
+          await A.addFiles(files);
+          return window.DOI_CHIEU.tinh(A.docs).map(k => ({ ky: k.tk.kyTen, trangThai: k.trangThai, mua: k.soMua, ban: k.soBan, soLech: k.soLech,
+             daNop: k.daNop && k.daNop.khop, dong: k.dong.filter(r => r.toKhai || r.hoaDon).map(r => r.ma + (r.khop ? '✔' : '✖')).join(' ') })); })()'''
+           % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
+    danh_gia('Đối chiếu dữ liệu thật HD-TK: mọi tờ khai khớp hoá đơn và đã nộp đủ [40]',
+             bool(r) and all(k['trangThai'] == 'khop' and k['daNop'] for k in r), J(r, ensure_ascii=False))
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -254,6 +371,8 @@ def main():
                        cwd=thu, capture_output=True, input='\n', text=True, timeout=60)
         con = sorted(os.listdir(thu))
         danh_gia('A5: chạy thật bằng PowerShell 5.1 → tệp tên có dấu được đổi', ten1 not in con and len(con) == 2, J(con, ensure_ascii=False))
+
+        kiem_doi_chieu(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

@@ -303,6 +303,33 @@
   html.dark .itax-tabs button:hover { background: #334155; color: #f1f5f9; }
   html.dark .itax-tabs button.on { background: #38bdf8; border-color: #38bdf8; color: #0f172a; }
   html.dark .itax-tabs { border-bottom-color: #38bdf8; }
+  /* Đối chiếu tờ khai 01/GTGT ↔ hoá đơn */
+  .dc-panel { max-width: 1000px; margin: 0 auto 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; }
+  .dc-panel > summary { cursor: pointer; padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; list-style: none; }
+  .dc-panel > summary::-webkit-details-marker { display: none; }
+  .dc-panel > summary::before { content: '▸'; color: var(--muted); }
+  .dc-panel[open] > summary::before { content: '▾'; }
+  .dc-body { padding: 0 14px 12px; }
+  .dc-chip { display: inline-block; padding: 2px 9px; border-radius: 99px; font-weight: 700; font-size: 12px; white-space: nowrap; }
+  .dc-chip.khop { background: #dcfce7; color: #166534; }
+  .dc-chip.lech { background: #fee2e2; color: #b91c1c; }
+  .dc-chip.chuaCoHD { background: #e2e8f0; color: #334155; }
+  .dc-tbl { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 12.5px; }
+  .dc-tbl th, .dc-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .dc-tbl th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .dc-tbl td.so { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dc-tbl tr.lech td { background: #fef2f2; }
+  .dc-goiy { margin: 2px 0 0; font-size: 12px; color: #9a3412; }
+  .dc-goiy a, .dc-mo { color: #0369a1; cursor: pointer; text-decoration: underline; }
+  .dc-h { margin: 10px 0 4px; font-size: 13px; font-weight: 700; }
+  .dc-ghichu { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .dc-dash { margin: 0 0 16px; }
+  html.dark .dc-chip.khop { background: #14532d; color: #bbf7d0; }
+  html.dark .dc-chip.lech { background: #450a0a; color: #fecaca; }
+  html.dark .dc-chip.chuaCoHD { background: #334155; color: #e2e8f0; }
+  html.dark .dc-tbl tr.lech td { background: #3b1219; }
+  html.dark .dc-goiy { color: #fdba74; }
+  html.dark .dc-goiy a, html.dark .dc-mo { color: #7dd3fc; }
   .itax-cho .load-spinner { border-color: #cbd5e1; border-top-color: #1f3a52; }
   .itax-cho { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 80px 20px; color: var(--muted); font-size: 14px; }
   .itax-wrap { overflow-x: auto; padding-bottom: 4px; }
@@ -483,7 +510,7 @@
       margin: 0 !important;
       padding: 0 !important;
     }
-    aside, .bar, .top-strip, .notes, details.ttfile, dialog, .tabs, .itax-tabs, #loadProgress, .btn-xuat-excel, .filter-pills, .folder-filter-bar {
+    aside, .bar, .top-strip, .notes, details.ttfile, dialog, .tabs, .itax-tabs, .dc-panel, .dc-dash, #loadProgress, .btn-xuat-excel, .filter-pills, .folder-filter-bar {
       display: none !important;
     }
     .right {
@@ -1084,6 +1111,7 @@
 <script src="jszip.min.js"></script>
 <script src="xuat-excel.js"></script>
 <script src="nganh-doc.js"></script>
+<script src="doi-chieu.js"></script>
 <script src="dashboard-dong.js"></script>
 <script src="phien-ban.js"></script>
 <script>
@@ -3150,7 +3178,7 @@
       fTitle = selectedFolder.split('/').pop();
     }
     if (window.DASHBOARD_DONG) {
-      $('main').innerHTML = window.DASHBOARD_DONG.renderExecutiveDashboard(fDocs, fTitle, selectedFolder);
+      $('main').innerHTML = khoiDoiChieuDashboard(fDocs) + window.DASHBOARD_DONG.renderExecutiveDashboard(fDocs, fTitle, selectedFolder);
       $('main').scrollTop = 0;
     }
     renderList();
@@ -3314,6 +3342,10 @@
         ? (d.phanLoai === 'ban' ? '<span class="tag-pl ban">BÁN RA</span>' : d.phanLoai === 'mua' ? '<span class="tag-pl mua">MUA VÀO</span>' : '')
         : '';
       const dupTag = (d.kind === 'hd' && d.isDuplicate) ? `<span class="tag-pl dup" title="Phát hiện ${d.dupCount} bản trùng lặp">TRÙNG (${d.dupCount})</span>` : '';
+      const dcK = d.kind === 'tk' && window.DOI_CHIEU && window.DOI_CHIEU.laToKhaiGTGT(d) ? window.DOI_CHIEU.choToKhai(docs, d) : null;
+      const dcTag = !dcK || dcK.trangThai === 'chuaCoHD' ? ''
+        : dcK.trangThai === 'khop' ? '<span class="tag-pl ban" title="Tờ khai khớp với hoá đơn đã nạp">KHỚP HĐ</span>'
+        : `<span class="tag-pl dup" title="Tờ khai lệch ${dcK.soLech} điểm so với hoá đơn / công thức">LỆCH HĐ (${dcK.soLech})</span>`;
 
       return `<div class="item ${i === selected ? 'sel' : ''}" data-i="${i}">
         <div class="l1">
@@ -3324,7 +3356,7 @@
           </span>
         </div>
         <div class="l2">${esc([d.ky || date(d.ngay), right, d.ten || d.mst].filter(Boolean).join(' · '))}</div>
-        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}${dupTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
+        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}${dupTag}${dcTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
     }).join('');
 
     if (!curDocs.length) { $('summary').textContent = 'Chưa có file nào.'; return; }
@@ -3396,6 +3428,63 @@
     });
   });
 
+  // ---------- Đối chiếu tờ khai 01/GTGT ↔ hoá đơn + giấy nộp tiền (doi-chieu.js) ----------
+  const CHIP_DC = { khop: '✔ Khớp hoá đơn', lech: '✖ Lệch', chuaCoHD: 'ⓘ Chưa nạp hoá đơn kỳ này' };
+  const chipDoiChieu = k => `<span class="dc-chip ${k.trangThai}">${CHIP_DC[k.trangThai]}${k.trangThai === 'lech' ? ` ${k.soLech} điểm` : ''}</span>`;
+  const moDoc = (idx, chu) => idx >= 0 ? `<a class="dc-mo" data-mo-doc="${idx}">${esc(chu)}</a>` : esc(chu);
+  function khoiDoiChieu(d) {
+    if (!window.DOI_CHIEU || !window.DOI_CHIEU.laToKhaiGTGT(d)) return '';
+    const k = window.DOI_CHIEU.choToKhai(docs, d);
+    if (!k) return '';
+    const tk = k.tk, so = v => money(Math.round(v || 0)) || '0';
+    let body = '';
+    if (k.trangThai === 'chuaCoHD') {
+      body = `<div class="dc-ghichu">Chưa thấy hoá đơn nào của MST <b>${esc(tk.mst)}</b> lập trong ${esc(tk.kyTen)} (${esc(tk.tu)} → ${esc(tk.den)}). Kéo thư mục hoá đơn mua vào / bán ra của kỳ này vào app để đối chiếu.</div>`;
+    } else {
+      const dong = k.dong.filter(r => r.toKhai || r.hoaDon || !r.khop);
+      body += `<table class="dc-tbl"><thead><tr><th>Chỉ tiêu</th><th class="so">Trên tờ khai</th><th class="so">Cộng từ hoá đơn</th><th class="so">Lệch</th><th></th></tr></thead><tbody>
+        ${dong.map(r => `<tr class="${r.khop ? '' : 'lech'}"><td><b>${r.ma}</b> ${esc(r.ten)}${r.goiY.map(g => `<div class="dc-goiy">→ ${g.idx >= 0 ? moDoc(g.idx, g.text) : esc(g.text)}</div>`).join('')}</td>
+          <td class="so">${so(r.toKhai)}</td><td class="so">${so(r.hoaDon)}</td><td class="so">${r.lech ? so(r.lech) : ''}</td><td>${r.khop ? '✔' : '✖'}</td></tr>`).join('')}
+      </tbody></table>`;
+      if (k.phuLuc.length) {
+        body += `<div class="dc-h">Phụ lục giảm thuế GTGT (hàng 8%) — theo từng đối tác</div>
+        <table class="dc-tbl"><thead><tr><th>Đối tác</th><th class="so">Giá trị trên PL</th><th class="so">Giá trị trên HĐ</th><th class="so">Thuế trên PL</th><th class="so">Thuế theo HĐ</th><th></th></tr></thead><tbody>
+          ${k.phuLuc.map(r => `<tr class="${r.khop ? '' : 'lech'}"><td>${r.ben === 'mua' ? 'Mua của' : 'Bán cho'} <b>${esc(r.ten)}</b>${r.ghiChu ? `<div class="dc-goiy">→ ${esc(r.ghiChu)}</div>` : ''}${!r.khop && r.hd.length ? `<div class="dc-goiy">→ Hoá đơn: ${r.hd.slice(0, 8).map(i => moDoc(i, docs[i].kyHieu + '-' + docs[i].so)).join(', ')}</div>` : ''}</td>
+            <td class="so">${so(r.toKhai)}</td><td class="so">${so(r.hoaDon)}</td><td class="so">${so(r.thueToKhai)}</td><td class="so">${so(r.thueHoaDon)}</td><td>${r.khop ? '✔' : '✖'}</td></tr>`).join('')}
+        </tbody></table>`;
+      }
+    }
+    const saiNoiBo = k.noiBo.filter(r => !r.khop);
+    body += `<div class="dc-h">Số học trong tờ khai</div>` + (saiNoiBo.length
+      ? saiNoiBo.map(r => `<div class="dc-goiy">✖ ${esc(r.bt)}: tờ khai ghi ${so(r.trai)}, tính ra ${so(r.phai)}</div>`).join('')
+      : `<div>✔ Đúng cả ${k.noiBo.length} công thức (${esc(k.noiBo.map(r => r.bt.split(' =')[0]).join(', '))}).</div>`);
+    if (k.dauKy) body += `<div class="dc-h">Đầu kỳ – cuối kỳ</div><div class="${k.dauKy.khop ? '' : 'dc-goiy'}">${k.dauKy.khop ? '✔' : '✖'} [22] kỳ này = ${so(k.dauKy.ct22)} · [43] tờ khai lần đầu ${moDoc(k.dauKy.idx, k.dauKy.ky)} = ${so(k.dauKy.ct43Truoc)}${k.dauKy.khop ? '' : ' — cơ quan thuế sẽ không chấp nhận khi [22] khác [43] kỳ trước'}</div>`;
+    if (k.daNop) body += `<div class="dc-h">Nộp thuế</div><div class="${k.daNop.khop ? '' : 'dc-goiy'}">${k.daNop.khop ? '✔' : '✖'} Phải nộp [40] = ${so(k.daNop.phaiNop)} · Đã nộp (tiểu mục 1701, ${esc(tk.kyTen)}) = ${so(k.daNop.daNop)} theo ${k.daNop.chungTu.map(c => moDoc(c.idx, 'chứng từ ' + c.so + ' ngày ' + c.ngay)).join(', ')}</div>`;
+    body += `<div class="dc-ghichu">Lệch chưa chắc là sai: hoá đơn có thể được kê ở kỳ sau, hoá đơn không đủ điều kiện khấu trừ bị loại, hoặc thư mục còn thiếu tệp. App chỉ chỉ ra chỗ lệch và hoá đơn nghi ngờ — kế toán quyết định.</div>`;
+    return `<details class="dc-panel"${k.trangThai === 'khop' ? '' : ' open'}><summary><b>🔎 Đối chiếu với hoá đơn đã nạp</b> ${chipDoiChieu(k)}
+      <span style="color:var(--muted)">${esc(tk.kyTen)} · MST ${esc(tk.mst)} · ${k.soMua} HĐ mua vào, ${k.soBan} HĐ bán ra${tk.lanDau ? '' : ` · tờ khai bổ sung lần ${tk.soLan}`}</span></summary>
+      <div class="dc-body">${body}</div></details>`;
+  }
+  function khoiDoiChieuDashboard(dsTrongThuMuc) {
+    if (!window.DOI_CHIEU) return '';
+    const kq = window.DOI_CHIEU.tinh(docs).filter(k => dsTrongThuMuc.includes(docs[k.tkIdx]));
+    if (!kq.length) return '';
+    const so = v => money(Math.round(v || 0)) || '0';
+    return `<div class="dash-box dc-dash"><h3>🔎 Đối chiếu tờ khai 01/GTGT ↔ hoá đơn (${kq.length} tờ khai)</h3>
+      <table class="dash-tbl"><thead><tr><th>Người nộp thuế</th><th>MST</th><th>Kỳ</th><th>HĐ mua / bán</th><th>Phải nộp [40]</th><th>Kết quả</th></tr></thead><tbody>
+      ${kq.map(k => `<tr class="dash-doc-click" data-mo-doc="${k.tkIdx}" style="cursor:pointer"><td><b>${esc(k.tk.ten || docs[k.tkIdx].ten || '')}</b></td><td>${esc(k.tk.mst)}</td>
+        <td>${esc(k.tk.kyTen)}${k.tk.lanDau ? '' : ` (bổ sung ${k.tk.soLan})`}</td><td>${k.soMua} / ${k.soBan}</td><td>${so(k.tk.ct.ct40)}${k.daNop ? (k.daNop.khop ? ' ✔ đã nộp đủ' : ` ✖ đã nộp ${so(k.daNop.daNop)}`) : ''}</td><td>${chipDoiChieu(k)}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  // Bấm tên hoá đơn / chứng từ / tờ khai trong khung đối chiếu thì mở tài liệu đó
+  $('main').addEventListener('click', e => {
+    const a = e.target.closest('[data-mo-doc]');
+    if (!a) return;
+    e.preventDefault(); e.stopPropagation();
+    const i = Number(a.dataset.moDoc);
+    if (i >= 0 && i < docs.length) select(i);
+  }, true);
+
   // Tờ khai theo mẫu iTax có khổ cố định (dọc 920px, ngang 1262px): khung hẹp hơn thì co cả tờ cho vừa, không bị cắt mép
   function vuaKhungBieu() {
     const main = $('main');
@@ -3442,6 +3531,7 @@
           </div>
         </div>
         ${info.length ? `<div class="notes" style="max-width:920px"><details class="ttfile"><summary>Thông tin file (mã mẫu, loại tờ khai, phần mềm lập…)</summary><div class="kv">${info.map(r => `<span>${esc(r[0])}</span><span>${esc(r[1])}</span>`).join('')}</div></details></div>` : ''}
+        ${khoiDoiChieu(d)}
         ${shBar}
         <div class="itax-wrap">
           ${bieuVe}
@@ -3471,6 +3561,7 @@
           <button class="primary" id="printBtn">In / Lưu PDF</button>
         </div>
       </div>
+      ${khoiDoiChieu(d)}
       <div class="notes">${notes.map(n => `<div class="note ${n[0]}">${esc(n[1])}</div>`).join('')}
         ${d.coKhung && info.length ? `<details class="ttfile"><summary>Thông tin file (mã mẫu, loại tờ khai, phần mềm lập…)</summary><div class="kv">${info.map(r => `<span>${esc(r[0])}</span><span>${esc(r[1])}</span>`).join('')}</div></details>` : ''}</div>
       <div class="paper">

@@ -1524,6 +1524,35 @@
       });
     }
 
+    // Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền (doi-chieu.js)
+    const dsDoiChieu = window.DOI_CHIEU ? window.DOI_CHIEU.tinh(docs) : [];
+    if (dsDoiChieu.length) {
+      const KQ = { khop: 'Khớp', lech: 'LỆCH', chuaCoHD: 'Chưa nạp HĐ kỳ này' };
+      const dcRows = [];
+      const them = (k, muc, ten, toKhai, hoaDon, khop, ghiChu) => dcRows.push([
+        dcRows.length + 1, k.tk.ten || '', { text: k.tk.mst, isCenter: true }, { text: k.tk.kyTen, isCenter: true },
+        { text: k.tk.lanDau ? 'Lần đầu' : 'Bổ sung ' + k.tk.soLan, isCenter: true }, muc, ten,
+        toKhai == null ? '' : Math.round(toKhai), hoaDon == null ? '' : Math.round(hoaDon),
+        toKhai == null || hoaDon == null ? '' : Math.round(toKhai - hoaDon),
+        { text: khop ? 'Khớp' : 'LỆCH', isCenter: true, isBold: !khop }, ghiChu || ''
+      ]);
+      dsDoiChieu.forEach(k => {
+        them(k, 'Tổng hợp', `${k.soMua} HĐ mua vào, ${k.soBan} HĐ bán ra trong kỳ`, null, null, k.trangThai !== 'lech', KQ[k.trangThai] + (k.soLech ? ` (${k.soLech} điểm lệch)` : ''));
+        k.dong.filter(r => r.toKhai || r.hoaDon || !r.khop).forEach(r => them(k, 'Chỉ tiêu', `${r.ma} ${r.ten}`, r.toKhai, r.hoaDon, r.khop, r.goiY.map(g => g.text).join(' | ')));
+        k.phuLuc.forEach(r => them(k, r.ben === 'mua' ? 'PL giảm thuế - mua vào' : 'PL giảm thuế - bán ra', r.ten, r.toKhai, r.hoaDon, r.khop,
+          (r.ghiChu ? r.ghiChu + ' | ' : '') + `Thuế trên PL ${Math.round(r.thueToKhai).toLocaleString('vi-VN')} / theo HĐ ${Math.round(r.thueHoaDon).toLocaleString('vi-VN')}`));
+        k.noiBo.filter(r => !r.khop).forEach(r => them(k, 'Số học tờ khai', r.bt, r.trai, r.phai, false, 'Tờ khai ghi khác với công thức'));
+        if (k.dauKy) them(k, 'Đầu kỳ – cuối kỳ', `[22] kỳ này / [43] lần đầu ${k.dauKy.ky}`, k.dauKy.ct22, k.dauKy.ct43Truoc, k.dauKy.khop, '');
+        if (k.daNop) them(k, 'Nộp thuế', '[40] phải nộp / đã nộp (tiểu mục 1701)', k.daNop.phaiNop, k.daNop.daNop, k.daNop.khop, k.daNop.chungTu.map(c => 'CT ' + c.so + ' ngày ' + c.ngay).join(', '));
+      });
+      sheets.push({
+        name: 'Đối chiếu tờ khai GTGT',
+        cols: [{ width: 6 }, { width: 34 }, { width: 13 }, { width: 13 }, { width: 11 }, { width: 20 }, { width: 46 }, { width: 16 }, { width: 16 }, { width: 14 }, { width: 10 }, { width: 70 }],
+        headers: ['STT', 'Người nộp thuế', 'MST', 'Kỳ', 'Lần khai', 'Mục', 'Chỉ tiêu / Đối tác', 'Trên tờ khai', 'Cộng từ hoá đơn / Tính ra', 'Lệch', 'Kết quả', 'Gợi ý / Ghi chú'],
+        rows: dcRows
+      });
+    }
+
     // Tạo file XLSX
     try {
       const blob = await buildXlsx(sheets);
