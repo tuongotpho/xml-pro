@@ -152,8 +152,19 @@
     trangThaiMo.set(path, !cur);
   }
 
-  function nhomNganh(kind) {
-    if (kind === 'tk' || kind === 'ct' || kind === 'tb' || kind === 'nhap') return 'hd';
+  // Tờ khai HTKK chia ngành theo MÃ MẪU, không gộp hết vào "Hoá đơn & GTGT":
+  // 05/KK-TNCN, 05/QTT-TNCN… là việc nhân sự; tờ khai GTGT đi với hoá đơn; BCTC, TNDN… không thuộc ngành nào có Dashboard riêng.
+  const MA_TK_GTGT = ['842', '01', '844', '02', '846', '04', '847', '07', '850', '53', '132'];
+  function loaiToKhai(d) {
+    const ten = String(d.title || d.tenTKhai || '');
+    if (/TNCN/i.test(ten)) return 'tncn';
+    if (MA_TK_GTGT.includes(String(d.mtk || '')) || /GTGT/i.test(ten)) return 'gtgt';
+    return 'khac';
+  }
+  function nhomNganh(d) {
+    const kind = d.kind;
+    if (kind === 'tk') { const l = loaiToKhai(d); return l === 'tncn' ? 'nhansu' : l === 'gtgt' ? 'hd' : 'khac'; }
+    if (kind === 'ct' || kind === 'tb' || kind === 'nhap') return 'hd';
     if (kind === 'tncn' || kind === 'bhxh') return 'nhansu';
     if (DOMAIN_INFO[kind]) return kind;
     return 'khac';
@@ -163,7 +174,7 @@
     const counts = {};
     for (const d of folderDocs || []) {
       if (!d || d.error) continue;
-      const k = nhomNganh(d.kind);
+      const k = nhomNganh(d);
       counts[k] = (counts[k] || 0) + 1;
     }
     return counts;
@@ -837,6 +848,30 @@
       }
     });
 
+    const coBhxh = docs.some(d => d.kind === 'bhxh') || !docs.some(d => d.kind === 'tncn' || d.kind === 'tk');
+    // Tờ khai 05/KK-TNCN: mỗi MST + kỳ chỉ lấy bản có số lần bổ sung cao nhất (bản bổ sung thay thế bản trước, không cộng dồn)
+    const DC = window.DOI_CHIEU;
+    const tkMoi = new Map();
+    if (DC) docs.forEach(d => {
+      if (d.kind !== 'tk' || !d.rawXml || !/05\/KK-TNCN/i.test(d.title || '')) return;
+      let t; try { t = DC.docToKhai(d); } catch (e) { return; }
+      const k = t.mst + '|' + t.kyTen, co = tkMoi.get(k);
+      if (!co || t.soLan > co.t.soLan) tkMoi.set(k, { d, t });
+    });
+    const dsTk = [...tkMoi.values()].sort((a, b) => (a.t.mst).localeCompare(b.t.mst) || (a.t.tu || '').localeCompare(b.t.tu || ''));
+    const tkCong = k => dsTk.reduce((s, x) => s + (Number(x.t.ct[k]) || 0), 0);
+    const bangTk = dsTk.length ? `
+        <div class="dash-section">
+          <h3>📋 Tờ khai khấu trừ thuế TNCN 05/KK-TNCN (${dsTk.length} kỳ${tkMoi.size < docs.filter(d => d.kind === 'tk' && /05\/KK-TNCN/i.test(d.title || '')).length ? ' — kỳ có nhiều lần khai chỉ tính bản bổ sung mới nhất' : ''})</h3>
+          <table class="dash-tbl">
+            <thead><tr><th>Kỳ</th><th>Doanh nghiệp</th><th>Lần</th><th style="text-align:right">Lao động [16]</th><th style="text-align:right">Thu nhập chịu thuế [21]</th><th style="text-align:right">Thuế đã khấu trừ [29]</th></tr></thead>
+            <tbody>${dsTk.map(({ d, t }) => `<tr data-mo-doc="${(window.__xemXmlThue?.docs || []).indexOf(d)}" style="cursor:pointer" title="Mở tờ khai"><td>${esc(t.kyTen)}</td><td>${esc(t.ten)}<div style="color:var(--muted);font-size:11px">${esc(t.mst)}</div></td><td>${t.lanDau ? 'Lần đầu' : 'Bổ sung ' + t.soLan}</td>
+              <td style="text-align:right">${money(t.ct.ct16 || 0) || 0}</td><td style="text-align:right">${money(t.ct.ct21 || 0) || 0}</td><td style="text-align:right"><b>${money(t.ct.ct29 || 0) || 0}</b></td></tr>`).join('')}
+              <tr style="font-weight:700"><td colspan="4">Cộng</td><td style="text-align:right">${money(tkCong('ct21')) || 0}</td><td style="text-align:right">${money(tkCong('ct29')) || 0}</td></tr>
+            </tbody>
+          </table>
+        </div>` : '';
+
     return `
       <div class="dash-exec">
         <div class="dash-header nhansu">
@@ -852,7 +887,7 @@
         </div>
 
         <div class="kpi-grid">
-          <div class="kpi-card bhxh">
+          ${coBhxh ? `<div class="kpi-card bhxh">
             <div class="kpi-title">👨‍💼 LAO ĐỘNG THAM GIA BHXH</div>
             <div class="kpi-val">${tongLaoDong} <small>người</small></div>
             <div class="kpi-sub">Quỹ lương đóng: <b>${money(tongQuyLuong)} đ</b></div>
@@ -861,8 +896,8 @@
             <div class="kpi-title">🏛️ NGHĨA VỤ NỘP BHXH (32%)</div>
             <div class="kpi-val">${money(tongTienBhxh)} <small>đ</small></div>
             <div class="kpi-sub">BHXH + BHYT + BHTN bắt buộc</div>
-          </div>
-          <div class="kpi-card tncn">
+          </div>` : ''}
+          ${soChungTuTncn || !dsTk.length ? `<div class="kpi-card tncn">
             <div class="kpi-title">🧾 THU NHẬP CHỊU THUẾ TNCN (${soChungTuTncn} người)</div>
             <div class="kpi-val">${money(tongThuNhapTncn)} <small>đ</small></div>
             <div class="kpi-sub">Tổng thu nhập chi trả theo chứng từ</div>
@@ -871,8 +906,14 @@
             <div class="kpi-title">💸 THUẾ TNCN ĐÃ KHẤU TRỪ</div>
             <div class="kpi-val">${money(tongThueTncn)} <small>đ</small></div>
             <div class="kpi-sub">Đã khấu trừ nộp vào Ngân sách Nhà nước</div>
-          </div>
+          </div>` : ''}
+          ${dsTk.length ? `<div class="kpi-card tncn">
+            <div class="kpi-title">📋 THEO TỜ KHAI 05/KK-TNCN (${dsTk.length} kỳ)</div>
+            <div class="kpi-val">${money(tkCong('ct29')) || 0} <small>đ thuế đã khấu trừ</small></div>
+            <div class="kpi-sub">Thu nhập chịu thuế [21]: <b>${money(tkCong('ct21')) || 0} đ</b></div>
+          </div>` : ''}
         </div>
+        ${bangTk}
       </div>
     `;
   }

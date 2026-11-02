@@ -28,13 +28,16 @@
   const theo = (el, ten) => el ? Array.from(el.getElementsByTagNameNS('*', ten)) : [];
   const chu = (el, ten) => { const e = theo(el, ten)[0]; return e ? e.textContent.trim() : ''; };
 
-  /** Tờ khai 01/GTGT (khấu trừ): có các chỉ tiêu [23] và [32] trong phần chính */
+  const MA_01_GTGT = ['842', '01'];
+  /** Tờ khai 01/GTGT (khấu trừ): đúng mã mẫu và có các chỉ tiêu [23], [32] trong phần chính */
   function laToKhaiGTGT(d) {
     if (!d || d.kind !== 'tk' || !d.rawXml) return false;
     if (d._laGTGT !== undefined) return d._laGTGT;
     const x = docXml(d);
+    // Nhận theo mã mẫu: 842 = 01/GTGT TT80, 01 = 01/GTGT TT156/TT26. Không đoán theo tên ô — 05/KK-TNCN (864) cũng có ct23, ct32.
+    const tk = x && theo(x, 'TKhaiThue')[0];
     const chinh = x && theo(x, 'CTieuTKhaiChinh')[0];
-    return (d._laGTGT = !!(chinh && theo(chinh, 'ct23').length && theo(chinh, 'ct32').length));
+    return (d._laGTGT = !!(tk && MA_01_GTGT.includes(chu(tk, 'maTKhai')) && chinh && theo(chinh, 'ct23').length && theo(chinh, 'ct32').length));
   }
 
   function docToKhai(d) {

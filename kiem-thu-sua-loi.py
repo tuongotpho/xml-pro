@@ -350,6 +350,45 @@ def kiem_dashboard(ev, J, hd):
              dat, J(r, ensure_ascii=False)[:700] + f" | mong: bán {fmt(oracle['banV'])}, mua {fmt(oracle['muaV'])}, thuế vào {fmt(oracle['muaT'])}")
 
 
+def to_khai_tncn(quy, so_lan, ct16, ct21, ct29):
+    """Tờ khai 05/KK-TNCN (mã 864) tối giản. Cố ý có ct23 và ct32 như mẫu thật — trùng tên ô với 01/GTGT."""
+    ct = {'ct16': ct16, 'ct17': ct16, 'ct21': ct21, 'ct22': ct21, 'ct23': 0, 'ct26': ct21, 'ct29': ct29, 'ct30': ct29, 'ct31': 0, 'ct32': 0}
+    t0, t1 = (quy - 1) * 3 + 1, quy * 3
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<HSoThueDTu xmlns="http://kekhaithue.gdt.gov.vn/TKhaiThue"><HSoKhaiThue id="ID_1"><TTinChung><TTinTKhaiThue><TKhaiThue>
+<maTKhai>864</maTKhai><tenTKhai>TK khấu trừ thuế thu nhập cá nhân Mẫu 05/KK-TNCN (TT80/2021)</tenTKhai><pbanTKhaiXML>2.9.3</pbanTKhaiXML>
+<loaiTKhai>{'B' if so_lan else 'C'}</loaiTKhai><soLan>{so_lan}</soLan>
+<KyKKhaiThue><kieuKy>Q</kieuKy><kyKKhai>{quy}/2026</kyKKhai><kyKKhaiTuNgay>01/{t0:02d}/2026</kyKKhaiTuNgay><kyKKhaiDenNgay>28/{t1:02d}/2026</kyKKhaiDenNgay></KyKKhaiThue>
+</TKhaiThue><NNT><mst>0100000001</mst><tenNNT>Công ty thử TNCN</tenNNT></NNT></TTinTKhaiThue></TTinChung>
+<CTieuTKhaiChinh>{''.join(f'<{k}>{v}</{k}>' for k, v in ct.items())}</CTieuTKhaiChinh><PLuc/></HSoKhaiThue></HSoThueDTu>"""
+
+
+def kiem_tncn(ev, J, hd):
+    print('=== 8. Tờ khai 05/KK-TNCN không bị nhận nhầm thành tờ khai GTGT / ngành hoá đơn ===')
+    nap_lai_trang(ev)
+    tk = [['tncn-q1-L00.xml', to_khai_tncn(1, 0, 4, 60000000, 500000)], ['tncn-q1-L01.xml', to_khai_tncn(1, 1, 5, 75000000, 700000)],
+          ['tncn-q2-L00.xml', to_khai_tncn(2, 0, 5, 75000000, 800000)]]
+    r = ev("""(async () => { const A = window.__xemXmlThue;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'tncn/' + ten);
+          const gtgt = A.docs.map(d => window.DOI_CHIEU.laToKhaiGTGT(d));
+          A.select(0); A.setSelectedFolder('tncn'); A.moDashboard(); await new Promise(r => setTimeout(r, 400));
+          return { gtgt, nganh: window.DASHBOARD_DONG.detectDominantDomain(A.docs), chu: document.getElementById('main').innerText }; })()""" % J(tk))
+    dat = (r['gtgt'] == [False, False, False] and r['nganh'] == 'nhansu' and 'NHÂN SỰ, BHXH & THUẾ TNCN' in r['chu'].upper()
+           and 'HÓA ĐƠN & THUẾ GTGT' not in r['chu'].upper() and 'Bổ sung 1' in r['chu'] and '1.500.000' in r['chu'] and '150.000.000' in r['chu'])
+    danh_gia('05/KK-TNCN: không phải tờ khai GTGT, thư mục ra Dashboard "Nhân sự & Thuế TNCN", mỗi kỳ chỉ tính bản bổ sung mới nhất (thuế 700.000 + 800.000)',
+             dat, J({'gtgt': r['gtgt'], 'nganh': r['nganh']}) + ' | ' + r['chu'][:300].replace(chr(10), ' / '))
+    # Trộn với hoá đơn: Dashboard kế toán không được có thẻ kỳ nào do tờ khai TNCN sinh ra
+    nap_lai_trang(ev)
+    r = ev("""(async () => { const A = window.__xemXmlThue;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'tron/' + ten);
+          A.select(-2); await new Promise(r => setTimeout(r, 400));
+          return { the: [...document.querySelectorAll('.ktt-ky .ktt-tren')].map(e => e.innerText.split(String.fromCharCode(10)).join(' | ')),
+                   cty: [...document.querySelectorAll('[data-cty]')].map(e => e.dataset.cty) }; })()"""
+           % J(tk + [[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]))
+    danh_gia('Thư mục trộn hoá đơn + 05/KK-TNCN: Dashboard kế toán không lấy tờ khai TNCN làm tờ khai GTGT',
+             not any('2026' in t and 'Quý 1' in t for t in r['the']) and '0100000001' not in r['cty'], J(r, ensure_ascii=False))
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -530,6 +569,7 @@ def main():
         kiem_doi_chieu(ev, J, hd)
         kiem_lap_to_khai(ev, J, hd)
         kiem_dashboard(ev, J, hd)
+        kiem_tncn(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)
