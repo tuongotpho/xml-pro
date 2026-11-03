@@ -8,7 +8,7 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("XML-Pro")]
 [assembly: AssemblyProduct("XML-Pro")]
-[assembly: AssemblyDescription("Xem và xử lý 8 hệ sinh thái chứng từ điện tử Việt Nam (XML)")]
+[assembly: AssemblyDescription("Đọc XML hoá đơn điện tử, tờ khai thuế; đối chiếu và lập tờ khai GTGT, 01/CNKD")]
 [assembly: AssemblyCompany("August87")]
 [assembly: AssemblyCopyright("(C) August87 - 0982722036")]
 // Số phiên bản nằm ở PhienBan.cs — do dong-goi.ps1 tự tạo, tự tăng mỗi lần đóng gói.
@@ -27,6 +27,27 @@ static class Chung
     {
         get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\XemXmlThue"); }
     }
+    /// <summary>Thư mục người dùng đã chọn ở lần cài trước (để cập nhật cài đè đúng chỗ); chưa có thì thư mục mặc định</summary>
+    public static string ThuMucCaiDaChon
+    {
+        get
+        {
+            try
+            {
+                using (var k = Registry.CurrentUser.OpenSubKey(KhoaApp))
+                {
+                    string t = k == null ? null : k.GetValue("ThuMucCai") as string;
+                    if (!string.IsNullOrEmpty(t)) return t;
+                }
+            }
+            catch { }
+            return ThuMucCai;
+        }
+    }
+    public static void GhiThuMucCai(string thuMuc)
+    {
+        using (var k = Registry.CurrentUser.CreateSubKey(KhoaApp)) k.SetValue("ThuMucCai", thuMuc);
+    }
     public static string ThuMucDuLieu
     {
         get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XemXmlThue"); }
@@ -40,7 +61,8 @@ static class Chung
         get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), TenApp + ".lnk"); }
     }
 
-    public static void DangKy(string exe)
+    /// <summary>chuotPhai = false: không thêm "Mở bằng XML-Pro" vào menu chuột phải tệp .xml và thư mục</summary>
+    public static void DangKy(string exe, bool chuotPhai)
     {
         string lenh = "\"" + exe + "\" \"%1\"";
         string bieuTuong = "\"" + exe + "\",0";
@@ -60,21 +82,11 @@ static class Chung
             using (var c = k.CreateSubKey(@"shell\open\command")) c.SetValue("", lenh);
             using (var s = k.CreateSubKey("SupportedTypes")) s.SetValue(".xml", "");
         }
-        // Mục chuột phải "Xem bằng Xem XML thuế" cho mọi tệp .xml
-        using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\SystemFileAssociations\.xml\shell\XemXmlThue"))
-        {
-            k.SetValue("", "Xem bằng " + TenApp);
-            k.SetValue("Icon", bieuTuong);
-            using (var c = k.CreateSubKey("command")) c.SetValue("", lenh);
-        }
-        // Chuột phải một thư mục (hoặc vùng trống trong thư mục) → "Mở bằng XML-Pro": nạp mọi .xml, .zip bên trong
-        foreach (string loai in new[] { @"Software\Classes\Directory\shell\XMLPro", @"Software\Classes\Directory\Background\shell\XMLPro" })
-            using (var k = Registry.CurrentUser.CreateSubKey(loai))
-            {
-                k.SetValue("", "Mở bằng " + TenApp);
-                k.SetValue("Icon", bieuTuong);
-                using (var c = k.CreateSubKey("command")) c.SetValue("", "\"" + exe + "\" \"" + (loai.Contains("Background") ? "%V" : "%1") + "\"");
-            }
+        // Mục chuột phải "Xem bằng XML-Pro" cho mọi tệp .xml và "Mở bằng XML-Pro" cho thư mục (người dùng tắt được khi cài)
+        XoaKhoa(@"Software\Classes\SystemFileAssociations\.xml\shell\XemXmlThue");
+        XoaKhoa(@"Software\Classes\Directory\shell\XMLPro");
+        XoaKhoa(@"Software\Classes\Directory\Background\shell\XMLPro");
+        if (chuotPhai) DangKyChuotPhai(exe, lenh, bieuTuong);
         // Để Windows liệt kê app trong Cài đặt > Ứng dụng mặc định
         using (var k = Registry.CurrentUser.CreateSubKey(KhoaApp + @"\Capabilities"))
         {
@@ -97,6 +109,24 @@ static class Chung
             k.SetValue("NoRepair", 1, RegistryValueKind.DWord);
         }
         BaoWindows();
+    }
+
+    static void DangKyChuotPhai(string exe, string lenh, string bieuTuong)
+    {
+        using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\SystemFileAssociations\.xml\shell\XemXmlThue"))
+        {
+            k.SetValue("", "Xem bằng " + TenApp);
+            k.SetValue("Icon", bieuTuong);
+            using (var c = k.CreateSubKey("command")) c.SetValue("", lenh);
+        }
+        // Chuột phải một thư mục (hoặc vùng trống trong thư mục) → "Mở bằng XML-Pro": nạp mọi .xml, .zip bên trong
+        foreach (string loai in new[] { @"Software\Classes\Directory\shell\XMLPro", @"Software\Classes\Directory\Background\shell\XMLPro" })
+            using (var k = Registry.CurrentUser.CreateSubKey(loai))
+            {
+                k.SetValue("", "Mở bằng " + TenApp);
+                k.SetValue("Icon", bieuTuong);
+                using (var c = k.CreateSubKey("command")) c.SetValue("", "\"" + exe + "\" \"" + (loai.Contains("Background") ? "%V" : "%1") + "\"");
+            }
     }
 
     public static void HuyDangKy()
