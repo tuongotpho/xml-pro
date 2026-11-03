@@ -122,6 +122,12 @@ def to_khai_gtgt(mst, ten, kieu, ky, tu_vn, den_vn, ct, pl_mua, pl_ban):
             '</HSoKhaiThue></HSoThueDTu>')
 
 
+def ky_vong_that(that):
+    """Số liệu mong đợi của dữ liệu thật nằm trong HD-TK/ky-vong.json (không đưa lên GitHub); không có thì bỏ qua."""
+    f = os.path.join(that, 'ky-vong.json')
+    return json.load(open(f, encoding='utf-8')) if os.path.isfile(f) else None
+
+
 def kiem_doi_chieu(ev, J, hd):
     print('=== 5. Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền (báo cáo 05) ===')
     ev('location.reload(); true')
@@ -342,11 +348,12 @@ def kiem_dashboard(ev, J, hd):
            % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
     fmt = lambda n: f'{n:,}'.replace(',', '.')
     the = {x.split(' :: ')[0]: x for x in r['the']}
-    q1 = the.get('Quý 1/2026 | Lệch thuế', '')
+    kv = (ky_vong_that(that) or {}).get('dashboard')
     dat = (r['banRa'] == fmt(oracle['banV']) and r['muaVao'] == fmt(oracle['muaV']) and r['thueVao'] == fmt(oracle['muaT'])
-           and 'đã bị thay thế bởi HĐ C26TKL-19' in q1 and 'Quý 3/2026 | Đã xong' in the and 'Quý 4/2026 | Chưa lập tờ khai' in the
-           and 'Quý 2/2026 | Cần xem lại' in the and f"{oracle['biThay']} hoá đơn bị thay thế đã loại" in r['phu'])
-    danh_gia('Dashboard mới với dữ liệu thật HD-TK: tổng khớp phép cộng độc lập (đã loại HĐ bị thay thế); quý 1 chỉ ra HĐ C26TKL-18 bị thay thế; quý 2/3/4 đúng trạng thái',
+           and f"{oracle['biThay']} hoá đơn bị thay thế đã loại" in r['phu'])
+    if kv:  # trạng thái từng kỳ và hoá đơn gây lệch: lấy từ ky-vong.json
+        dat = dat and kv['chu_trong_the_lech'] in the.get(kv['the_lech'], '') and all(x in the for x in kv['trang_thai_khac'])
+    danh_gia('Dashboard mới với dữ liệu thật HD-TK: tổng khớp phép cộng độc lập (đã loại HĐ bị thay thế)' + ('; kỳ lệch chỉ đúng hoá đơn gây lệch, các kỳ khác đúng trạng thái (ky-vong.json)' if kv else ' — không có ky-vong.json nên không kiểm trạng thái từng kỳ'),
              dat, J(r, ensure_ascii=False)[:700] + f" | mong: bán {fmt(oracle['banV'])}, mua {fmt(oracle['muaV'])}, thuế vào {fmt(oracle['muaT'])}")
 
 
@@ -443,21 +450,25 @@ def kiem_khbs(ev, J, hd):
     if not os.path.isdir(that):
         print('  [BỎ QUA] Không có thư mục HD-TK (dữ liệu thật) trên máy này')
         return
+    kv = (ky_vong_that(that) or {}).get('khbs')
+    if not kv:
+        print('  [BỎ QUA] Không có HD-TK/ky-vong.json (số liệu mong đợi của tờ khai bổ sung thật)')
+        return
     nap_lai_trang(ev)
     tep = [os.path.join(that, f) for f in sorted(os.listdir(that)) if f.lower().endswith(('.xml', '.zip'))]
     r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI, DC = window.DOI_CHIEU;
           const files = %s.map(([ten, b]) => { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new File([u], ten); });
           await A.addFiles(files);
-          const q1 = A.docs.find(d => DC.laToKhaiGTGT(d) && DC.docToKhai(d).quy === 1 && DC.docToKhai(d).nam === 2026);
+          const q1 = A.docs.find(d => DC.laToKhaiGTGT(d) && DC.docToKhai(d).quy === %d && DC.docToKhai(d).nam === %d);
           const kb = L.tinhKHBS(A.docs, q1, { ngayLap: '2026-11-03' });
-          const i = A.addText(L.xmlKHBS(kb, L.thongTinDN(A.docs, '2601102955')), 'q1-bs.xml', 'bs/q1-bs.xml');
+          const i = A.addText(L.xmlKHBS(kb, L.thongTinDN(A.docs, DC.docToKhai(q1).mst)), 'q1-bs.xml', 'bs/q1-bs.xml');
           return { dong: Object.fromEntries(kb.dong.map(r => [r.ma, [r.cu, r.moi]])), dPN: kb.dPhaiNop, dKT: kb.dKhauTru, dc: DC.choToKhai(A.docs, A.docs[i]).trangThai }; })()'''
-           % J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]))
+           % (J([[os.path.basename(f), base64.b64encode(open(f, 'rb').read()).decode()] for f in tep]), kv['quy'], kv['nam']))
     d = r['dong']
     hieu = lambda m: d.get(m, [0, 0])[0] - d.get(m, [0, 0])[1]
-    danh_gia('KHBS dữ liệu thật quý 1/2026: bỏ HĐ C26TKL-18 đã bị thay thế → [23] −89.656.000, [24] −7.172.480, [40] 0 → 401.941, [43] 6.770.539 → 0; bản bổ sung KHỚP hoá đơn',
-             hieu('[23]') == 89656000 and hieu('[24]') == 7172480 and d.get('[40]') == [0, 401941] and d.get('[43]') == [6770539, 0]
-             and r['dPN'] == 401941 and r['dKT'] == -6770539 and r['dc'] == 'khop', J(r, ensure_ascii=False))
+    danh_gia(f"KHBS dữ liệu thật quý {kv['quy']}/{kv['nam']}: [23], [24], [40], [43] đúng số mong đợi trong ky-vong.json; bản bổ sung KHỚP hoá đơn",
+             hieu('[23]') == kv['giam_23'] and hieu('[24]') == kv['giam_24'] and d.get('[40]') == kv['ct40'] and d.get('[43]') == kv['ct43']
+             and r['dPN'] == kv['ct40'][1] - kv['ct40'][0] and r['dKT'] == kv['ct43'][1] - kv['ct43'][0] and r['dc'] == 'khop', J(r, ensure_ascii=False))
 
 
 def kiem_04(ev, J, hd):

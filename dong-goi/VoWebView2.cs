@@ -6,6 +6,8 @@
 // - Một cửa sổ duy nhất: chạy thêm lần nữa (bấm đúp tệp khác, chuột phải thư mục) thì chuyển đường dẫn
 //   sang cửa sổ đang mở qua đường ống nội bộ (named pipe) của tài khoản này, mở thành tab mới.
 // - Máy chưa có WebView2 Runtime: quay về cách mở bằng cửa sổ Edge như bản 2.0.4 (KhoiDongEdge.Chay).
+// - Kiểm tra bản mới: CHỈ vỏ này hỏi đúng một địa chỉ — danh sách bản phát hành của kho GitHub tuongotpho/xml-pro-ban-phat-hanh (chỉ chứa bộ cài) —
+//   không gửi kèm dữ liệu nào của người dùng. Trang bên trong vẫn bị chặn ra mạng (CSP).
 // Viết theo C# 5 để biên dịch bằng csc.exe có sẵn trong Windows.
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -253,6 +256,18 @@ sealed class CuaSoChinh : Form
                 string tm = HopChonThuMuc.Hien(this, "Chọn thư mục hoá đơn / tờ khai");
                 if (tm != null) GuiDuongDan(new List<string> { tm }, "chon");
                 break;
+            case "kiemCapNhat":
+                // tuDong = true: lúc mở app, tối đa 1 lần / 20 giờ, lỗi mạng thì im lặng; false: người dùng bấm nút
+                object td;
+                bool tuDong = m.TryGetValue("tuDong", out td) && Convert.ToBoolean(td);
+                KiemCapNhat(tuDong);
+                break;
+            case "taiBanMoi":
+                object u;
+                string url = m.TryGetValue("url", out u) ? Convert.ToString(u) : "";
+                // Chỉ mở trang / tệp phát hành của đúng kho này
+                if (url.StartsWith(CapNhat.TienToTai, StringComparison.OrdinalIgnoreCase)) MoNgoai(url);
+                break;
             case "moLai":
                 object v;
                 string p = m.TryGetValue("duongDan", out v) ? Convert.ToString(v) : "";
@@ -261,6 +276,32 @@ sealed class CuaSoChinh : Form
                 else Gui(new Dictionary<string, object> { { "loai", "loiMo" }, { "duongDan", p } });
                 break;
         }
+    }
+
+    void KiemCapNhat(bool tuDong)
+    {
+        string tepLanCuoi = Path.Combine(Chung.ThuMucDuLieu, "lan-kiem-cap-nhat.txt");
+        if (tuDong)
+        {
+            try
+            {
+                DateTime lan;
+                if (File.Exists(tepLanCuoi) && DateTime.TryParse(File.ReadAllText(tepLanCuoi), null, System.Globalization.DateTimeStyles.RoundtripKind, out lan)
+                    && (DateTime.UtcNow - lan).TotalHours < 20) return;
+            }
+            catch { }
+        }
+        Task.Run(() => CapNhat.Hoi()).ContinueWith(t =>
+        {
+            var kq = t.Result;
+            if (kq.ContainsKey("loi"))
+            {
+                if (!tuDong) Gui(kq);
+                return;
+            }
+            try { Directory.CreateDirectory(Chung.ThuMucDuLieu); File.WriteAllText(tepLanCuoi, DateTime.UtcNow.ToString("o")); } catch { }
+            if (!tuDong || Convert.ToBoolean(kq["coBanMoi"])) Gui(kq);
+        }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
     public void NhanTuBanKhac(List<string> ds)
@@ -371,6 +412,57 @@ sealed class CuaSoChinh : Form
             }
             finally { hoan.Complete(); }
         }));
+    }
+}
+
+// ---------- Hỏi GitHub Releases xem có bản mới không ----------
+static class CapNhat
+{
+    public const string Kho = "tuongotpho/xml-pro-ban-phat-hanh"; // kho chỉ chứa bộ cài, không có mã nguồn
+    public const string TienToTai = "https://github.com/" + Kho + "/releases/";
+    const string DiaChi = "https://api.github.com/repos/" + Kho + "/releases/latest";
+
+    public static Dictionary<string, object> Hoi()
+    {
+        var kq = new Dictionary<string, object> { { "loai", "capNhat" }, { "banDangDung", PhienBanApp.So } };
+        try
+        {
+            ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; // TLS 1.2
+            var yc = (HttpWebRequest)WebRequest.Create(DiaChi);
+            yc.UserAgent = "XML-Pro/" + PhienBanApp.So;
+            yc.Accept = "application/vnd.github+json";
+            yc.Timeout = 10000;
+            yc.ReadWriteTimeout = 10000;
+            string chu;
+            using (var tl = (HttpWebResponse)yc.GetResponse())
+            using (var doc = new StreamReader(tl.GetResponseStream(), Encoding.UTF8)) chu = doc.ReadToEnd();
+            var j = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(chu);
+            string the = Convert.ToString(j["tag_name"]).TrimStart('v', 'V');
+            Version moi, cu;
+            if (!Version.TryParse(the, out moi) || !Version.TryParse(PhienBanApp.So, out cu)) { kq["loi"] = "Số phiên bản trên GitHub không đọc được: " + the; return kq; }
+            kq["coBanMoi"] = moi > cu;
+            kq["banMoi"] = the;
+            string trang = Convert.ToString(j["html_url"]);
+            kq["trang"] = trang.StartsWith(TienToTai, StringComparison.OrdinalIgnoreCase) ? trang : TienToTai + "latest";
+            string ghi = j.ContainsKey("body") ? Convert.ToString(j["body"]) : "";
+            kq["ghiChu"] = ghi.Length > 2000 ? ghi.Substring(0, 2000) + "…" : ghi;
+            object tsObj;
+            var ts = j.TryGetValue("assets", out tsObj) ? tsObj as System.Collections.ArrayList : null;
+            if (ts != null)
+                foreach (Dictionary<string, object> a in ts)
+                {
+                    string u = Convert.ToString(a["browser_download_url"]);
+                    if (u.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && u.StartsWith(TienToTai, StringComparison.OrdinalIgnoreCase)) { kq["tai"] = u; break; }
+                }
+        }
+        catch (WebException ex)
+        {
+            var tl = ex.Response as HttpWebResponse;
+            kq["loi"] = tl != null && tl.StatusCode == HttpStatusCode.NotFound ? "Chưa có bản phát hành nào trên GitHub."
+                : "Không kết nối được GitHub (" + ex.Status + "). Kiểm tra mạng rồi thử lại.";
+        }
+        catch (Exception ex) { kq["loi"] = "Lỗi khi kiểm tra bản mới: " + ex.Message; }
+        return kq;
     }
 }
 

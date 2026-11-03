@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XML-Pro — đọc XML thuế, hoá đơn điện tử, lập tờ khai GTGT</title>
+<meta name="description" content="XML-Pro: phần mềm miễn phí cho Windows đọc tờ khai HTKK, hoá đơn điện tử XML, đối chiếu tờ khai 01/GTGT với hoá đơn và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung. Chạy trên máy, không gửi dữ liệu đi đâu.">
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #18212b; --muted: #5f6b78; --line: #dde2e7;
+    --chinh: #1d4ed8; --chinh-nen: #e8eefc; --xanh: #15803d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1419; --panel: #171e26; --ink: #e8edf2; --muted: #9aa6b2; --line: #2a3440;
+      --chinh: #7aa7ff; --chinh-nen: #1b2840; --xanh: #6fd394;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1419; --panel: #171e26; --ink: #e8edf2; --muted: #9aa6b2; --line: #2a3440;
+    --chinh: #7aa7ff; --chinh-nen: #1b2840; --xanh: #6fd394;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+  a { color: var(--chinh); }
+  .khung { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header { border-bottom: 1px solid var(--line); background: var(--panel); }
+  header .khung { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; }
+  .logo { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--chinh); }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 14px; }
+  nav a:hover { color: var(--ink); }
+  .dau { padding: 56px 0 40px; }
+  .dau h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.2; margin: 0 0 14px; font-weight: 700; }
+  .dau p { font-size: 17px; color: var(--muted); max-width: 680px; margin: 0 0 24px; }
+  .nut { display: inline-block; padding: 11px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--ink); background: var(--panel); }
+  .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .nut.chinh { color: #0e1217; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nut.chinh { color: #0e1217; } }
+  .hang-nut { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .ban { color: var(--muted); font-size: 13.5px; margin-top: 12px; }
+  .nhan { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
+  .nhan span { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--chinh-nen); color: var(--chinh); }
+  section { padding: 36px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 22px; margin: 0 0 18px; }
+  .luoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .the { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .the h3 { font-size: 16px; margin: 0 0 6px; }
+  .the p { margin: 0; color: var(--muted); font-size: 14px; }
+  ol.buoc { padding-left: 20px; margin: 0; }
+  ol.buoc li { margin-bottom: 10px; }
+  .luu-y { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--chinh); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: var(--muted); }
+  .luu-y b { color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { font-weight: 600; width: 32%; }
+  footer { padding: 28px 0 40px; color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--line); text-align: center; }
+  @media (max-width: 640px) { .dau h1 br { display: none; } nav { display: none; } .dau { padding: 36px 0 28px; } td:first-child { width: 40%; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="khung">
+    <a class="logo" href="#">XML<span>-Pro</span></a>
+    <nav><a href="#tinh-nang">Tính năng</a><a href="#cai-dat">Cài đặt</a><a href="#an-toan">An toàn dữ liệu</a><a href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases" target="_blank" rel="noopener">Các bản phát hành</a></nav>
+  </div>
+</header>
+
+<main class="khung">
+  <div class="dau">
+    <h1>Đọc XML thuế và hoá đơn điện tử,<br>đối chiếu và lập tờ khai GTGT</h1>
+    <p>Phần mềm miễn phí cho Windows. Kéo cả thư mục hoá đơn, tờ khai, giấy nộp tiền vào là xem được ngay theo mẫu iTax Viewer, tự đối chiếu tờ khai với hoá đơn, và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung để nạp HTKK / eTax.</p>
+    <div class="hang-nut">
+      <a class="nut chinh" id="nutTai" href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases/latest/download/CaiDat-XML-Pro.exe">⬇ Tải XML-Pro cho Windows</a>
+      <a class="nut" href="#cai-dat">Hướng dẫn cài</a>
+    </div>
+    <div class="ban" id="ban">Windows 10 / 11 · khoảng 19 MB · miễn phí</div>
+    <div class="nhan"><span>Chạy trên máy, không cần mạng</span><span>Không gửi dữ liệu đi đâu</span><span>Nhiều công ty, kỳ tháng và quý</span></div>
+  </div>
+
+  <section id="tinh-nang">
+    <h2>Tính năng</h2>
+    <div class="luoi">
+      <div class="the"><h3>Tờ khai, BCTC xem như iTax Viewer</h3><p>Tờ khai HTKK / eTax, báo cáo tài chính (TT200, TT133, TT99…), thông báo thuế, giấy nộp tiền. Mỗi biểu một thẻ, in hoặc lưu PDF từng biểu hay cả bộ.</p></div>
+      <div class="the"><h3>Hoá đơn điện tử</h3><p>Mở từng tệp .xml, tệp .zip hay cả thư mục nhiều năm. Tự nhận công ty, gắn nhãn mua vào / bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</p></div>
+      <div class="the"><h3>Kiểm chữ ký số</h3><p>Kiểm vân tay dữ liệu và chữ ký trong chứng thư số ngay trên máy, bắt được hồ sơ bị sửa sau khi ký.</p></div>
+      <div class="the"><h3>Đối chiếu tờ khai ↔ hoá đơn ↔ nộp tiền</h3><p>Tờ khai 01/GTGT so với hoá đơn cùng kỳ và giấy nộp tiền: chỉ ra chỉ tiêu lệch và hoá đơn nghi gây lệch (chưa kê, kê nhầm kỳ, kê hoá đơn đã bị thay thế).</p></div>
+      <div class="the"><h3>Lập tờ khai từ hoá đơn</h3><p>01/GTGT (khấu trừ) và 04/GTGT (trực tiếp trên doanh thu), tháng hoặc quý, kèm phụ lục giảm thuế. Tờ khai bổ sung có 01/KHBS, 01-1/KHBS và ước tính tiền chậm nộp. Xuất XML theo khuôn HTKK, chưa ký số.</p></div>
+      <div class="the"><h3>Dashboard kế toán</h3><p>Sổ theo kỳ, cộng từng năm, trạng thái từng kỳ (đã xong, lệch thuế, cần xem, chưa lập) và nút lập tờ khai ngay trên dòng. Khách hàng, nhà cung cấp, xuất Excel.</p></div>
+      <div class="the"><h3>Đổi tên tệp hàng loạt</h3><p>Đổi tên tệp hoá đơn trên ổ cứng thành dạng ngày – MST – số hoá đơn – tên công ty, dễ tìm trong Windows Explorer.</p></div>
+      <div class="the"><h3>Các loại XML khác</h3><p>Tờ khai hải quan, chứng từ khấu trừ thuế TNCN, hồ sơ BHXH, bảng kê BHYT, sao kê ngân hàng, hồ sơ đấu thầu.</p></div>
+    </div>
+  </section>
+
+  <section id="cai-dat">
+    <h2>Cài đặt</h2>
+    <ol class="buoc">
+      <li>Bấm <b>Tải XML-Pro cho Windows</b> ở trên, lưu tệp <code>CaiDat-XML-Pro.exe</code>.</li>
+      <li>Chạy tệp vừa tải. Bộ cài chưa có chữ ký số của nhà phát hành, nên Windows có thể hiện <b>"Windows đã bảo vệ PC của bạn"</b>: bấm <b>Thông tin bổ sung</b> → <b>Vẫn chạy</b>.</li>
+      <li>Mở XML-Pro từ màn hình nền, hoặc chuột phải một thư mục → <b>Mở bằng XML-Pro</b>.</li>
+      <li>Có bản mới, app tự báo ở góc dưới thanh bên (tắt được trong mục Giới thiệu). Tải bộ cài mới, đóng XML-Pro rồi chạy: bản mới cài đè lên bản cũ.</li>
+    </ol>
+  </section>
+
+  <section id="an-toan">
+    <h2>An toàn dữ liệu</h2>
+    <table>
+      <tr><td>Tệp của anh chị</td><td>Chỉ đọc trên máy. App chỉ mở được những tệp, thư mục anh chị chọn; không tải lên đâu cả.</td></tr>
+      <tr><td>Ra mạng</td><td>Một việc duy nhất: hỏi GitHub xem có bản mới không, tối đa một lần mỗi ngày, không gửi kèm dữ liệu nào. Tắt được.</td></tr>
+      <tr><td>Lưu trên máy</td><td>Phiên làm việc gần nhất (để khôi phục) và lịch sử tệp đã mở. Xoá bằng nút "Xoá dữ liệu phiên" trong mục Giới thiệu.</td></tr>
+      <tr><td>Tờ khai lập ra</td><td>Là tệp XML chưa ký số. Nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</td></tr>
+    </table>
+    <p class="luu-y" style="margin-top:14px"><b>Lưu ý:</b> app không kiểm chứng thư số có bị thu hồi hay không (việc đó cần tra trên cổng thuế điện tử). Số liệu app tính ra để kế toán đối chiếu và tham khảo; người nộp thuế chịu trách nhiệm về tờ khai nộp đi.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="khung">XML-Pro — miễn phí, không quảng cáo<br>(C) August87 - 0982722036</div>
+</footer>
+
+<script>
+  // Hiện số phiên bản mới nhất từ GitHub; không lấy được thì giữ nguyên chữ mặc định
+  fetch('https://api.github.com/repos/tuongotpho/xml-pro-ban-phat-hanh/releases/latest')
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j || !j.tag_name) return;
+      const ngay = j.published_at ? new Date(j.published_at).toLocaleDateString('vi-VN') : '';
+      document.getElementById('ban').textContent = `Bản mới nhất ${j.tag_name.replace(/^v/, '')}${ngay ? ' · ngày ' + ngay : ''} · Windows 10 / 11 · khoảng 19 MB · miễn phí`;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>
