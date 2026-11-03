@@ -4,115 +4,329 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>XML-Pro — đọc XML thuế, hoá đơn điện tử, lập tờ khai GTGT</title>
-<meta name="description" content="XML-Pro: phần mềm miễn phí cho Windows đọc tờ khai HTKK, hoá đơn điện tử XML, đối chiếu tờ khai 01/GTGT với hoá đơn và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung. Chạy trên máy, không gửi dữ liệu đi đâu.">
+<meta name="description" content="XML-Pro: phần mềm miễn phí cho Windows đọc tờ khai HTKK, hoá đơn điện tử XML, đối chiếu tờ khai 01/GTGT với hoá đơn và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung. Đọc cả tờ khai hải quan, chứng từ TNCN, hồ sơ BHXH, BHYT, sao kê ngân hàng, hồ sơ đấu thầu. Chạy trên máy, không gửi dữ liệu đi đâu.">
+<meta property="og:title" content="XML-Pro — đọc XML thuế, hoá đơn điện tử, lập tờ khai GTGT">
+<meta property="og:description" content="Miễn phí cho Windows. Xem tờ khai theo mẫu iTax, đối chiếu tờ khai với hoá đơn, lập tờ khai 01/GTGT, 04/GTGT và tờ khai bổ sung.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M9 10l5 6-5 6M16 22h7' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   :root {
-    --bg: #f6f7f9; --panel: #ffffff; --ink: #18212b; --muted: #5f6b78; --line: #dde2e7;
-    --chinh: #1d4ed8; --chinh-nen: #e8eefc; --xanh: #15803d;
+    --bg: #f5f7fa; --bg2: #ffffff; --panel: #ffffff; --ink: #141c25; --muted: #5b6876; --line: #dfe4ea;
+    --chinh: #1d4ed8; --chinh-dam: #1e40af; --chinh-nen: #e9effd; --xanh: #15803d; --xanh-nen: #e6f4ea;
+    --vang: #a16207; --vang-nen: #fdf4e2; --do: #b91c1c; --do-nen: #fdecec; --bong: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0f1419; --panel: #171e26; --ink: #e8edf2; --muted: #9aa6b2; --line: #2a3440;
-      --chinh: #7aa7ff; --chinh-nen: #1b2840; --xanh: #6fd394;
+      --bg: #0d1218; --bg2: #121922; --panel: #161e28; --ink: #e8edf3; --muted: #97a3b0; --line: #26313d;
+      --chinh: #7aa7ff; --chinh-dam: #9bbcff; --chinh-nen: #18253c; --xanh: #6fd394; --xanh-nen: #14291c;
+      --vang: #f0b860; --vang-nen: #2c2210; --do: #ff8f8f; --do-nen: #321717; --bong: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0f1419; --panel: #171e26; --ink: #e8edf2; --muted: #9aa6b2; --line: #2a3440;
-    --chinh: #7aa7ff; --chinh-nen: #1b2840; --xanh: #6fd394;
+    --bg: #0d1218; --bg2: #121922; --panel: #161e28; --ink: #e8edf3; --muted: #97a3b0; --line: #26313d;
+    --chinh: #7aa7ff; --chinh-dam: #9bbcff; --chinh-nen: #18253c; --xanh: #6fd394; --xanh-nen: #14291c;
+    --vang: #f0b860; --vang-nen: #2c2210; --do: #ff8f8f; --do-nen: #321717; --bong: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
   a { color: var(--chinh); }
-  .khung { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-  header { border-bottom: 1px solid var(--line); background: var(--panel); }
-  header .khung { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; }
-  .logo { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
-  .logo span { color: var(--chinh); }
-  nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 14px; }
+  .khung { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+  /* Đầu trang */
+  header { position: sticky; top: 0; z-index: 10; background: var(--bg2); border-bottom: 1px solid var(--line); }
+  header .khung { display: flex; align-items: center; gap: 20px; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
+  .logo svg { width: 28px; height: 28px; }
+  nav { display: flex; gap: 22px; margin-left: auto; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14.5px; }
   nav a:hover { color: var(--ink); }
-  .dau { padding: 56px 0 40px; }
-  .dau h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.2; margin: 0 0 14px; font-weight: 700; }
-  .dau p { font-size: 17px; color: var(--muted); max-width: 680px; margin: 0 0 24px; }
-  .nut { display: inline-block; padding: 11px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--ink); background: var(--panel); }
+  .nut { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 15.5px; text-decoration: none; border: 1px solid var(--line); color: var(--ink); background: var(--panel); transition: transform .12s, box-shadow .12s; }
+  .nut:hover { transform: translateY(-1px); box-shadow: var(--bong); }
   .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
-  :root[data-theme="dark"] .nut.chinh { color: #0e1217; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nut.chinh { color: #0e1217; } }
-  .hang-nut { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-  .ban { color: var(--muted); font-size: 13.5px; margin-top: 12px; }
-  .nhan { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
-  .nhan span { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--chinh-nen); color: var(--chinh); }
-  section { padding: 36px 0; border-top: 1px solid var(--line); }
-  h2 { font-size: 22px; margin: 0 0 18px; }
-  .luoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-  .the { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
-  .the h3 { font-size: 16px; margin: 0 0 6px; }
-  .the p { margin: 0; color: var(--muted); font-size: 14px; }
-  ol.buoc { padding-left: 20px; margin: 0; }
-  ol.buoc li { margin-bottom: 10px; }
-  .luu-y { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--chinh); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: var(--muted); }
-  .luu-y b { color: var(--ink); }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  tr:last-child td { border-bottom: 0; }
-  td:first-child { font-weight: 600; width: 32%; }
-  footer { padding: 28px 0 40px; color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--line); text-align: center; }
-  @media (max-width: 640px) { .dau h1 br { display: none; } nav { display: none; } .dau { padding: 36px 0 28px; } td:first-child { width: 40%; } }
+  .nut.nho { padding: 7px 14px; font-size: 14px; border-radius: 8px; }
+  :root[data-theme="dark"] .nut.chinh { color: #0b1220; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nut.chinh { color: #0b1220; } }
+  .nut svg { width: 18px; height: 18px; flex: none; }
+
+  /* Mở đầu */
+  .dau { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 48px; align-items: center; padding: 64px 16px 56px; }
+  .the-nho { display: inline-block; font-size: 13px; font-weight: 600; color: var(--chinh); background: var(--chinh-nen); padding: 4px 12px; border-radius: 999px; margin-bottom: 16px; }
+  .dau h1 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.15; letter-spacing: -.02em; margin: 0 0 18px; }
+  .dau h1 em { font-style: normal; color: var(--chinh); }
+  .dau p.mo { font-size: 18px; color: var(--muted); margin: 0 0 28px; max-width: 540px; }
+  .hang-nut { display: flex; gap: 12px; flex-wrap: wrap; }
+  .ban { color: var(--muted); font-size: 13.5px; margin-top: 14px; }
+  .cam-ket { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 22px; font-size: 14px; color: var(--muted); }
+  .cam-ket span { display: inline-flex; align-items: center; gap: 6px; }
+  .cam-ket svg { width: 16px; height: 16px; color: var(--xanh); }
+
+  /* Hình minh hoạ cửa sổ app (số liệu mẫu) */
+  .cua-so { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--bong), 0 30px 60px -30px rgba(29,78,216,.35); overflow: hidden; font-size: 12.5px; }
+  .cs-thanh { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--bg2); }
+  .cs-thanh i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .cs-thanh b { margin-left: 8px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  .cs-than { display: grid; grid-template-columns: 150px 1fr; min-height: 300px; }
+  .cs-ben { border-right: 1px solid var(--line); padding: 12px 10px; background: var(--bg2); }
+  .cs-ben div { padding: 7px 8px; border-radius: 6px; margin-bottom: 4px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .cs-ben div.on { background: var(--chinh-nen); color: var(--chinh); font-weight: 600; }
+  .cs-chinh { padding: 14px 16px; }
+  .cs-chinh h4 { margin: 0 0 2px; font-size: 14px; }
+  .cs-chinh .phu { color: var(--muted); font-size: 11.5px; margin-bottom: 12px; }
+  .cs-bang { width: 100%; border-collapse: collapse; }
+  .cs-bang th { text-align: right; font-weight: 600; color: var(--muted); font-size: 11px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .cs-bang td { text-align: right; padding: 7px 6px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .cs-bang th:first-child, .cs-bang td:first-child { text-align: left; }
+  .cs-bang tr.nam td { background: var(--chinh-nen); font-weight: 600; border-top: 2px solid var(--chinh); }
+  .chip { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .chip.xong { background: var(--xanh-nen); color: var(--xanh); } .chip.lech { background: var(--do-nen); color: var(--do); }
+  .chip.xem { background: var(--vang-nen); color: var(--vang); } .chip.lap { background: var(--chinh); color: #fff; }
+  :root[data-theme="dark"] .chip.lap { color: #0b1220; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.lap { color: #0b1220; } }
+  .cs-ghi { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; }
+
+  /* Khối nội dung */
+  section { padding: 72px 0; }
+  section.nen { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .tieu-de { max-width: 680px; margin: 0 0 36px; }
+  .tieu-de h2 { font-size: clamp(24px, 3vw, 32px); letter-spacing: -.01em; line-height: 1.25; margin: 0 0 10px; }
+  .tieu-de p { color: var(--muted); margin: 0; font-size: 16.5px; }
+  .luoi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .the { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .the .bieu { width: 40px; height: 40px; border-radius: 10px; background: var(--chinh-nen); color: var(--chinh); display: grid; place-items: center; margin-bottom: 14px; }
+  .the .bieu svg { width: 22px; height: 22px; }
+  .the h3 { font-size: 16.5px; margin: 0 0 6px; }
+  .the p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .the .chuan { display: inline-block; font-size: 12px; color: var(--chinh); background: var(--chinh-nen); border-radius: 6px; padding: 2px 8px; margin: 0 0 10px; }
+  .the ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+  .the ul li { margin-bottom: 4px; }
+  .ghi-chu-nganh { margin-top: 18px; font-size: 14px; color: var(--muted); }
+
+  /* Quy trình */
+  .quy-trinh { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: b; }
+  .buoc { position: relative; padding: 24px 22px 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+  .buoc::before { counter-increment: b; content: counter(b); position: absolute; top: -14px; left: 22px; width: 28px; height: 28px; border-radius: 50%; background: var(--chinh); color: #fff; font-weight: 700; font-size: 14px; display: grid; place-items: center; }
+  :root[data-theme="dark"] .buoc::before { color: #0b1220; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .buoc::before { color: #0b1220; } }
+  .buoc h3 { margin: 4px 0 6px; font-size: 16.5px; }
+  .buoc p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+  /* Cài đặt + an toàn */
+  .hai-cot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  ol.cai { list-style: none; padding: 0; margin: 0; counter-reset: c; }
+  ol.cai li { position: relative; padding: 0 0 18px 44px; }
+  ol.cai li::before { counter-increment: c; content: counter(c); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--chinh-nen); color: var(--chinh); font-weight: 700; display: grid; place-items: center; font-size: 14px; }
+  ol.cai p { margin: 2px 0 0; color: var(--muted); font-size: 14.5px; }
+  .an-toan { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .an-toan div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .an-toan div:last-child { border-bottom: 0; }
+  .an-toan span { color: var(--muted); }
+  .luu-y { margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+
+  /* Hỏi đáp */
+  .hoi details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  .hoi summary { cursor: pointer; list-style: none; padding: 15px 18px; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; }
+  .hoi summary::-webkit-details-marker { display: none; }
+  .hoi summary::after { content: '+'; color: var(--muted); font-size: 20px; line-height: 1; }
+  .hoi details[open] summary::after { content: '−'; }
+  .hoi details p { margin: 0; padding: 0 18px 16px; color: var(--muted); font-size: 15px; }
+
+  /* Kêu gọi cuối */
+  .cuoi { padding: 8px 16px 64px; }
+  .cuoi .hop { text-align: center; background: var(--chinh); color: #fff; border-radius: 20px; padding: 48px 24px; }
+  :root[data-theme="dark"] .cuoi .hop { color: #0b1220; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cuoi .hop { color: #0b1220; } }
+  .cuoi h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 30px); }
+  .cuoi p { margin: 0 0 24px; opacity: .88; }
+  .cuoi .nut { background: #fff; color: #1e40af; border-color: #fff; }
+  footer { padding: 0 0 40px; color: var(--muted); font-size: 13.5px; text-align: center; }
+
+  @media (max-width: 900px) {
+    .dau { grid-template-columns: 1fr; gap: 36px; padding: 40px 16px; }
+    .luoi, .quy-trinh { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hai-cot { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    nav { display: none; }
+    header .nut { margin-left: auto; }
+    .luoi, .quy-trinh { grid-template-columns: 1fr; }
+    .quy-trinh { gap: 26px; }
+    section { padding: 52px 0; }
+    .cs-than { grid-template-columns: 1fr; }
+    .cs-ben { display: none; }
+    .cs-bang .an-hep { display: none; }
+    .an-toan div { grid-template-columns: 1fr; gap: 2px; }
+  }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-tai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-dung" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-to" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-hd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+  <symbol id="i-khoa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-doi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13l-3-3M20 17H7l3 3"/></symbol>
+  <symbol id="i-lap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-bang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-ten" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8"/></symbol>
+  <symbol id="i-tau" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l2 3h14l2-3M5 17V9h14v8M9 9V5h6v4"/><path d="M2 21c2 1 4 1 6 0s4-1 6 0 4 1 6 0"/></symbol>
+  <symbol id="i-nguoi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.3-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.6 3 5.2"/></symbol>
+  <symbol id="i-khien" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M12 9v6M9 12h6"/></symbol>
+  <symbol id="i-yte" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-nh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></symbol>
+  <symbol id="i-thau" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6M12 6l6 6M4 20l8-8M10.5 7.5l6 6"/></symbol>
+</svg>
+
 <header>
   <div class="khung">
-    <a class="logo" href="#">XML<span>-Pro</span></a>
-    <nav><a href="#tinh-nang">Tính năng</a><a href="#cai-dat">Cài đặt</a><a href="#an-toan">An toàn dữ liệu</a><a href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases" target="_blank" rel="noopener">Các bản phát hành</a></nav>
+    <a class="logo" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1d4ed8"/><path d="M9 10l5 6-5 6M16 22h7" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>XML-Pro</a>
+    <nav><a href="#tinh-nang">Tính năng</a><a href="#cac-loai">Các loại XML</a><a href="#cach-dung">Cách dùng</a><a href="#cai-dat">Cài đặt</a><a href="#hoi-dap">Hỏi đáp</a></nav>
+    <a class="nut chinh nho" href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases/latest/download/CaiDat-XML-Pro.exe"><svg><use href="#i-tai"/></svg>Tải về</a>
   </div>
 </header>
 
-<main class="khung">
-  <div class="dau">
-    <h1>Đọc XML thuế và hoá đơn điện tử,<br>đối chiếu và lập tờ khai GTGT</h1>
-    <p>Phần mềm miễn phí cho Windows. Kéo cả thư mục hoá đơn, tờ khai, giấy nộp tiền vào là xem được ngay theo mẫu iTax Viewer, tự đối chiếu tờ khai với hoá đơn, và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung để nạp HTKK / eTax.</p>
-    <div class="hang-nut">
-      <a class="nut chinh" id="nutTai" href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases/latest/download/CaiDat-XML-Pro.exe">⬇ Tải XML-Pro cho Windows</a>
-      <a class="nut" href="#cai-dat">Hướng dẫn cài</a>
+<main>
+  <div class="khung dau">
+    <div>
+      <span class="the-nho">Miễn phí · cho kế toán doanh nghiệp và kế toán dịch vụ</span>
+      <h1>Hoá đơn, tờ khai, nộp thuế — <em>đối chiếu trong một lần mở</em></h1>
+      <p class="mo">Kéo cả thư mục hoá đơn điện tử, tờ khai HTKK và giấy nộp tiền vào XML-Pro. App xem theo đúng mẫu iTax Viewer, tự chỉ ra kỳ nào lệch và vì sao, rồi lập tờ khai GTGT để anh chị nạp HTKK / eTax.</p>
+      <div class="hang-nut">
+        <a class="nut chinh" href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases/latest/download/CaiDat-XML-Pro.exe"><svg><use href="#i-tai"/></svg>Tải XML-Pro cho Windows</a>
+        <a class="nut" href="#cach-dung">Xem cách dùng</a>
+      </div>
+      <div class="ban" id="ban">Windows 10 / 11 · khoảng 19 MB</div>
+      <div class="cam-ket">
+        <span><svg><use href="#i-dung"/></svg>Chạy trên máy, không cần mạng</span>
+        <span><svg><use href="#i-dung"/></svg>Không gửi dữ liệu đi đâu</span>
+        <span><svg><use href="#i-dung"/></svg>Nhiều công ty, tháng và quý</span>
+      </div>
     </div>
-    <div class="ban" id="ban">Windows 10 / 11 · khoảng 19 MB · miễn phí</div>
-    <div class="nhan"><span>Chạy trên máy, không cần mạng</span><span>Không gửi dữ liệu đi đâu</span><span>Nhiều công ty, kỳ tháng và quý</span></div>
+
+    <div>
+      <div class="cua-so" role="img" aria-label="Hình minh hoạ màn hình XML-Pro với số liệu mẫu">
+        <div class="cs-thanh"><i></i><i></i><i></i><b>XML-Pro — Dashboard</b></div>
+        <div class="cs-than">
+          <div class="cs-ben">
+            <div class="on">Dashboard</div>
+            <div>Tờ khai 01/GTGT · Quý 3</div>
+            <div>Hoá đơn bán ra · 128</div>
+            <div>Hoá đơn mua vào · 342</div>
+            <div>Giấy nộp tiền · 4</div>
+          </div>
+          <div class="cs-chinh">
+            <h4>Công ty TNHH Mẫu</h4>
+            <div class="phu">Theo kỳ kê khai · đơn vị: đồng</div>
+            <table class="cs-bang">
+              <thead><tr><th>Kỳ</th><th class="an-hep">Bán ra</th><th>Chênh thuế</th><th>Tờ khai</th></tr></thead>
+              <tbody>
+                <tr class="nam"><td>Năm 2026</td><td class="an-hep">3.215.400.000</td><td>21.884.300</td><td></td></tr>
+                <tr><td>Quý 4</td><td class="an-hep">902.150.000</td><td>6.310.200</td><td><span class="chip lap">+ Lập tờ khai</span></td></tr>
+                <tr><td>Quý 3</td><td class="an-hep">846.700.000</td><td>5.904.100</td><td><span class="chip xong">Đã xong</span></td></tr>
+                <tr><td>Quý 2</td><td class="an-hep">771.300.000</td><td>4.987.000</td><td><span class="chip xem">Cần xem lại</span></td></tr>
+                <tr><td>Quý 1</td><td class="an-hep">695.250.000</td><td>4.683.000</td><td><span class="chip lech">Lệch thuế</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="cs-ghi">Hình minh hoạ, số liệu mẫu</div>
+    </div>
   </div>
 
-  <section id="tinh-nang">
-    <h2>Tính năng</h2>
-    <div class="luoi">
-      <div class="the"><h3>Tờ khai, BCTC xem như iTax Viewer</h3><p>Tờ khai HTKK / eTax, báo cáo tài chính (TT200, TT133, TT99…), thông báo thuế, giấy nộp tiền. Mỗi biểu một thẻ, in hoặc lưu PDF từng biểu hay cả bộ.</p></div>
-      <div class="the"><h3>Hoá đơn điện tử</h3><p>Mở từng tệp .xml, tệp .zip hay cả thư mục nhiều năm. Tự nhận công ty, gắn nhãn mua vào / bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</p></div>
-      <div class="the"><h3>Kiểm chữ ký số</h3><p>Kiểm vân tay dữ liệu và chữ ký trong chứng thư số ngay trên máy, bắt được hồ sơ bị sửa sau khi ký.</p></div>
-      <div class="the"><h3>Đối chiếu tờ khai ↔ hoá đơn ↔ nộp tiền</h3><p>Tờ khai 01/GTGT so với hoá đơn cùng kỳ và giấy nộp tiền: chỉ ra chỉ tiêu lệch và hoá đơn nghi gây lệch (chưa kê, kê nhầm kỳ, kê hoá đơn đã bị thay thế).</p></div>
-      <div class="the"><h3>Lập tờ khai từ hoá đơn</h3><p>01/GTGT (khấu trừ) và 04/GTGT (trực tiếp trên doanh thu), tháng hoặc quý, kèm phụ lục giảm thuế. Tờ khai bổ sung có 01/KHBS, 01-1/KHBS và ước tính tiền chậm nộp. Xuất XML theo khuôn HTKK, chưa ký số.</p></div>
-      <div class="the"><h3>Dashboard kế toán</h3><p>Sổ theo kỳ, cộng từng năm, trạng thái từng kỳ (đã xong, lệch thuế, cần xem, chưa lập) và nút lập tờ khai ngay trên dòng. Khách hàng, nhà cung cấp, xuất Excel.</p></div>
-      <div class="the"><h3>Đổi tên tệp hàng loạt</h3><p>Đổi tên tệp hoá đơn trên ổ cứng thành dạng ngày – MST – số hoá đơn – tên công ty, dễ tìm trong Windows Explorer.</p></div>
-      <div class="the"><h3>Các loại XML khác</h3><p>Tờ khai hải quan, chứng từ khấu trừ thuế TNCN, hồ sơ BHXH, bảng kê BHYT, sao kê ngân hàng, hồ sơ đấu thầu.</p></div>
+  <section id="tinh-nang" class="nen">
+    <div class="khung">
+      <div class="tieu-de"><h2>Đủ cho việc kế toán thuế hằng tháng, hằng quý</h2><p>Một chương trình thay cho việc mở từng tệp bằng iTax Viewer, cộng tay hoá đơn trên Excel và dò lệch từng dòng.</p></div>
+      <div class="luoi">
+        <div class="the"><div class="bieu"><svg><use href="#i-to"/></svg></div><h3>Tờ khai, BCTC như iTax Viewer</h3><p>Tờ khai HTKK / eTax, báo cáo tài chính TT200, TT133, TT99, thông báo thuế, giấy nộp tiền. Mỗi biểu một thẻ, in hoặc lưu PDF.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-hd"/></svg></div><h3>Hoá đơn điện tử</h3><p>Tệp .xml, .zip hay cả thư mục nhiều năm. Tự nhận công ty, gắn nhãn mua vào / bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-khoa"/></svg></div><h3>Kiểm chữ ký số</h3><p>Kiểm vân tay dữ liệu và chữ ký trong chứng thư số ngay trên máy, bắt được hồ sơ bị sửa sau khi ký.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-doi"/></svg></div><h3>Đối chiếu tờ khai ↔ hoá đơn</h3><p>So tờ khai 01/GTGT với hoá đơn cùng kỳ và giấy nộp tiền. Chỉ đích danh hoá đơn gây lệch: chưa kê, kê nhầm kỳ, kê hoá đơn đã bị thay thế.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-lap"/></svg></div><h3>Lập tờ khai từ hoá đơn</h3><p>01/GTGT, 04/GTGT tháng hoặc quý, kèm phụ lục giảm thuế. Tờ khai bổ sung có 01/KHBS, 01-1/KHBS và ước tính tiền chậm nộp.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-bang"/></svg></div><h3>Dashboard kế toán</h3><p>Sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng. Khách hàng, nhà cung cấp, xuất Excel.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-ten"/></svg></div><h3>Đổi tên tệp hàng loạt</h3><p>Đổi tên tệp hoá đơn thành ngày – MST – số hoá đơn – tên công ty, tìm nhanh trong Windows Explorer.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Tờ khai 05/KK-TNCN</h3><p>Bảng theo kỳ: số lao động, thu nhập chịu thuế, thuế đã khấu trừ. Kỳ khai nhiều lần chỉ tính bản bổ sung mới nhất.</p></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-tai"/></svg></div><h3>Tự báo bản mới</h3><p>Có bản mới, app báo ở góc thanh bên. Tải về, chạy là cài đè lên bản cũ. Tắt được nếu không muốn app ra mạng.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cac-loai">
+    <div class="khung">
+      <div class="tieu-de"><h2>Không chỉ thuế: đọc thêm 6 loại hồ sơ XML khác</h2><p>Mở như mở hoá đơn: kéo tệp hoặc cả thư mục vào. Mỗi loại được dựng thành một trang dễ đọc, in hoặc lưu PDF được; thư mục toàn một loại có Dashboard riêng và xuất Excel.</p></div>
+      <div class="luoi">
+        <div class="the"><div class="bieu"><svg><use href="#i-tau"/></svg></div><h3>Tờ khai hải quan</h3><span class="chuan">VNACCS/VCIS · Cổng một cửa quốc gia</span>
+          <ul><li>Số tờ khai, ngày đăng ký, mã loại hình, cơ quan hải quan tiếp nhận</li><li>Người xuất khẩu, người nhập khẩu, mã số thuế, quốc gia</li><li>Vận tải: số vận đơn, phương tiện, cảng xếp hàng, cảng dỡ hàng; hoá đơn thương mại</li><li>Danh mục hàng hoá kèm thuế xuất nhập khẩu và thuế GTGT từng dòng</li></ul></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Chứng từ khấu trừ thuế TNCN</h3><span class="chuan">Nghị định 123/2020 · Thông tư 78/2021</span>
+          <ul><li>Mẫu số, ký hiệu, số chứng từ</li><li>Tổ chức trả thu nhập và cá nhân nhận thu nhập</li><li>Tổng thu nhập chịu thuế, thu nhập tính thuế, số thuế đã khấu trừ (kèm số bằng chữ)</li><li>Thư mục nhiều chứng từ: cộng thu nhập và thuế đã khấu trừ trên Dashboard nhân sự</li></ul></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-khien"/></svg></div><h3>Hồ sơ BHXH</h3><span class="chuan">D02-LT, C70a-HD, 600, 888…</span>
+          <ul><li>Đơn vị sử dụng lao động, mã đơn vị BHXH, mã thủ tục, cơ quan quản lý</li><li>Danh sách lao động: họ tên, ngày sinh, CCCD, mã số BHXH, chức danh, lương đóng bảo hiểm</li><li>Hồ sơ chế độ: số ngày, số tiền trợ cấp</li><li>Tổng lao động, quỹ lương đóng và số phải nộp trên Dashboard nhân sự</li></ul></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-yte"/></svg></div><h3>Bảng kê khám chữa bệnh BHYT</h3><span class="chuan">XML 4210 · Quyết định 130/QĐ-BYT</span>
+          <ul><li>Thông tin hành chính và thẻ BHYT của người bệnh</li><li>Thông tin khám chữa bệnh, chẩn đoán, bác sĩ điều trị</li><li>Tổng chi phí, phần BHYT thanh toán, phần người bệnh trả</li><li>Chi tiết thuốc, hoá chất và dịch vụ kỹ thuật, cận lâm sàng</li></ul></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-nh"/></svg></div><h3>Sao kê, sổ phụ ngân hàng</h3><span class="chuan">ISO 20022 camt.053 / camt.054</span>
+          <ul><li>Ngân hàng, số tài khoản, chủ tài khoản, loại tiền</li><li>Số dư đầu kỳ, tổng phát sinh nợ, tổng phát sinh có, số dư cuối kỳ</li><li>Từng giao dịch: ngày, số tham chiếu, nội dung, số tiền, số dư sau giao dịch</li><li>Dashboard dòng tiền cho thư mục nhiều sao kê</li></ul></div>
+        <div class="the"><div class="bieu"><svg><use href="#i-thau"/></svg></div><h3>Hồ sơ dự thầu qua mạng</h3><span class="chuan">E-HSDT · Hệ thống mạng đấu thầu quốc gia</span>
+          <ul><li>Gói thầu: mã thông báo mời thầu, mã gói thầu, hình thức lựa chọn nhà thầu, bên mời thầu</li><li>Nhà thầu, mã số thuế, bảo đảm dự thầu và ngân hàng phát hành bảo lãnh</li><li>Giá dự thầu, giá trị giảm giá, giá sau giảm giá</li><li>Bảng khối lượng, hạng mục công việc</li></ul></div>
+      </div>
+      <p class="ghi-chu-nganh">Sáu loại này đọc theo cấu trúc tệp chuẩn của từng hệ thống và mới được thử với tệp mẫu. Nếu tệp thật của anh chị không mở được hoặc thiếu thông tin, gửi tệp cho tác giả để bổ sung.</p>
+    </div>
+  </section>
+
+  <section id="cach-dung" class="nen">
+    <div class="khung">
+      <div class="tieu-de"><h2>Ba bước, từ thư mục hoá đơn đến tờ khai</h2><p>Không cần nhập liệu, không cần mở từng tệp.</p></div>
+      <div class="quy-trinh">
+        <div class="buoc"><h3>Kéo thư mục vào</h3><p>Hoá đơn mua vào, bán ra, tờ khai đã nộp, giấy nộp tiền — để lẫn trong một thư mục cũng được. Hoặc chuột phải thư mục → Mở bằng XML-Pro.</p></div>
+        <div class="buoc"><h3>Xem kỳ nào lệch</h3><p>Dashboard xếp các kỳ theo năm: đã xong, cần xem lại, lệch thuế, chưa lập. Bấm vào để xem chỉ tiêu lệch và hoá đơn gây lệch.</p></div>
+        <div class="buoc"><h3>Lập tờ khai, nạp HTKK</h3><p>Bấm "Lập tờ khai" hoặc "Lập bổ sung" ngay trên dòng của kỳ. App xuất tệp XML theo khuôn HTKK để kiểm tra, ký và nộp.</p></div>
+      </div>
     </div>
   </section>
 
   <section id="cai-dat">
-    <h2>Cài đặt</h2>
-    <ol class="buoc">
-      <li>Bấm <b>Tải XML-Pro cho Windows</b> ở trên, lưu tệp <code>CaiDat-XML-Pro.exe</code>.</li>
-      <li>Chạy tệp vừa tải. Bộ cài chưa có chữ ký số của nhà phát hành, nên Windows có thể hiện <b>"Windows đã bảo vệ PC của bạn"</b>: bấm <b>Thông tin bổ sung</b> → <b>Vẫn chạy</b>.</li>
-      <li>Mở XML-Pro từ màn hình nền, hoặc chuột phải một thư mục → <b>Mở bằng XML-Pro</b>.</li>
-      <li>Có bản mới, app tự báo ở góc dưới thanh bên (tắt được trong mục Giới thiệu). Tải bộ cài mới, đóng XML-Pro rồi chạy: bản mới cài đè lên bản cũ.</li>
-    </ol>
+    <div class="khung hai-cot">
+      <div>
+        <div class="tieu-de"><h2>Cài đặt</h2></div>
+        <ol class="cai">
+          <li><b>Tải bộ cài</b><p>Bấm nút Tải về, lưu tệp <code>CaiDat-XML-Pro.exe</code>.</p></li>
+          <li><b>Chạy bộ cài</b><p>Bộ cài chưa có chữ ký số của nhà phát hành, nên Windows có thể báo "Windows đã bảo vệ PC của bạn": bấm <b>Thông tin bổ sung</b> → <b>Vẫn chạy</b>.</p></li>
+          <li><b>Mở XML-Pro</b><p>Từ biểu tượng trên màn hình nền, hoặc chuột phải một thư mục → Mở bằng XML-Pro.</p></li>
+          <li><b>Lên bản mới</b><p>Đóng XML-Pro, chạy bộ cài bản mới, bản mới cài đè lên bản cũ.</p></li>
+        </ol>
+      </div>
+      <div>
+        <div class="tieu-de"><h2>An toàn dữ liệu</h2></div>
+        <div class="an-toan">
+          <div><b>Tệp của anh chị</b><span>Chỉ đọc trên máy. App chỉ mở được tệp, thư mục anh chị chọn; không tải lên đâu.</span></div>
+          <div><b>Ra mạng</b><span>Một việc duy nhất: hỏi xem có bản mới không, tối đa một lần mỗi ngày, không gửi kèm dữ liệu. Tắt được.</span></div>
+          <div><b>Lưu trên máy</b><span>Phiên làm việc gần nhất và lịch sử tệp đã mở. Xoá bằng nút "Xoá dữ liệu phiên".</span></div>
+          <div><b>Tờ khai lập ra</b><span>Tệp XML chưa ký số. Nạp HTKK hoặc eTax để kiểm tra, ký và nộp.</span></div>
+        </div>
+        <p class="luu-y">App không kiểm chứng thư số có bị thu hồi hay không (tra trên cổng thuế điện tử). Số liệu app tính ra để đối chiếu và tham khảo; người nộp thuế chịu trách nhiệm về tờ khai nộp đi.</p>
+      </div>
+    </div>
   </section>
 
-  <section id="an-toan">
-    <h2>An toàn dữ liệu</h2>
-    <table>
-      <tr><td>Tệp của anh chị</td><td>Chỉ đọc trên máy. App chỉ mở được những tệp, thư mục anh chị chọn; không tải lên đâu cả.</td></tr>
-      <tr><td>Ra mạng</td><td>Một việc duy nhất: hỏi GitHub xem có bản mới không, tối đa một lần mỗi ngày, không gửi kèm dữ liệu nào. Tắt được.</td></tr>
-      <tr><td>Lưu trên máy</td><td>Phiên làm việc gần nhất (để khôi phục) và lịch sử tệp đã mở. Xoá bằng nút "Xoá dữ liệu phiên" trong mục Giới thiệu.</td></tr>
-      <tr><td>Tờ khai lập ra</td><td>Là tệp XML chưa ký số. Nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</td></tr>
-    </table>
-    <p class="luu-y" style="margin-top:14px"><b>Lưu ý:</b> app không kiểm chứng thư số có bị thu hồi hay không (việc đó cần tra trên cổng thuế điện tử). Số liệu app tính ra để kế toán đối chiếu và tham khảo; người nộp thuế chịu trách nhiệm về tờ khai nộp đi.</p>
+  <section id="hoi-dap" class="nen">
+    <div class="khung">
+      <div class="tieu-de"><h2>Hỏi đáp</h2></div>
+      <div class="hoi">
+        <details><summary>XML-Pro có mất phí không?</summary><p>Không. Miễn phí, không quảng cáo, không giới hạn tính năng.</p></details>
+        <details><summary>Có cần cài iTax Viewer hay HTKK không?</summary><p>Không cần để xem: XML-Pro có sẵn bộ mẫu hiển thị theo iTax Viewer. HTKK hoặc eTax chỉ cần khi anh chị ký và nộp tờ khai do app lập ra.</p></details>
+        <details><summary>Làm kế toán dịch vụ cho nhiều công ty thì sao?</summary><p>Mở thư mục có hoá đơn, tờ khai của nhiều công ty cùng lúc. Dashboard có nút chọn từng công ty; mỗi tờ khai được đối chiếu theo đúng MST và kỳ của nó, tháng hay quý đều được.</p></details>
+        <details><summary>Tờ khai app lập ra có nộp thẳng được không?</summary><p>Tệp xuất ra theo khuôn HTKK nhưng chưa ký số. Anh chị nạp vào HTKK hoặc eTax để kiểm tra lại, ký bằng chữ ký số rồi mới nộp.</p></details>
+        <details><summary>Máy không có mạng có dùng được không?</summary><p>Được. Mọi việc đều chạy trên máy; chỉ có việc báo bản mới là cần mạng.</p></details>
+      </div>
+    </div>
   </section>
+
+  <div class="khung cuoi">
+    <div class="hop">
+      <h2>Dùng thử với thư mục hoá đơn của anh chị</h2>
+      <p>Cài trong một phút, không cần tài khoản.</p>
+      <a class="nut" href="https://github.com/tuongotpho/xml-pro-ban-phat-hanh/releases/latest/download/CaiDat-XML-Pro.exe"><svg><use href="#i-tai"/></svg>Tải XML-Pro cho Windows</a>
+    </div>
+  </div>
 </main>
 
 <footer>
@@ -120,13 +334,13 @@
 </footer>
 
 <script>
-  // Hiện số phiên bản mới nhất từ GitHub; không lấy được thì giữ nguyên chữ mặc định
+  // Hiện số phiên bản mới nhất; không lấy được thì giữ chữ mặc định
   fetch('https://api.github.com/repos/tuongotpho/xml-pro-ban-phat-hanh/releases/latest')
     .then(r => r.ok ? r.json() : null)
     .then(j => {
       if (!j || !j.tag_name) return;
       const ngay = j.published_at ? new Date(j.published_at).toLocaleDateString('vi-VN') : '';
-      document.getElementById('ban').textContent = `Bản mới nhất ${j.tag_name.replace(/^v/, '')}${ngay ? ' · ngày ' + ngay : ''} · Windows 10 / 11 · khoảng 19 MB · miễn phí`;
+      document.getElementById('ban').textContent = `Bản ${j.tag_name.replace(/^v/, '')}${ngay ? ' · cập nhật ' + ngay : ''} · Windows 10 / 11 · khoảng 19 MB`;
     })
     .catch(() => {});
 </script>
