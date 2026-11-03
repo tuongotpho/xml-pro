@@ -759,10 +759,20 @@
   .kt-tools { display: flex; gap: 6px; margin-top: 6px; }
   /* Cập nhật */
   .ban-moi { display: block; margin-top: 4px; font-weight: 600; color: #fff; background: #16a34a; border-radius: 5px; padding: 3px 8px; text-decoration: none; }
+  /* Hộp Giới thiệu: rộng theo màn hình (không bị giới hạn 650px chung của hộp thoại) */
+  dialog.dlg-gioi-thieu { width: min(1180px, 96vw); max-width: none; max-height: 94vh; overflow: auto; }
   .cn-khoi { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
   .cn-dong { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .cn-ghi { color: var(--muted); font-size: 12.5px; }
-  .cn-ghi-chu { white-space: pre-wrap; font-size: 12.5px; max-height: 180px; overflow: auto; background: var(--bg); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+  .cn-ghi-chu { font-size: 12.5px; line-height: 1.5; max-height: 220px; overflow: auto; background: var(--bg); border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+  .cn-tieu-de { font-weight: 700; font-size: 11.5px; letter-spacing: .03em; color: var(--muted); margin: 6px 0 2px; }
+  .cn-tieu-de:first-child { margin-top: 0; }
+  .cn-dong-ds { position: relative; padding-left: 14px; margin: 2px 0; }
+  .cn-dong-ds::before { content: ''; position: absolute; left: 3px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: #0284c7; }
+  .cn-dong-ds.con { margin-left: 14px; }
+  .cn-dong-ds.con::before { background: none; border: 1px solid #0284c7; }
+  .cn-trong { height: 4px; }
+  .cn-ghi-chu code { font-size: 11.5px; background: var(--line); padding: 0 4px; border-radius: 3px; }
   .tools #clear { flex-shrink: 0; white-space: nowrap; }
   .tools #q { min-width: 0; }
   .cong-cu { position: relative; margin-top: 6px; }
@@ -1111,20 +1121,28 @@
           <button type="button" id="btnDiscardSession" style="padding:6px 12px;font-size:12.5px;color:#64748b;cursor:pointer">✕ Bỏ qua</button>
         </div>
       </div>
-      <p>Mở được các loại chứng từ XML chuẩn quốc gia (8 hệ sinh thái chuyên ngành):</p>
+      <!-- Danh sách tính năng: sửa cùng mỗi lần app có tính năng mới (và hộp Giới thiệu, trang xmlpro.web.app) -->
+      <p><b>Xem</b> — kéo thả tệp .xml, .zip hoặc cả thư mục (kể cả kho hoá đơn nhiều năm):</p>
       <ul>
-        <li><b>Tờ khai, phụ lục, báo cáo tài chính</b> xuất từ HTKK / eTax (gốc <code>HSoThueDTu</code>, và cả file lưu nháp trong <code>HTKK\DataFiles</code>): 01/GTGT, 05/KK-TNCN, 05/QTT-TNCN, 03/TNDN, BCTC TT200, TT133…</li>
-        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — hiển thị đầy đủ bảng hàng hóa, chiết khấu, phân loại Mua vào / Bán ra, trạng thái thanh toán.</li>
-        <li><b>Tờ khai Hải quan điện tử</b> (hệ thống VNACCS/VCIS, Cổng Một cửa Quốc gia NSW) — phân luồng Xanh / Vàng / Đỏ, hàng hóa XNK, nghĩa vụ thuế XNK.</li>
-        <li><b>Bệnh án điện tử & Viện phí BHYT</b> (chuẩn XML 4210 / Quyết định 130/QĐ-BYT) — bảng kê chi phí KCB, chi tiết thuốc, dịch vụ kỹ thuật.</li>
-        <li><b>Chứng từ khấu trừ thuế TNCN điện tử</b> (Nghị định 123/2020/NĐ-CP & Thông tư 78/2021/TT-BTC) — khấu trừ thuế TNCN, thu nhập chịu thuế.</li>
-        <li><b>Hồ sơ Bảo hiểm Xã hội điện tử</b> (Cổng BHXH Việt Nam — biểu mẫu D02-LT, C70a-HD, 600, 888...) — danh sách lao động, tiền lương đóng BHXH.</li>
-        <li><b>Sổ phụ Ngân hàng điện tử & Sao kê tài khoản</b> (chuẩn ISO 20022 camt.053/camt.054 và ngân hàng Việt Nam) — nhật ký giao dịch, dòng tiền, số dư.</li>
-        <li><b>Hồ sơ Đấu thầu qua mạng e-GP</b> (Hệ thống Mạng đấu thầu Quốc gia) — gói thầu, bảng giá dự thầu, năng lực tài chính.</li>
-        <li><b>Thông báo thuế, đăng ký thuế & Chứng từ nộp tiền thuế</b> (gốc <code>TBaoThue</code>, <code>CHUNGTU</code>…).</li>
+        <li><b>Tờ khai, phụ lục, báo cáo tài chính</b> xuất từ HTKK / eTax (gốc <code>HSoThueDTu</code>, cả file lưu nháp trong <code>HTKK\DataFiles</code>): 01/GTGT, 04/GTGT, 01/CNKD, 05/KK-TNCN, 05/QTT-TNCN, 03/TNDN, BCTC TT200, TT133, TT99… — dựng bằng <b>chính bộ mẫu của iTax Viewer</b>, mỗi biểu một thẻ, in hoặc lưu PDF.</li>
+        <li><b>Hoá đơn điện tử</b> (gốc <code>HDon</code>) — bảng hàng hoá, thuế suất, chiết khấu, tự nhận công ty để gắn nhãn Mua vào / Bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</li>
+        <li><b>Thông báo thuế, đăng ký thuế, chứng từ nộp tiền thuế</b> (gốc <code>TBaoThue</code>, <code>CHUNGTU</code>…).</li>
+        <li><b>Tờ khai hải quan</b> (VNACCS/VCIS, Cổng một cửa quốc gia) — người xuất / nhập khẩu, vận đơn, hàng hoá kèm thuế xuất nhập khẩu và thuế GTGT.</li>
+        <li><b>Chứng từ khấu trừ thuế TNCN</b> (Nghị định 123/2020, Thông tư 78/2021) — thu nhập chịu thuế, số thuế đã khấu trừ.</li>
+        <li><b>Hồ sơ BHXH</b> (D02-LT, C70a-HD, 600, 888…) — danh sách lao động, lương đóng bảo hiểm, chế độ.</li>
+        <li><b>Bảng kê khám chữa bệnh BHYT</b> (XML 4210, Quyết định 130/QĐ-BYT) — chi phí, phần BHYT trả, thuốc, dịch vụ kỹ thuật.</li>
+        <li><b>Sao kê, sổ phụ ngân hàng</b> (ISO 20022 camt.053 / camt.054) — số dư, phát sinh nợ / có, từng giao dịch.</li>
+        <li><b>Hồ sơ dự thầu qua mạng</b> (E-HSDT) — gói thầu, nhà thầu, bảo lãnh, giá dự thầu.</li>
       </ul>
-      <p>Tờ khai, phụ lục, BCTC được dựng bằng <b>chính bộ mẫu chuẩn của iTax Viewer</b>; đồng thời hỗ trợ <b>Xuất bảng kê Excel (.xlsx)</b> chuẩn OpenXML cho toàn bộ hồ sơ.</p>
-      <p>Trang <b>không kiểm tra chữ ký số là thật hay giả</b> — chỉ đọc tên người ký và thời điểm ký ghi trong file.</p>
+      <p><b>Làm</b>:</p>
+      <ul>
+        <li><b>Kiểm chữ ký số</b> ngay trên máy (vân tay dữ liệu và chữ ký trong chứng thư) — bắt được hồ sơ bị sửa sau khi ký. Không kiểm chứng thư có bị thu hồi hay không (việc đó tra trên cổng thuế điện tử).</li>
+        <li><b>Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền</b> — chỉ ra chỉ tiêu lệch và hoá đơn gây lệch; nhiều công ty, kỳ tháng hoặc quý.</li>
+        <li><b>Lập tờ khai từ hoá đơn</b> (🧰 Công cụ → Lập tờ khai từ hoá đơn): 01/GTGT, 04/GTGT, <b>01/CNKD cho hộ kinh doanh</b> (Thông tư 50/2026), và <b>tờ khai bổ sung</b> kèm 01/KHBS, 01-1/KHBS. Xuất XML theo khuôn HTKK, chưa ký số.</li>
+        <li><b>Dashboard kế toán</b> — sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng; khách hàng, nhà cung cấp.</li>
+        <li><b>Xuất Excel</b> bảng kê (.xlsx) cho toàn bộ hồ sơ; <b>đổi tên tệp hàng loạt</b> cho dễ tìm trong Windows Explorer.</li>
+      </ul>
+      <p>Chạy hoàn toàn trên máy, không gửi dữ liệu đi đâu. Việc duy nhất ra mạng là hỏi xem có bản mới (tắt được trong mục Giới thiệu).</p>
 
     </div>
   </main>
@@ -1136,7 +1154,7 @@
     <path fill="#0f172a" d="M4 4h7v1h-7zM13 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM26 4h3v1h-3zM34 4h7v1h-7zM4 5h1v1h-1zM10 5h1v1h-1zM12 5h2v1h-2zM17 5h3v1h-3zM21 5h1v1h-1zM23 5h1v1h-1zM25 5h1v1h-1zM27 5h1v1h-1zM29 5h1v1h-1zM31 5h1v1h-1zM34 5h1v1h-1zM40 5h1v1h-1zM4 6h1v1h-1zM6 6h3v1h-3zM10 6h1v1h-1zM14 6h1v1h-1zM16 6h3v1h-3zM20 6h2v1h-2zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h2v1h-2zM34 6h1v1h-1zM36 6h3v1h-3zM40 6h1v1h-1zM4 7h1v1h-1zM6 7h3v1h-3zM10 7h1v1h-1zM13 7h6v1h-6zM20 7h2v1h-2zM23 7h3v1h-3zM27 7h1v1h-1zM29 7h1v1h-1zM34 7h1v1h-1zM36 7h3v1h-3zM40 7h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h1v1h-1zM12 8h2v1h-2zM18 8h1v1h-1zM21 8h2v1h-2zM24 8h3v1h-3zM28 8h3v1h-3zM32 8h1v1h-1zM34 8h1v1h-1zM36 8h3v1h-3zM40 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM15 9h4v1h-4zM21 9h4v1h-4zM27 9h1v1h-1zM34 9h1v1h-1zM40 9h1v1h-1zM4 10h7v1h-7zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h1v1h-1zM32 10h1v1h-1zM34 10h7v1h-7zM14 11h2v1h-2zM21 11h2v1h-2zM26 11h2v1h-2zM29 11h1v1h-1zM31 11h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM13 12h2v1h-2zM16 12h2v1h-2zM20 12h1v1h-1zM22 12h1v1h-1zM28 12h1v1h-1zM32 12h1v1h-1zM36 12h1v1h-1zM39 12h1v1h-1zM12 13h2v1h-2zM15 13h3v1h-3zM19 13h5v1h-5zM25 13h1v1h-1zM27 13h3v1h-3zM31 13h1v1h-1zM33 13h3v1h-3zM37 13h1v1h-1zM39 13h1v1h-1zM6 14h1v1h-1zM9 14h4v1h-4zM14 14h3v1h-3zM18 14h5v1h-5zM24 14h1v1h-1zM26 14h2v1h-2zM30 14h1v1h-1zM34 14h3v1h-3zM40 14h1v1h-1zM4 15h2v1h-2zM8 15h1v1h-1zM12 15h5v1h-5zM20 15h1v1h-1zM23 15h1v1h-1zM26 15h4v1h-4zM31 15h1v1h-1zM33 15h5v1h-5zM39 15h1v1h-1zM7 16h1v1h-1zM9 16h2v1h-2zM15 16h3v1h-3zM19 16h2v1h-2zM24 16h1v1h-1zM26 16h3v1h-3zM30 16h1v1h-1zM34 16h1v1h-1zM36 16h2v1h-2zM40 16h1v1h-1zM4 17h1v1h-1zM6 17h2v1h-2zM9 17h1v1h-1zM12 17h5v1h-5zM18 17h1v1h-1zM22 17h2v1h-2zM25 17h1v1h-1zM32 17h1v1h-1zM34 17h1v1h-1zM36 17h1v1h-1zM4 18h5v1h-5zM10 18h1v1h-1zM15 18h2v1h-2zM18 18h2v1h-2zM21 18h1v1h-1zM24 18h2v1h-2zM27 18h1v1h-1zM32 18h2v1h-2zM35 18h2v1h-2zM38 18h3v1h-3zM4 19h2v1h-2zM8 19h2v1h-2zM12 19h1v1h-1zM17 19h1v1h-1zM19 19h2v1h-2zM22 19h3v1h-3zM27 19h2v1h-2zM30 19h1v1h-1zM37 19h1v1h-1zM39 19h1v1h-1zM4 20h2v1h-2zM8 20h1v1h-1zM10 20h1v1h-1zM13 20h1v1h-1zM16 20h1v1h-1zM22 20h1v1h-1zM24 20h2v1h-2zM28 20h1v1h-1zM30 20h3v1h-3zM34 20h2v1h-2zM38 20h1v1h-1zM40 20h1v1h-1zM5 21h2v1h-2zM8 21h1v1h-1zM13 21h1v1h-1zM15 21h2v1h-2zM19 21h1v1h-1zM21 21h2v1h-2zM26 21h1v1h-1zM28 21h6v1h-6zM35 21h3v1h-3zM39 21h1v1h-1zM6 22h2v1h-2zM10 22h1v1h-1zM12 22h1v1h-1zM14 22h3v1h-3zM21 22h2v1h-2zM24 22h1v1h-1zM27 22h2v1h-2zM30 22h2v1h-2zM33 22h1v1h-1zM36 22h3v1h-3zM40 22h1v1h-1zM4 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM13 23h3v1h-3zM19 23h1v1h-1zM21 23h1v1h-1zM29 23h1v1h-1zM31 23h3v1h-3zM35 23h2v1h-2zM38 23h2v1h-2zM5 24h1v1h-1zM9 24h2v1h-2zM12 24h1v1h-1zM14 24h1v1h-1zM17 24h2v1h-2zM22 24h1v1h-1zM24 24h2v1h-2zM28 24h1v1h-1zM30 24h1v1h-1zM33 24h2v1h-2zM36 24h1v1h-1zM38 24h1v1h-1zM40 24h1v1h-1zM7 25h3v1h-3zM16 25h2v1h-2zM19 25h1v1h-1zM21 25h1v1h-1zM23 25h1v1h-1zM25 25h1v1h-1zM27 25h1v1h-1zM31 25h2v1h-2zM34 25h2v1h-2zM37 25h1v1h-1zM39 25h2v1h-2zM6 26h1v1h-1zM8 26h1v1h-1zM10 26h2v1h-2zM14 26h3v1h-3zM18 26h3v1h-3zM22 26h1v1h-1zM24 26h1v1h-1zM27 26h2v1h-2zM32 26h1v1h-1zM34 26h1v1h-1zM38 26h3v1h-3zM4 27h1v1h-1zM6 27h1v1h-1zM13 27h2v1h-2zM19 27h1v1h-1zM21 27h1v1h-1zM23 27h1v1h-1zM25 27h3v1h-3zM29 27h1v1h-1zM31 27h1v1h-1zM35 27h1v1h-1zM4 28h3v1h-3zM8 28h3v1h-3zM12 28h1v1h-1zM15 28h2v1h-2zM18 28h3v1h-3zM22 28h1v1h-1zM24 28h2v1h-2zM30 28h1v1h-1zM32 28h2v1h-2zM35 28h2v1h-2zM38 28h3v1h-3zM5 29h5v1h-5zM12 29h1v1h-1zM16 29h1v1h-1zM18 29h3v1h-3zM25 29h1v1h-1zM28 29h4v1h-4zM33 29h2v1h-2zM36 29h4v1h-4zM4 30h1v1h-1zM6 30h2v1h-2zM9 30h7v1h-7zM18 30h3v1h-3zM24 30h1v1h-1zM26 30h1v1h-1zM30 30h3v1h-3zM34 30h3v1h-3zM38 30h1v1h-1zM40 30h1v1h-1zM5 31h1v1h-1zM7 31h2v1h-2zM13 31h1v1h-1zM15 31h1v1h-1zM17 31h1v1h-1zM20 31h6v1h-6zM27 31h1v1h-1zM31 31h1v1h-1zM33 31h1v1h-1zM35 31h3v1h-3zM4 32h1v1h-1zM7 32h1v1h-1zM10 32h1v1h-1zM12 32h1v1h-1zM16 32h5v1h-5zM24 32h1v1h-1zM26 32h1v1h-1zM28 32h2v1h-2zM31 32h6v1h-6zM38 32h1v1h-1zM12 33h3v1h-3zM17 33h1v1h-1zM19 33h1v1h-1zM23 33h1v1h-1zM27 33h1v1h-1zM31 33h2v1h-2zM36 33h2v1h-2zM4 34h7v1h-7zM12 34h1v1h-1zM16 34h3v1h-3zM20 34h2v1h-2zM23 34h1v1h-1zM26 34h1v1h-1zM28 34h3v1h-3zM32 34h1v1h-1zM34 34h1v1h-1zM36 34h1v1h-1zM38 34h2v1h-2zM4 35h1v1h-1zM10 35h1v1h-1zM13 35h3v1h-3zM18 35h2v1h-2zM25 35h4v1h-4zM30 35h3v1h-3zM36 35h2v1h-2zM39 35h1v1h-1zM4 36h1v1h-1zM6 36h3v1h-3zM10 36h1v1h-1zM12 36h2v1h-2zM17 36h1v1h-1zM23 36h1v1h-1zM32 36h5v1h-5zM38 36h2v1h-2zM4 37h1v1h-1zM6 37h3v1h-3zM10 37h1v1h-1zM14 37h1v1h-1zM16 37h2v1h-2zM19 37h1v1h-1zM21 37h1v1h-1zM23 37h4v1h-4zM29 37h1v1h-1zM31 37h1v1h-1zM33 37h3v1h-3zM37 37h1v1h-1zM40 37h1v1h-1zM4 38h1v1h-1zM6 38h3v1h-3zM10 38h1v1h-1zM12 38h4v1h-4zM17 38h1v1h-1zM22 38h1v1h-1zM27 38h2v1h-2zM30 38h1v1h-1zM32 38h1v1h-1zM34 38h1v1h-1zM36 38h1v1h-1zM38 38h1v1h-1zM40 38h1v1h-1zM4 39h1v1h-1zM10 39h1v1h-1zM14 39h3v1h-3zM18 39h2v1h-2zM21 39h1v1h-1zM23 39h3v1h-3zM27 39h2v1h-2zM30 39h2v1h-2zM35 39h1v1h-1zM38 39h3v1h-3zM4 40h7v1h-7zM13 40h1v1h-1zM15 40h1v1h-1zM22 40h1v1h-1zM24 40h1v1h-1zM26 40h3v1h-3zM30 40h1v1h-1zM32 40h1v1h-1zM38 40h1v1h-1zM40 40h1v1h-1z"/>
   </symbol>
 </svg>
-<dialog id="dlg">
+<dialog id="dlg" class="dlg-gioi-thieu">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <h3 style="margin:0">Giới thiệu</h3>
     <button type="button" id="btnXoaPhien" title="Xoá phiên làm việc đã lưu (nội dung các tệp đã nạp) và lịch sử tệp đã mở trên máy này">🗑 Xoá dữ liệu phiên</button>
@@ -1148,11 +1166,12 @@
     <label class="cn-ghi" id="cnTuKiemNhan"><input type="checkbox" id="cnTuKiem"> Tự kiểm tra bản mới khi mở app (tối đa một lần mỗi ngày)</label>
     <div id="cnBanMoi" hidden>
       <div class="cn-ghi-chu" id="cnGhiChu"></div>
-      <div class="cn-dong"><button type="button" class="primary" id="btnTaiBanMoi">⬇ Tải bộ cài bản mới</button><a href="#" id="cnXemTrang">Xem trang phát hành</a>
+      <div class="cn-dong"><button type="button" class="primary" id="btnTaiBanMoi">⬇ Tải bộ cài bản mới</button>
         <span class="cn-ghi">Tải xong: đóng XML-Pro rồi chạy bộ cài, bản mới cài đè lên bản cũ.</span></div>
     </div>
   </div>
-  <p style="margin:6px 0">Đọc: tờ khai/BCTC HTKK, thông báo thuế, chứng từ nộp tiền (hiển thị chuẩn theo mẫu iTax Viewer), và cả hoá đơn điện tử (.xml, .zip, hoặc cả thư mục).</p>
+  <p style="margin:6px 0"><b>Xem:</b> tờ khai, phụ lục, BCTC HTKK / eTax theo đúng mẫu iTax Viewer (cả 01/CNKD hộ kinh doanh), hoá đơn điện tử, thông báo thuế, chứng từ nộp tiền, tờ khai hải quan, chứng từ khấu trừ TNCN, hồ sơ BHXH, bảng kê BHYT, sao kê ngân hàng, hồ sơ dự thầu — tệp .xml, .zip hoặc cả thư mục.</p>
+  <p style="margin:6px 0"><b>Làm:</b> đối chiếu tờ khai 01/GTGT với hoá đơn và giấy nộp tiền; lập tờ khai 01/GTGT, 04/GTGT, 01/CNKD hộ kinh doanh và tờ khai bổ sung (01/KHBS, 01-1/KHBS) từ hoá đơn; Dashboard kế toán; xuất Excel; đổi tên tệp hàng loạt.</p>
   <p style="margin:6px 0">Chữ ký số: app kiểm ngay trên máy cả vân tay dữ liệu lẫn chữ ký trong chứng thư số — bắt được hồ sơ bị sửa sau khi ký. <b>Không kiểm chứng thư có bị thu hồi hay không</b> (việc đó cần mạng); muốn chắc chắn thì tra trên cổng thuế điện tử.</p>
   <p style="margin:6px 0">Dữ liệu lưu trên máy này: phiên làm việc gần nhất (nội dung các tệp đã nạp, để khôi phục) và lịch sử tệp đã mở. Bấm "🗑 Xoá dữ liệu phiên" ở trên để xoá.</p>
       <div class="dn-box">
@@ -4065,7 +4084,7 @@
     } else if (d.kind === 'tb') body = renderNamed(d.data, NHAN_TB);
     else if (d.kind === 'ct') body = renderNamed(d.data, NHAN_CT);
     if (d.kind === 'nhap') notes.push(['info', 'Đây là file lưu nháp của HTKK trên máy (thư mục DataFiles), không phải file XML đã nộp. Số liệu là số đang nhập trong HTKK.']);
-    notes.push(['info', `Nguồn: ${d.source} · chỉ hiển thị, không kiểm tra chữ ký số là thật hay giả.`]);
+    notes.push(['info', `Nguồn: ${d.source} · chữ ký số (nếu có) đã được kiểm ngay trên máy, kết quả ở phần chữ ký bên dưới.`]);
     return `
       <div class="bar">
         <label><input type="checkbox" id="showEmpty" ${showEmpty ? 'checked' : ''}> Hiện cả chỉ tiêu bỏ trống</label>
@@ -4797,13 +4816,26 @@ Read-Host
   const KHOA_TU_KIEM = 'xmlpro.tuKiemCapNhat';
   const tuKiemCapNhat = () => { try { return localStorage.getItem(KHOA_TU_KIEM) !== '0'; } catch (e) { return true; } };
   let _banMoi = null;
+  // Ghi chú phát hành viết kiểu Markdown đơn giản: dòng tiêu đề (# …, **…**, CHỮ HOA), gạch đầu dòng "- " (thụt lề = mục con),
+  // **đậm**, `mã`. Thoát HTML trước rồi mới định dạng, nên nội dung lấy từ GitHub không chèn được mã vào trang.
+  function ghiChuDep(t) {
+    const nd = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
+    return String(t).replace(/\r/g, '').split('\n').map(d => {
+      const g = /^(\s*)[-*•]\s+(.*)$/.exec(d);
+      if (g) return `<div class="cn-dong-ds${g[1].length >= 2 ? ' con' : ''}">${nd(g[2])}</div>`;
+      const s = d.trim();
+      if (!s) return '<div class="cn-trong"></div>';
+      const tieuDe = /^#{1,4}\s+/.test(s) || /^\*\*[^*]+\*\*:?$/.test(s) || (s === s.toUpperCase() && /\p{L}/u.test(s) && s.length < 60);
+      return tieuDe ? `<div class="cn-tieu-de">${nd(s.replace(/^#{1,4}\s+/, '').replace(/^\*\*([^*]+)\*\*:?$/, '$1'))}</div>` : `<div>${nd(s)}</div>`;
+    }).join('');
+  }
   function hienCapNhat(m) {
     $('btnKiemCapNhat').disabled = false;
     if (m.loi) { $('cnTrangThai').textContent = m.loi; return; }
     if (!m.coBanMoi) { $('cnTrangThai').textContent = `Đang dùng bản mới nhất (${m.banDangDung}).`; $('cnBanMoi').hidden = true; return; }
     _banMoi = m;
     $('cnTrangThai').textContent = `Có bản mới ${m.banMoi} (đang dùng ${m.banDangDung}).`;
-    $('cnGhiChu').textContent = m.ghiChu || '';
+    $('cnGhiChu').innerHTML = ghiChuDep(m.ghiChu || '');
     $('cnGhiChu').hidden = !m.ghiChu;
     $('cnBanMoi').hidden = false;
     $('banMoi').textContent = `⬆ Có bản mới ${m.banMoi}`;
@@ -4814,7 +4846,6 @@ Read-Host
   if (VO) {
     $('btnKiemCapNhat').onclick = () => { $('btnKiemCapNhat').disabled = true; $('cnTrangThai').textContent = 'Đang hỏi GitHub…'; VO.postMessage({ lenh: 'kiemCapNhat', tuDong: false }); };
     $('btnTaiBanMoi').onclick = () => { if (_banMoi) VO.postMessage({ lenh: 'taiBanMoi', url: _banMoi.tai || _banMoi.trang }); };
-    $('cnXemTrang').onclick = e => { e.preventDefault(); if (_banMoi) VO.postMessage({ lenh: 'taiBanMoi', url: _banMoi.trang }); };
   } else {
     // Mở bằng cửa sổ Edge (máy chưa có WebView2) hoặc trình duyệt: không tự hỏi mạng, chỉ chỉ chỗ tải
     $('btnKiemCapNhat').hidden = true; $('cnTuKiemNhan').hidden = true;
@@ -4903,7 +4934,7 @@ Read-Host
     getSelectedFolder: () => selectedFolder,
     setSelectedFolder: f => { selectedFolder = f; },
     moIndexedDB, luuPhienIndexedDb, kiemTraPhienCu, khoiPhucPhienCu, boQuaPhienCu,
-    xoaDuLieuPhien, apDungTheme, moDlgLapTk
+    xoaDuLieuPhien, apDungTheme, moDlgLapTk, hienCapNhat
   };
 })();
 </script>
