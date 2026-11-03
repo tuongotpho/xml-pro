@@ -80,3 +80,23 @@ Nên **giữ cả hai**: Store là đường chính cho người dùng mới, tr
 - **Đã kiểm:** biên dịch được; chụp cả 3 màn hình bằng chế độ `/chup` (không cài gì). Lần chụp đầu phát hiện nút bấm bị tràn ra ngoài khung và chữ "Bước 1" bị tô màu lạ; đã sửa và chụp lại.
 - **Chưa kiểm:** **chưa cài thật**. Cài thật trên máy này sẽ đè lên XML-Pro anh đang dùng. Muốn xem thử giao diện mà không cài, chạy bộ cài với tham số `/thu`. Cài thật lần đầu nên do anh bấm, để kiểm cả việc ghi nhớ thư mục và tự đóng app đang mở.
 - Sửa kèm: mô tả trong thông tin tệp .exe trước ghi "8 hệ sinh thái", nay ghi đúng tính năng.
+
+## F. Cập nhật cùng ngày: đã có tài khoản Store, làm song song hai bản
+
+Anh đã gửi định danh: `LEVIETTHANH.XML-pro`, Publisher `CN=7121B105-…`, tên nhà phát hành `LE VIET THANH`.
+
+**Một bộ mã, một lệnh đóng gói, ra hai thứ:**
+- `dong-goi.ps1` biên dịch `XML-Pro.exe` → bộ cài `.exe` (đăng GitHub, như cũ) → gọi tiếp `dong-goi-store.ps1` → gói Store.
+- Cùng một tệp `XML-Pro.exe` cho cả hai. App **tự nhận biết** đang chạy từ gói Store: lúc đó không hỏi GitHub, mục Cập nhật ghi "Bản Microsoft Store: tự cập nhật qua Store".
+
+**Đã làm:**
+- `dong-goi/AppxManifest.xml` — khai báo gói: định danh của anh, chạy toàn quyền như app thường, hiện trong "Mở bằng" của tệp .xml, phiên bản `3.0.6.0`.
+- Biểu tượng 44, 50, 150, 310×150 px dựng từ biểu tượng đỏ (đã xem bằng mắt).
+- Trang chính sách riêng tư https://xmlpro.web.app/chinh-sach-rieng-tu.html (chưa deploy), có link ở chân trang chủ, thêm vào sitemap.
+- `dong-goi/noi-dung-store.md` — mô tả, tính năng, từ khoá soạn sẵn để dán vào Partner Center.
+- Test 41/41 sau khi sửa.
+
+**Chưa làm được / chưa kiểm:**
+- Chưa ra tệp `.msix`: máy chưa có `makeappx.exe`. Thư mục gói đã soạn đủ ở `dong-goi/ban-phat-hanh/msix`.
+- Tên hiển thị trong gói đang để `XML-pro` (đoán từ định danh). **Phải trùng đúng từng chữ hoa/thường** với tên anh đã đặt trong Partner Center, sai là Store trả về.
+- Chưa chạy thử app ở dạng gói Store (cần bật Developer Mode), nên phần "tự nhận biết bản Store" mới kiểm bằng biên dịch, chưa thấy bằng mắt.

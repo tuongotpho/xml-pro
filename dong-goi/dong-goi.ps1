@@ -65,4 +65,7 @@ $caiDat = "$ra\CaiDat-XML-Pro-$moi.exe"
 & $csc @chung @nhung "/out:$caiDat" "$dg\CaiDat.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
 if ($LASTEXITCODE) { throw 'Biên dịch bộ cài lỗi' }
 
-Get-ChildItem $ra | Select-Object Name, @{n='KB';e={[int]($_.Length/1KB)}}, @{n='PhienBan';e={$_.VersionInfo.ProductVersion}}
+Get-ChildItem $ra -File | Select-Object Name, @{n='KB';e={[int]($_.Length/1KB)}}, @{n='PhienBan';e={$_.VersionInfo.ProductVersion}}
+
+# Cùng XML-Pro.exe vừa biên dịch, đóng luôn gói Microsoft Store (app tự nhận biết đang chạy từ Store)
+& (Join-Path $dg 'dong-goi-store.ps1')

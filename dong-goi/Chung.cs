@@ -48,6 +48,17 @@ static class Chung
     {
         using (var k = Registry.CurrentUser.CreateSubKey(KhoaApp)) k.SetValue("ThuMucCai", thuMuc);
     }
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    static extern int GetCurrentPackageFullName(ref int len, System.Text.StringBuilder ten);
+    /// <summary>true khi chạy từ gói MSIX (cài qua Microsoft Store): Store lo cập nhật, app không tự hỏi GitHub</summary>
+    public static bool LaBanStore
+    {
+        get
+        {
+            try { int n = 0; return GetCurrentPackageFullName(ref n, null) != 15700; } // 15700 = APPMODEL_ERROR_NO_PACKAGE
+            catch { return false; }
+        }
+    }
     public static string ThuMucDuLieu
     {
         get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XemXmlThue"); }

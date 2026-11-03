@@ -171,6 +171,7 @@ sealed class CuaSoChinh : Form
             c.Settings.AreHostObjectsAllowed = false;
             c.Settings.IsGeneralAutofillEnabled = false;
             c.Settings.IsPasswordAutosaveEnabled = false;
+            if (Chung.LaBanStore) await c.AddScriptToExecuteOnDocumentCreatedAsync("window.__xmlproStore=true;");
             c.SetVirtualHostNameToFolderMapping(ChuongTrinh.MayTrang, _thuMuc, CoreWebView2HostResourceAccessKind.Deny);
             c.AddWebResourceRequestedFilter("https://" + ChuongTrinh.MayTep + "/*", CoreWebView2WebResourceContext.All);
             c.WebResourceRequested += PhucVuTep;
@@ -280,6 +281,7 @@ sealed class CuaSoChinh : Form
 
     void KiemCapNhat(bool tuDong)
     {
+        if (Chung.LaBanStore) return; // bản Store do Microsoft Store cập nhật
         string tepLanCuoi = Path.Combine(Chung.ThuMucDuLieu, "lan-kiem-cap-nhat.txt");
         if (tuDong)
         {

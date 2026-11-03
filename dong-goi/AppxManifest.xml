@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Khai báo gói MSIX để nộp Microsoft Store. dong-goi-store.ps1 thay $PHIENBAN$ bằng số phiên bản (dạng x.y.z.0).
+     Identity / Publisher / PublisherDisplayName lấy đúng từ Partner Center > Product identity, không được sửa tay. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity Name="LEVIETTHANH.XML-pro"
+            Publisher="CN=7121B105-6D96-4597-B783-EBB62D82F3D6"
+            Version="$PHIENBAN$"
+            ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>XML-pro</DisplayName>
+    <PublisherDisplayName>LE VIET THANH</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Đọc XML hoá đơn điện tử, tờ khai thuế; đối chiếu và lập tờ khai GTGT, 01/CNKD</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="vi-VN" />
+  </Resources>
+
+  <Applications>
+    <Application Id="XMLPro" Executable="XML-Pro.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="XML-pro"
+        Description="Đọc XML hoá đơn điện tử, tờ khai thuế; đối chiếu và lập tờ khai GTGT, 01/CNKD"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Hiện XML-Pro trong "Mở bằng" của tệp .xml; không chiếm quyền mặc định -->
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="xmlpro">
+            <uap:DisplayName>Tệp XML (XML-Pro)</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.xml</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

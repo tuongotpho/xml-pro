@@ -4843,7 +4843,12 @@ Read-Host
   }
   $('cnTuKiem').checked = tuKiemCapNhat();
   $('cnTuKiem').onchange = () => { try { localStorage.setItem(KHOA_TU_KIEM, $('cnTuKiem').checked ? '1' : '0'); } catch (e) { } };
-  if (VO) {
+  const BAN_STORE = !!(VO && window.__xmlproStore);
+  if (BAN_STORE) {
+    // Cài từ Microsoft Store: Store tự cập nhật, app không hỏi GitHub
+    $('btnKiemCapNhat').hidden = true; $('cnTuKiemNhan').hidden = true;
+    $('cnTrangThai').textContent = 'Bản Microsoft Store: tự cập nhật qua Store.';
+  } else if (VO) {
     $('btnKiemCapNhat').onclick = () => { $('btnKiemCapNhat').disabled = true; $('cnTrangThai').textContent = 'Đang hỏi GitHub…'; VO.postMessage({ lenh: 'kiemCapNhat', tuDong: false }); };
     $('btnTaiBanMoi').onclick = () => { if (_banMoi) VO.postMessage({ lenh: 'taiBanMoi', url: _banMoi.tai || _banMoi.trang }); };
   } else {
@@ -4868,7 +4873,7 @@ Read-Host
       else if (m.loai === 'capNhat') hienCapNhat(m);
     });
     VO.postMessage({ lenh: 'sanSang' });
-    if (tuKiemCapNhat()) VO.postMessage({ lenh: 'kiemCapNhat', tuDong: true });
+    if (!BAN_STORE && tuKiemCapNhat()) VO.postMessage({ lenh: 'kiemCapNhat', tuDong: true });
   }
 
   // ---------- Nhận file từ chương trình cài trên máy (XemXmlThue.exe) ----------
