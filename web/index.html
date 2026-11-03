@@ -73,11 +73,27 @@
   /* Khối nội dung */
   section { padding: 72px 0; }
   section.nen { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .tieu-de { max-width: 680px; margin: 0 0 36px; }
+  .tieu-de { margin: 0 0 36px; }
   .tieu-de h2 { font-size: clamp(24px, 3vw, 32px); letter-spacing: -.01em; line-height: 1.25; margin: 0 0 10px; }
-  .tieu-de p { color: var(--muted); margin: 0; font-size: 16.5px; }
+  .tieu-de p { color: var(--muted); margin: 0; font-size: 16.5px; max-width: 720px; }
   .luoi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .the { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .the { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .the:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--chinh) 40%, var(--line)); box-shadow: 0 14px 32px -16px rgba(29,78,216,.35); }
+  .the .bieu { transition: background .18s, color .18s; }
+  .the:hover .bieu { background: var(--chinh); color: #fff; }
+
+  /* Mục tính năng nổi bật: nền lưới chấm + hai quầng màu trôi chậm phía sau các thẻ */
+  #tinh-nang { position: relative; overflow: hidden; isolation: isolate; background: #f7f9fe; }
+  #tinh-nang::before { content: ''; position: absolute; inset: 0; z-index: -2;
+    background-image: radial-gradient(circle, rgba(29,78,216,.24) 1.1px, transparent 1.6px); background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 85%); mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 85%); }
+  .quang { position: absolute; z-index: -1; border-radius: 50%; filter: blur(64px); opacity: .7; pointer-events: none; }
+  .quang.q1 { width: 540px; height: 540px; background: #93b4ff; top: -120px; left: -140px; animation: troi1 18s ease-in-out infinite alternate; }
+  .quang.q2 { width: 500px; height: 500px; background: #a7e3c4; bottom: -160px; right: -120px; animation: troi2 22s ease-in-out infinite alternate; }
+  @keyframes troi1 { to { transform: translate(140px, 90px) scale(1.12); } }
+  @keyframes troi2 { to { transform: translate(-160px, -70px) scale(1.08); } }
+  #tinh-nang .the { background: rgba(255,255,255,.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  @media (prefers-reduced-motion: reduce) { .quang { animation: none; } .the, .the:hover { transition: none; transform: none; } }
   .the .bieu { width: 40px; height: 40px; border-radius: 10px; background: var(--chinh-nen); color: var(--chinh); display: grid; place-items: center; margin-bottom: 14px; }
   .the .bieu svg { width: 22px; height: 22px; }
   .the h3 { font-size: 16.5px; margin: 0 0 6px; }
@@ -217,6 +233,7 @@
   </div>
 
   <section id="tinh-nang" class="nen">
+    <span class="quang q1" aria-hidden="true"></span><span class="quang q2" aria-hidden="true"></span>
     <div class="khung">
       <div class="tieu-de"><h2>Đủ cho việc kế toán thuế hằng tháng, hằng quý</h2><p>Một chương trình thay cho việc mở từng tệp bằng iTax Viewer, cộng tay hoá đơn trên Excel và dò lệch từng dòng.</p></div>
       <div class="luoi">
