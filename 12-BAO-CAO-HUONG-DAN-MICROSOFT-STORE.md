@@ -96,7 +96,9 @@ Anh đã gửi định danh: `LEVIETTHANH.XML-pro`, Publisher `CN=7121B105-…`,
 - `dong-goi/noi-dung-store.md` — mô tả, tính năng, từ khoá soạn sẵn để dán vào Partner Center.
 - Test 41/41 sau khi sửa.
 
+- **Đã ra tệp `dong-goi/ban-phat-hanh/XML-Pro-3.0.6-Store.msix` (7.212 KB, 23 mục).** Công cụ `makeappx` lấy từ gói `Microsoft.Windows.SDK.BuildTools` 10.0.28000.2957 trên nuget.org, giải nén vào `dong-goi/cong-cu-sdk` (54 tệp, 18,4 MB, không cài vào Windows, không đưa lên git). Mọi tệp .exe/.dll trong đó có chữ ký số hợp lệ của Microsoft. `makeappx` báo "Package creation succeeded": khai báo gói đúng chuẩn.
+- Sửa logo trang chính sách riêng tư (trước trỏ đường dẫn từ gốc web, xem thử ở thư mục con thì mất).
+
 **Chưa làm được / chưa kiểm:**
-- Chưa ra tệp `.msix`: máy chưa có `makeappx.exe`. Thư mục gói đã soạn đủ ở `dong-goi/ban-phat-hanh/msix`.
 - Tên hiển thị trong gói đang để `XML-pro` (đoán từ định danh). **Phải trùng đúng từng chữ hoa/thường** với tên anh đã đặt trong Partner Center, sai là Store trả về.
 - Chưa chạy thử app ở dạng gói Store (cần bật Developer Mode), nên phần "tự nhận biết bản Store" mới kiểm bằng biên dịch, chưa thấy bằng mắt.
