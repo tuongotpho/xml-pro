@@ -11,7 +11,7 @@
   const MA_THUE = new Set(['[24]', '[25]', '[31]', '[33]', '[35]']); // lệch các dòng này là lệch tiền thuế
 
   // Lựa chọn của người xem (giữ khi vẽ lại)
-  const chon = { mst: '', kieu: '', namMo: {} }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
+  const chon = { mst: '', kieu: '', namMo: {}, doiTacMo: {} }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
 
   function coDuLieu(docs) {
     const DC = window.DOI_CHIEU;
@@ -143,8 +143,14 @@
       return [...m.values()].sort((a, b) => b.v - a.v);
     };
     const kh = gom(ban, 'ban'), ncc = gom(mua, 'mua');
-    const bangDoiTac = (tieuDe, phu, dsDt, tong) => `<div class="ktt-khoi"><div class="ktt-khoi-dau"><b>${tieuDe}</b><span>${phu}</span></div>
-      <table class="ktt-bang"><tbody>${dsDt.slice(0, 6).map(g => `<tr><td>${esc(g.ten)}<div class="ktt-nho">${esc(g.mst)} · ${g.n} HĐ</div></td><td>${so(g.v)}</td><td class="ktt-nho">${tong ? (g.v / tong * 100).toFixed(1).replace('.', ',') + '%' : ''}</td></tr>`).join('') || '<tr><td class="ktt-nho">Chưa có</td></tr>'}</tbody></table></div>`;
+    // Khách hàng / nhà cung cấp: mặc định 6 đơn vị lớn nhất; "Xem tất cả" bung đủ danh sách (có ô tìm, tự cuộn khi dài)
+    const bangDoiTac = (ma, tieuDe, phu, dsDt, tong) => {
+      const mo = !!chon.doiTacMo[ma], hien = mo ? dsDt : dsDt.slice(0, 6);
+      return `<div class="ktt-khoi" data-doi-tac="${ma}"><div class="ktt-khoi-dau"><b>${tieuDe} <span class="ktt-nho">(${dsDt.length})</span></b><span>${phu}</span></div>
+      ${mo && dsDt.length > 10 ? `<div class="ktt-tim-dt"><input type="search" placeholder="Tìm tên hoặc MST…" data-tim-dt="${ma}"></div>` : ''}
+      <div class="${mo ? 'ktt-dt-cuon' : ''}"><table class="ktt-bang"><tbody>${hien.map((g, i) => `<tr data-tim="${esc((g.ten + ' ' + g.mst).toLowerCase())}"><td>${mo ? `<span class="ktt-nho">${i + 1}.</span> ` : ''}${esc(g.ten)}<div class="ktt-nho">${esc(g.mst)} · ${g.n} HĐ</div></td><td>${so(g.v)}</td><td class="ktt-nho">${tong ? (g.v / tong * 100).toFixed(1).replace('.', ',') + '%' : ''}</td></tr>`).join('') || '<tr><td class="ktt-nho">Chưa có</td></tr>'}</tbody></table></div>
+      ${dsDt.length > 6 ? `<button type="button" class="ktt-xem-them" data-xem-dt="${ma}">${mo ? 'Thu gọn' : `Xem tất cả ${dsDt.length} ${tieuDe.toLowerCase()}`}</button>` : ''}</div>`;
+    };
 
     // Sổ theo kỳ là nơi làm việc chính: mỗi năm một dòng cộng nổi bật (bấm để gập / mở), dưới là các kỳ, mới nhất trên cùng.
     // Mở sẵn năm mới nhất và năm có kỳ lệch / cần xem; năm cũ chỉ "chưa lập" thường là chưa nạp tờ khai năm đó — gập lại cho gọn
@@ -198,7 +204,7 @@
           ${nams.map(dongNam).join('')}
           ${(c => `<tr class="ktt-cong"><td>Cộng${nams.length > 1 ? ` ${nams.length} năm` : ''}</td>${oSo(c)}<td>${c.pn ? so(c.pn) : ''}</td><td>${c.n}</td><td></td></tr>`)(congDs(dsKy))}
         </tbody></table></div>
-      <div class="ktt-hai">${bangDoiTac('Khách hàng', 'Giá trị bán ra', kh, t.banV)}${bangDoiTac('Nhà cung cấp', 'Giá trị mua vào', ncc, t.muaV)}</div>
+      <div class="ktt-hai">${bangDoiTac('kh', 'Khách hàng', 'Giá trị bán ra', kh, t.banV)}${bangDoiTac('ncc', 'Nhà cung cấp', 'Giá trị mua vào', ncc, t.muaV)}</div>
       <div class="ktt-chan">Số liệu chưa trừ thuế kỳ trước chuyển sang · hoá đơn trùng và hoá đơn bị thay thế đã loại · (C) August87 - 0982722036</div>
     </div>`;
   }
@@ -206,13 +212,22 @@
   /** Gắn sự kiện một lần lên khung chính. veLai(): vẽ lại Dashboard; moLapTk(preset): mở hộp lập tờ khai;
    *  chonCty(mst): báo app công ty vừa chọn, để danh sách bên trái gắn nhãn Mua vào / Bán ra theo công ty đó */
   function ganSuKien(khung, veLai, moLapTk, chonCty) {
+    // Lọc danh sách khách hàng / nhà cung cấp ngay khi gõ (không vẽ lại cả Dashboard)
+    khung.addEventListener('input', e => {
+      const o = e.target.closest('[data-tim-dt]');
+      if (!o) return;
+      const q = o.value.trim().toLowerCase();
+      o.closest('.ktt-khoi').querySelectorAll('tr[data-tim]').forEach(tr => { tr.hidden = !!q && !tr.dataset.tim.includes(q); });
+    });
     khung.addEventListener('click', e => {
       const cty = e.target.closest('[data-cty]');
-      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; chon.namMo = {}; if (chonCty) chonCty(chon.mst); veLai(); return; }
+      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; chon.namMo = {}; chon.doiTacMo = {}; if (chonCty) chonCty(chon.mst); veLai(); return; }
       const k = e.target.closest('.ktt-chon-ky [data-kieu]');
       if (k) { chon.kieu = k.dataset.kieu; chon.namMo = {}; veLai(); return; }
       const n = e.target.closest('[data-nam-tg]');
       if (n && !e.target.closest('button, a')) { chon.namMo[n.dataset.namTg] = n.dataset.mo !== '1'; veLai(); return; }
+      const x = e.target.closest('[data-xem-dt]');
+      if (x) { chon.doiTacMo[x.dataset.xemDt] = !chon.doiTacMo[x.dataset.xemDt]; veLai(); return; }
       const l = e.target.closest('[data-lap-tk]');
       if (l) { let p = {}; try { p = JSON.parse(l.dataset.lapTk); } catch (err) { } moLapTk(p); }
     });
