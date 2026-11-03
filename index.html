@@ -3872,6 +3872,11 @@
     }
     document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { i.value = '0'; });
     $('ltCt21').checked = false;
+    // Chưa chỉ định mẫu: MST chỉ xuất hoá đơn bán hàng (mẫu số 2, loại hộ kinh doanh dùng) thì mở sẵn 01/CNKD
+    if (!dat.mau) {
+      const banRa = docs.filter(d => d.kind === 'hd' && !d.error && DC.sachMst(d.ban?.MST) === $('ltMst').value);
+      if (banRa.length && banRa.every(d => String(d.mau || '').trim() === '2')) dat.mau = 'CNKD';
+    }
     $('ltMau').value = dat.mau === '04' || dat.mau === 'CNKD' ? dat.mau : '01';
     _lt04Nhom = {}; _ltMauNhom = '';
     $('ltCnkdNguong').value = money(window.LAP_TO_KHAI.NGUONG_HKD); $('ltCnkdDaTru').value = ''; $('ltCnkdPp').value = 'doanhThu';
