@@ -82,20 +82,25 @@
   .the .bieu { transition: background .18s, color .18s; }
   .the:hover .bieu { background: var(--chinh); color: #fff; }
 
-  /* Mục tính năng nổi bật: nền lưới chấm + hai quầng màu trôi chậm phía sau các thẻ */
-  #tinh-nang { position: relative; overflow: hidden; isolation: isolate; background: #f7f9fe; }
-  #tinh-nang::before { content: ''; position: absolute; inset: 0; z-index: -2;
-    background-image: radial-gradient(circle, rgba(29,78,216,.24) 1.1px, transparent 1.6px); background-size: 22px 22px;
-    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 85%); mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 85%); }
-  .quang { position: absolute; z-index: -1; border-radius: 50%; filter: blur(64px); opacity: .7; pointer-events: none; }
-  .quang.q1 { width: 540px; height: 540px; background: #93b4ff; top: -120px; left: -140px; animation: troi1 18s ease-in-out infinite alternate; }
-  .quang.q2 { width: 500px; height: 500px; background: #a7e3c4; bottom: -160px; right: -120px; animation: troi2 22s ease-in-out infinite alternate; }
-  @keyframes troi1 { to { transform: translate(140px, 90px) scale(1.12); } }
-  @keyframes troi2 { to { transform: translate(-160px, -70px) scale(1.08); } }
-  #tinh-nang .the { background: rgba(255,255,255,.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-  @media (prefers-reduced-motion: reduce) { .quang { animation: none; } .the, .the:hover { transition: none; transform: none; } }
   .the .bieu { width: 40px; height: 40px; border-radius: 10px; background: var(--chinh-nen); color: var(--chinh); display: grid; place-items: center; margin-bottom: 14px; }
   .the .bieu svg { width: 22px; height: 22px; }
+
+  /* Mỗi thẻ một màu: --m màu chính (ô biểu tượng, viền khi rê chuột), --mn nền nhạt */
+  .the.m { background: linear-gradient(155deg, var(--mn) 0%, var(--mn) 35%, #fff 100%); border-color: color-mix(in srgb, var(--m) 22%, #fff); }
+  .the.m .bieu { background: var(--m); color: #fff; box-shadow: 0 6px 14px -6px var(--m); }
+  .the.m:hover { border-color: var(--m); box-shadow: 0 16px 34px -18px var(--m); }
+  .the.m:hover .bieu { background: var(--m); }
+  .the.m .chuan { background: #fff; color: var(--m); border: 1px solid color-mix(in srgb, var(--m) 30%, #fff); }
+  .m-lam  { --m: #2563eb; --mn: #e3ecff; }
+  .m-ngoc { --m: #0d9488; --mn: #d9f5f1; }
+  .m-tim  { --m: #7c3aed; --mn: #ede4ff; }
+  .m-cam  { --m: #ea580c; --mn: #ffe9da; }
+  .m-la   { --m: #16a34a; --mn: #dcf5e4; }
+  .m-cham { --m: #4f46e5; --mn: #e4e5ff; }
+  .m-vang { --m: #ca8a04; --mn: #fdf1cc; }
+  .m-hong { --m: #db2777; --mn: #fde3ef; }
+  .m-troi { --m: #0284c7; --mn: #dcf0fb; }
+  .m-do   { --m: #dc2626; --mn: #fde4e4; }
   .the h3 { font-size: 16.5px; margin: 0 0 6px; }
   .the p { margin: 0; color: var(--muted); font-size: 14.5px; }
   .the .chuan { display: inline-block; font-size: 12px; color: var(--chinh); background: var(--chinh-nen); border-radius: 6px; padding: 2px 8px; margin: 0 0 10px; }
@@ -233,19 +238,18 @@
   </div>
 
   <section id="tinh-nang" class="nen">
-    <span class="quang q1" aria-hidden="true"></span><span class="quang q2" aria-hidden="true"></span>
     <div class="khung">
       <div class="tieu-de"><h2>Đủ cho việc kế toán thuế hằng tháng, hằng quý</h2><p>Một chương trình thay cho việc mở từng tệp bằng iTax Viewer, cộng tay hoá đơn trên Excel và dò lệch từng dòng.</p></div>
       <div class="luoi">
-        <div class="the"><div class="bieu"><svg><use href="#i-to"/></svg></div><h3>Tờ khai, BCTC như iTax Viewer</h3><p>Tờ khai HTKK / eTax, báo cáo tài chính TT200, TT133, TT99, thông báo thuế, giấy nộp tiền. Mỗi biểu một thẻ, in hoặc lưu PDF.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-hd"/></svg></div><h3>Hoá đơn điện tử</h3><p>Tệp .xml, .zip hay cả thư mục nhiều năm. Tự nhận công ty, gắn nhãn mua vào / bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-khoa"/></svg></div><h3>Kiểm chữ ký số</h3><p>Kiểm vân tay dữ liệu và chữ ký trong chứng thư số ngay trên máy, bắt được hồ sơ bị sửa sau khi ký.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-doi"/></svg></div><h3>Đối chiếu tờ khai ↔ hoá đơn</h3><p>So tờ khai 01/GTGT với hoá đơn cùng kỳ và giấy nộp tiền. Chỉ đích danh hoá đơn gây lệch: chưa kê, kê nhầm kỳ, kê hoá đơn đã bị thay thế.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-lap"/></svg></div><h3>Lập tờ khai từ hoá đơn</h3><p>01/GTGT, 04/GTGT tháng hoặc quý, kèm phụ lục giảm thuế. Tờ khai bổ sung có 01/KHBS, 01-1/KHBS và ước tính tiền chậm nộp.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-bang"/></svg></div><h3>Dashboard kế toán</h3><p>Sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng. Khách hàng, nhà cung cấp, xuất Excel.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-ten"/></svg></div><h3>Đổi tên tệp hàng loạt</h3><p>Đổi tên tệp hoá đơn thành ngày – MST – số hoá đơn – tên công ty, tìm nhanh trong Windows Explorer.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Tờ khai 05/KK-TNCN</h3><p>Bảng theo kỳ: số lao động, thu nhập chịu thuế, thuế đã khấu trừ. Kỳ khai nhiều lần chỉ tính bản bổ sung mới nhất.</p></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-tai"/></svg></div><h3>Tự báo bản mới</h3><p>Có bản mới, app báo ở góc thanh bên. Tải về, chạy là cài đè lên bản cũ. Tắt được nếu không muốn app ra mạng.</p></div>
+        <div class="the m m-lam"><div class="bieu"><svg><use href="#i-to"/></svg></div><h3>Tờ khai, BCTC như iTax Viewer</h3><p>Tờ khai HTKK / eTax, báo cáo tài chính TT200, TT133, TT99, thông báo thuế, giấy nộp tiền. Mỗi biểu một thẻ, in hoặc lưu PDF.</p></div>
+        <div class="the m m-ngoc"><div class="bieu"><svg><use href="#i-hd"/></svg></div><h3>Hoá đơn điện tử</h3><p>Tệp .xml, .zip hay cả thư mục nhiều năm. Tự nhận công ty, gắn nhãn mua vào / bán ra, loại hoá đơn trùng và hoá đơn đã bị thay thế.</p></div>
+        <div class="the m m-tim"><div class="bieu"><svg><use href="#i-khoa"/></svg></div><h3>Kiểm chữ ký số</h3><p>Kiểm vân tay dữ liệu và chữ ký trong chứng thư số ngay trên máy, bắt được hồ sơ bị sửa sau khi ký.</p></div>
+        <div class="the m m-cam"><div class="bieu"><svg><use href="#i-doi"/></svg></div><h3>Đối chiếu tờ khai ↔ hoá đơn</h3><p>So tờ khai 01/GTGT với hoá đơn cùng kỳ và giấy nộp tiền. Chỉ đích danh hoá đơn gây lệch: chưa kê, kê nhầm kỳ, kê hoá đơn đã bị thay thế.</p></div>
+        <div class="the m m-la"><div class="bieu"><svg><use href="#i-lap"/></svg></div><h3>Lập tờ khai từ hoá đơn</h3><p>01/GTGT, 04/GTGT tháng hoặc quý, kèm phụ lục giảm thuế. Tờ khai bổ sung có 01/KHBS, 01-1/KHBS và ước tính tiền chậm nộp.</p></div>
+        <div class="the m m-cham"><div class="bieu"><svg><use href="#i-bang"/></svg></div><h3>Dashboard kế toán</h3><p>Sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng. Khách hàng, nhà cung cấp, xuất Excel.</p></div>
+        <div class="the m m-vang"><div class="bieu"><svg><use href="#i-ten"/></svg></div><h3>Đổi tên tệp hàng loạt</h3><p>Đổi tên tệp hoá đơn thành ngày – MST – số hoá đơn – tên công ty, tìm nhanh trong Windows Explorer.</p></div>
+        <div class="the m m-hong"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Tờ khai 05/KK-TNCN</h3><p>Bảng theo kỳ: số lao động, thu nhập chịu thuế, thuế đã khấu trừ. Kỳ khai nhiều lần chỉ tính bản bổ sung mới nhất.</p></div>
+        <div class="the m m-troi"><div class="bieu"><svg><use href="#i-tai"/></svg></div><h3>Tự báo bản mới</h3><p>Có bản mới, app báo ở góc thanh bên. Tải về, chạy là cài đè lên bản cũ. Tắt được nếu không muốn app ra mạng.</p></div>
       </div>
     </div>
   </section>
@@ -254,17 +258,17 @@
     <div class="khung">
       <div class="tieu-de"><h2>Không chỉ thuế: đọc thêm 6 loại hồ sơ XML khác</h2><p>Mở như mở hoá đơn: kéo tệp hoặc cả thư mục vào. Mỗi loại được dựng thành một trang dễ đọc, in hoặc lưu PDF được; thư mục toàn một loại có Dashboard riêng và xuất Excel.</p></div>
       <div class="luoi">
-        <div class="the"><div class="bieu"><svg><use href="#i-tau"/></svg></div><h3>Tờ khai hải quan</h3><span class="chuan">VNACCS/VCIS · Cổng một cửa quốc gia</span>
+        <div class="the m m-troi"><div class="bieu"><svg><use href="#i-tau"/></svg></div><h3>Tờ khai hải quan</h3><span class="chuan">VNACCS/VCIS · Cổng một cửa quốc gia</span>
           <ul><li>Số tờ khai, ngày đăng ký, mã loại hình, cơ quan hải quan tiếp nhận</li><li>Người xuất khẩu, người nhập khẩu, mã số thuế, quốc gia</li><li>Vận tải: số vận đơn, phương tiện, cảng xếp hàng, cảng dỡ hàng; hoá đơn thương mại</li><li>Danh mục hàng hoá kèm thuế xuất nhập khẩu và thuế GTGT từng dòng</li></ul></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Chứng từ khấu trừ thuế TNCN</h3><span class="chuan">Nghị định 123/2020 · Thông tư 78/2021</span>
+        <div class="the m m-hong"><div class="bieu"><svg><use href="#i-nguoi"/></svg></div><h3>Chứng từ khấu trừ thuế TNCN</h3><span class="chuan">Nghị định 123/2020 · Thông tư 78/2021</span>
           <ul><li>Mẫu số, ký hiệu, số chứng từ</li><li>Tổ chức trả thu nhập và cá nhân nhận thu nhập</li><li>Tổng thu nhập chịu thuế, thu nhập tính thuế, số thuế đã khấu trừ (kèm số bằng chữ)</li><li>Thư mục nhiều chứng từ: cộng thu nhập và thuế đã khấu trừ trên Dashboard nhân sự</li></ul></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-khien"/></svg></div><h3>Hồ sơ BHXH</h3><span class="chuan">D02-LT, C70a-HD, 600, 888…</span>
+        <div class="the m m-lam"><div class="bieu"><svg><use href="#i-khien"/></svg></div><h3>Hồ sơ BHXH</h3><span class="chuan">D02-LT, C70a-HD, 600, 888…</span>
           <ul><li>Đơn vị sử dụng lao động, mã đơn vị BHXH, mã thủ tục, cơ quan quản lý</li><li>Danh sách lao động: họ tên, ngày sinh, CCCD, mã số BHXH, chức danh, lương đóng bảo hiểm</li><li>Hồ sơ chế độ: số ngày, số tiền trợ cấp</li><li>Tổng lao động, quỹ lương đóng và số phải nộp trên Dashboard nhân sự</li></ul></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-yte"/></svg></div><h3>Bảng kê khám chữa bệnh BHYT</h3><span class="chuan">XML 4210 · Quyết định 130/QĐ-BYT</span>
+        <div class="the m m-do"><div class="bieu"><svg><use href="#i-yte"/></svg></div><h3>Bảng kê khám chữa bệnh BHYT</h3><span class="chuan">XML 4210 · Quyết định 130/QĐ-BYT</span>
           <ul><li>Thông tin hành chính và thẻ BHYT của người bệnh</li><li>Thông tin khám chữa bệnh, chẩn đoán, bác sĩ điều trị</li><li>Tổng chi phí, phần BHYT thanh toán, phần người bệnh trả</li><li>Chi tiết thuốc, hoá chất và dịch vụ kỹ thuật, cận lâm sàng</li></ul></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-nh"/></svg></div><h3>Sao kê, sổ phụ ngân hàng</h3><span class="chuan">ISO 20022 camt.053 / camt.054</span>
+        <div class="the m m-vang"><div class="bieu"><svg><use href="#i-nh"/></svg></div><h3>Sao kê, sổ phụ ngân hàng</h3><span class="chuan">ISO 20022 camt.053 / camt.054</span>
           <ul><li>Ngân hàng, số tài khoản, chủ tài khoản, loại tiền</li><li>Số dư đầu kỳ, tổng phát sinh nợ, tổng phát sinh có, số dư cuối kỳ</li><li>Từng giao dịch: ngày, số tham chiếu, nội dung, số tiền, số dư sau giao dịch</li><li>Dashboard dòng tiền cho thư mục nhiều sao kê</li></ul></div>
-        <div class="the"><div class="bieu"><svg><use href="#i-thau"/></svg></div><h3>Hồ sơ dự thầu qua mạng</h3><span class="chuan">E-HSDT · Hệ thống mạng đấu thầu quốc gia</span>
+        <div class="the m m-tim"><div class="bieu"><svg><use href="#i-thau"/></svg></div><h3>Hồ sơ dự thầu qua mạng</h3><span class="chuan">E-HSDT · Hệ thống mạng đấu thầu quốc gia</span>
           <ul><li>Gói thầu: mã thông báo mời thầu, mã gói thầu, hình thức lựa chọn nhà thầu, bên mời thầu</li><li>Nhà thầu, mã số thuế, bảo đảm dự thầu và ngân hàng phát hành bảo lãnh</li><li>Giá dự thầu, giá trị giảm giá, giá sau giảm giá</li><li>Bảng khối lượng, hạng mục công việc</li></ul></div>
       </div>
       <p class="ghi-chu-nganh">Sáu loại này đọc theo cấu trúc tệp chuẩn của từng hệ thống và mới được thử với tệp mẫu. Nếu tệp thật của anh chị không mở được hoặc thiếu thông tin, gửi tệp cho tác giả để bổ sung.</p>
