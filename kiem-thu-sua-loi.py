@@ -576,6 +576,67 @@ def kiem_nhieu_nam(ev, J, hd):
              dat, J(r, ensure_ascii=False))
 
 
+def kiem_cnkd(ev, J):
+    print('=== 13. Tờ khai 01/CNKD hộ kinh doanh (TT 50/2026) từ hoá đơn bán hàng giả lập (báo cáo 11) ===')
+    nap_lai_trang(ev)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('gl', os.path.join(APP, 'cong-cu', 'tao-hd-hkd-gia-lap.py'))
+    gl = importlib.util.module_from_spec(spec); spec.loader.exec_module(gl)
+    tam = tempfile.mkdtemp(prefix='xmlpro-hkd-')
+    tep = gl.tao(tam)
+    # Phép tính độc lập bằng Python, theo đúng quy tắc TT 50/2026 + tỷ lệ NĐ 68/2026
+    TL = {'01': (1, 0.5), '02': (5, 2)}
+    def ky_vong(q):
+        tu, den = f'2026-{(q - 1) * 3 + 1:02d}-01', f'2026-{q * 3:02d}-31'
+        dong = {}
+        truoc = sum(t for kh, so, ng, _, _, t, _ in gl.HOA_DON if ng < tu)
+        for kh, so, ng, _, _, tien, kct in gl.HOA_DON:
+            if tu <= ng <= den:
+                n = '02' if kh == 'C26HDV' else '01'
+                d = dong.setdefault(n, [0, 0]); d[0] += tien; d[1] += kct
+        con = max(0, 1_000_000_000 - min(1_000_000_000, truoc))
+        gtgt = sum(round((v - k) * TL[n][0] / 100) for n, (v, k) in dong.items())
+        tncn = 0
+        for n in sorted(dong, key=lambda n: -TL[n][1]):
+            tru = min(dong[n][0], con); con -= tru
+            tncn += round((dong[n][0] - tru) * TL[n][1] / 100)
+        return {'gtgt': gtgt, 'tncn': tncn, 'conLai': con}
+    r = ev('''(async () => { const A = window.__xemXmlThue, L = window.LAP_TO_KHAI;
+          await A.addFiles(%s.map(([ten, vb]) => new File([vb], ten)));
+          const nhom = {}; A.docs.forEach((d, i) => { if (d.kyHieu === 'C26HDV') nhom[i] = '02'; });
+          const kq = {};
+          for (const q of [1, 2, 3]) { const k = L.tinhCNKD(A.docs, '%s', { kieu: 'Q', quy: q, nam: 2026 }, { nhomMacDinh: '01', nhomHD: nhom });
+            kq[q] = { gtgt: k.ct.tongCT14, tncn: k.ct.tongCT17, conLai: k.conLaiKySau, kct: k.ct.tongCT12, hd: k.hd.length }; }
+          // Giao diện: chọn mẫu 01/CNKD quý 2, đổi các hoá đơn dịch vụ sang nhóm 02 (bảng vẽ lại sau mỗi lần đổi nên tìm lại ô chọn)
+          A.moDlgLapTk({ mst: '%s', ky: { kieu: 'Q', quy: 2, nam: 2026 }, mau: 'CNKD' }); await new Promise(r => setTimeout(r, 300));
+          for (let lan = 0; lan < 5; lan++) {
+            const s = [...document.querySelectorAll('#lt04Ds [data-nhom-hd]')].find(x => A.docs[+x.dataset.nhomHd].kyHieu === 'C26HDV' && x.value !== '02');
+            if (!s) break; s.value = '02'; s.dispatchEvent(new Event('change', { bubbles: true })); await new Promise(r => setTimeout(r, 150));
+          }
+          const tieuDe = document.getElementById('ltTieuDe').textContent, an01 = document.getElementById('ltKhoiNhap').hidden;
+          document.getElementById('ltLap').click();
+          const i = A.docs.length - 1;
+          for (let n = 0; n < 200 && !A.docs[i]._itaxDone; n++) await new Promise(r => setTimeout(r, 50));
+          const x = new DOMParser().parseFromString(A.docs[i].rawXml, 'application/xml'), g = t => x.getElementsByTagNameNS('*', t)[0]?.textContent;
+          const sh = [...document.querySelectorAll('.itax-sheet')].find(e => e.offsetParent);
+          return { kq, tieuDe, an01, ten: A.docs[i].fileName, mtk: A.docs[i].mtk, loi: !!x.getElementsByTagName('parsererror').length,
+                   duPhong: (A.docs[i]._itaxSheets || []).filter(s => s.duPhong).length,
+                   x: { gtgt: g('soThueGTGT_ct14'), tncn: g('soThueTNCN_ct17'), tru: g('soTienTruKyTiep'), dong: x.getElementsByTagNameNS('*', 'CTietDoanhThu').length, ct10: [...x.getElementsByTagNameNS('*', 'ct10')].map(e => e.textContent) },
+                   mau: !!sh && sh.innerText.includes('Mẫu số: 01/CNKD'), tich: !!sh && sh.querySelector('#nopThueTNCNDoanhThu')?.checked }; })()'''
+           % (J([[os.path.basename(f), open(f, encoding='utf-8').read()] for f in tep]), gl.MST, gl.MST))
+    shutil.rmtree(tam, ignore_errors=True)
+    mong = {q: ky_vong(q) for q in (1, 2, 3)}
+    dat = all(r['kq'][str(q)]['gtgt'] == mong[q]['gtgt'] and r['kq'][str(q)]['tncn'] == mong[q]['tncn'] and r['kq'][str(q)]['conLai'] == mong[q]['conLai'] for q in (1, 2, 3))
+    danh_gia('01/CNKD: thuế GTGT, TNCN và phần 01 tỷ còn được trừ của 3 quý khớp phép tính Python độc lập (trừ dần qua các kỳ, ngành TNCN cao trừ trước, tách hàng không chịu thuế)',
+             dat and r['kq']['3']['kct'] == 50_000_000, J({'app': r['kq'], 'mong': mong}, ensure_ascii=False))
+    m2 = mong[2]
+    danh_gia('01/CNKD qua giao diện: chọn mẫu, đổi nhóm dịch vụ → tệp XML mã 1266 đúng số, 2 dòng (a)(b), mẫu iTax TT 50/2026 dựng được, ô "nộp TNCN trên doanh thu" được tích',
+             r['tieuDe'].endswith('01/CNKD từ hoá đơn đã nạp') and r['an01'] and r['mtk'] == '1266' and not r['loi'] and r['duPhong'] == 0
+             and r['ten'] == f'{gl.MST}000-01_CNKD-Q22026-L00.xml' and r['x']['gtgt'] == str(m2['gtgt']) and r['x']['tncn'] == str(m2['tncn'])
+             and r['x']['tru'] == str(m2['conLai']) and r['x']['dong'] == 2 and r['x']['ct10'] == ['(a)', '(b)'] and r['mau'] and r['tich'],
+             J({k: r[k] for k in ('tieuDe', 'ten', 'mtk', 'duPhong', 'x', 'mau', 'tich')}, ensure_ascii=False) + f' mong {m2}')
+
+
 def main():
     tam = tempfile.mkdtemp(prefix='xmlpro-test-')
     hd = sorted(glob.glob(os.path.join(MAU, 'hd_mau_*.xml')))
@@ -761,6 +822,7 @@ def main():
         kiem_04(ev, J, hd)
         kiem_thanh_ben(ev, J, hd)
         kiem_nhieu_nam(ev, J, hd)
+        kiem_cnkd(ev, J)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

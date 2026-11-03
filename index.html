@@ -1067,7 +1067,7 @@
       <details class="cong-cu" id="congCu">
         <summary>🧰 Công cụ</summary>
         <div class="cc-menu">
-          <button id="btnLapTk" type="button" title="Lập tờ khai thuế GTGT 01/GTGT hoặc 04/GTGT (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">📝 Lập tờ khai GTGT từ hoá đơn</button>
+          <button id="btnLapTk" type="button" title="Lập tờ khai 01/GTGT, 04/GTGT hoặc 01/CNKD hộ kinh doanh (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">📝 Lập tờ khai từ hoá đơn</button>
           <button id="btnDoiTen" type="button" title="Đổi tên tệp XML trên ổ cứng theo dạng ngày-MST-số HĐ-tên công ty, dễ tìm trong Windows Explorer">🏷 Đổi tên file hàng loạt</button>
           <button id="btnCaiDatMst" type="button" title="App tự nhận MST công ty từ tờ khai / hoá đơn để gắn nhãn Mua vào / Bán ra. Cài tay khi app nhận sai">⚙ MST công ty: <b id="lblMyMst">chưa nhận ra</b></button>
         </div>
@@ -1184,8 +1184,9 @@
   <h3 style="margin:0 0 4px" id="ltTieuDe">📝 Lập tờ khai 01/GTGT từ hoá đơn đã nạp</h3>
   <div class="lt-ghi" id="ltMoTa01">Mẫu 01/GTGT (TT80/2021), phương pháp khấu trừ, khai lần đầu. App cộng hoá đơn mua vào / bán ra của MST trong kỳ theo đúng quy tắc của phần đối chiếu. File XML xuất ra <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
   <div class="lt-ghi" id="ltMoTa04" hidden>Mẫu 04/GTGT (TT80/2021), phương pháp trực tiếp trên doanh thu, khai lần đầu. Thuế = doanh thu (giá thanh toán trên hoá đơn bán ra) × tỷ lệ % theo nhóm ngành: 1% phân phối hàng hoá, 5% dịch vụ, 3% sản xuất / vận tải / xây dựng có bao thầu vật liệu, 2% hoạt động khác. File XML <b>chưa ký số</b>.</div>
+  <div class="lt-ghi" id="ltMoTaCNKD" hidden>Mẫu 01/CNKD (Thông tư 50/2026/TT-BTC) cho hộ kinh doanh, cá nhân kinh doanh có doanh thu năm <b>trên 01 tỷ đồng</b>, khai quý (doanh thu năm đến 50 tỷ) hoặc tháng (trên 50 tỷ). Thuế GTGT = doanh thu × tỷ lệ % nhóm ngành; thuế TNCN = (doanh thu − phần được trừ trong mức 01 tỷ/năm) × tỷ lệ %. Doanh thu lấy theo giá thanh toán trên hoá đơn bán ra. File XML <b>chưa ký số</b>.</div>
   <div class="lt-hang">
-    <label>Mẫu<select id="ltMau"><option value="01">01/GTGT — khấu trừ</option><option value="04">04/GTGT — trực tiếp trên doanh thu</option></select></label>
+    <label>Mẫu<select id="ltMau"><option value="01">01/GTGT — khấu trừ</option><option value="04">04/GTGT — trực tiếp trên doanh thu</option><option value="CNKD">01/CNKD — hộ, cá nhân kinh doanh</option></select></label>
     <label>Doanh nghiệp (MST)<select id="ltMst"></select></label>
     <label>Kỳ<select id="ltKieu"><option value="Q">Quý</option><option value="M">Tháng</option></select></label>
     <label>Số<select id="ltSo"></select></label>
@@ -1220,12 +1221,20 @@
       <label>[42] Đề nghị hoàn<input data-nt="ct42"></label>
     </div>
   </details>
+  <details class="lt-khoi" open id="ltKhoiCnkd" hidden><summary>Thuế TNCN của hộ kinh doanh</summary>
+    <div class="lt-luoi">
+      <label style="grid-column:1/-1">Phương pháp nộp thuế TNCN<select id="ltCnkdPp"><option value="doanhThu">Theo doanh thu tính thuế (tỷ lệ % × doanh thu sau khi trừ mức 01 tỷ)</option><option value="thuNhap">Theo thu nhập tính thuế (doanh thu − chi phí) × thuế suất — app chỉ khai GTGT</option></select></label>
+      <label>Mức được trừ cả năm (đồng)<input id="ltCnkdNguong" inputmode="numeric"><span class="lt-ghi">mặc định 01 tỷ theo NĐ 141/2026</span></label>
+      <label>Đã trừ ở các kỳ trước trong năm<input id="ltCnkdDaTru" inputmode="numeric" placeholder="để trống: app tự tính"><span class="lt-ghi" id="ltCnkdDaTruGhi"></span></label>
+    </div>
+    <div class="lt-ghi" style="margin-top:6px">Tỷ lệ % theo Nghị định 68/2026/NĐ-CP — GTGT / TNCN: hàng hoá 1% / 0,5% · dịch vụ 5% / 2% · cho thuê tài sản 5% / 5% · sản xuất, vận tải 3% / 1,5% · nội dung số 5% / 5% · khác 2% / 1%.</div>
+  </details>
   </div><div id="ltXemTruoc" class="lt-phai"></div></div>
   <details class="lt-khoi" open id="lt04Khoi" hidden><summary>Nhóm ngành của doanh thu</summary>
     <div class="lt-luoi">
       <label style="grid-column:1/-1">Nhóm mặc định cho mọi hoá đơn<select id="lt04Nhom"></select></label>
     </div>
-    <div class="lt-ghi">Hoá đơn nào thuộc nhóm khác thì chọn lại ở cột "Nhóm" bên dưới. Phần hàng không chịu thuế / thuế suất 0% ghi trên hoá đơn tự vào [21].</div>
+    <div class="lt-ghi" id="lt04Ghi">Hoá đơn nào thuộc nhóm khác thì chọn lại ở cột "Nhóm" bên dưới. Phần hàng không chịu thuế / thuế suất 0% ghi trên hoá đơn tự vào [21].</div>
     <div id="lt04Ds" style="max-height:260px;overflow:auto;margin-top:6px"></div>
   </details>
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
@@ -3750,11 +3759,43 @@
   }
   let _ltKq = null, _lt04Nhom = {};
   const la04 = () => $('ltMau').value === '04';
+  const laCNKD = () => $('ltMau').value === 'CNKD';
+  let _ltMauNhom = '';
   function ltDoiMau() {
-    const m4 = la04();
-    $('ltTieuDe').textContent = `📝 Lập tờ khai ${m4 ? '04/GTGT' : '01/GTGT'} từ hoá đơn đã nạp`;
-    $('ltMoTa01').hidden = m4; $('ltMoTa04').hidden = !m4;
-    $('lt04Khoi').hidden = !m4; $('ltKhoiNhap').hidden = m4;
+    const L = window.LAP_TO_KHAI, mau = $('ltMau').value, m4 = mau === '04', cn = mau === 'CNKD';
+    $('ltTieuDe').textContent = `📝 Lập tờ khai ${cn ? '01/CNKD' : m4 ? '04/GTGT' : '01/GTGT'} từ hoá đơn đã nạp`;
+    $('ltMoTa01').hidden = m4 || cn; $('ltMoTa04').hidden = !m4; $('ltMoTaCNKD').hidden = !cn;
+    $('lt04Khoi').hidden = !(m4 || cn); $('ltKhoiNhap').hidden = m4 || cn; $('ltKhoiCnkd').hidden = !cn;
+    $('lt04Ghi').textContent = cn ? 'Hoá đơn nào thuộc nhóm khác thì chọn lại ở cột "Nhóm". Phần hàng không chịu thuế GTGT / thuế suất 0% ghi trên hoá đơn tự tách ra cột riêng của tờ khai.'
+      : 'Hoá đơn nào thuộc nhóm khác thì chọn lại ở cột "Nhóm" bên dưới. Phần hàng không chịu thuế / thuế suất 0% ghi trên hoá đơn tự vào [21].';
+    // Danh sách nhóm ngành đổi theo mẫu (04/GTGT có 4 nhóm, 01/CNKD có 6 nhóm)
+    if (_ltMauNhom !== mau && (m4 || cn)) {
+      $('lt04Nhom').innerHTML = cn ? L.NHOM_CNKD.map(n => `<option value="${n.ma}">${n.ma} — ${esc(n.ten)} (GTGT ${String(n.gtgt).replace('.', ',')}%, TNCN ${String(n.tncn).replace('.', ',')}%)</option>`).join('')
+        : L.NHOM_04.map(n => `<option value="${n.ma}">${n.tyLe}% — ${esc(n.ten)}</option>`).join('');
+      _ltMauNhom = mau; _lt04Nhom = {};
+    }
+  }
+  function ltTinhCNKD() {
+    const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
+    const nguong = docSoNhap($('ltCnkdNguong').value) || L.NGUONG_HKD;
+    const daTruNhap = $('ltCnkdDaTru').value.trim();
+    _ltKq = L.tinhCNKD(docs, mst, ky, { nhomMacDinh: $('lt04Nhom').value, nhomHD: _lt04Nhom, phuongPhap: $('ltCnkdPp').value, nguong, daTru: daTruNhap === '' ? null : docSoNhap(daTruNhap) });
+    const k = _ltKq, c = k.ct, so = v => money(v) || '0';
+    $('ltDem').textContent = `${k.ky.ten} (${k.ky.tuVN} → ${k.ky.denVN}): ${k.hd.length} hoá đơn bán ra · doanh thu cả năm ${ky.nam} theo hoá đơn đang nạp: ${so(k.dtNam)} đ`;
+    $('ltCnkdDaTruGhi').textContent = daTruNhap === '' ? `app tính: ${so(k.daTru)} đ` : 'đang dùng số anh chị nhập';
+    const chon = r => `<select data-nhom-hd="${r.idx}">${L.NHOM_CNKD.map(n => `<option value="${n.ma}"${n.ma === r.nhom ? ' selected' : ''}>${n.ma} — ${esc(n.ten)}</option>`).join('')}</select>`;
+    $('lt04Ds').innerHTML = k.hd.length ? `<table class="dc-tbl"><thead><tr><th>Hoá đơn</th><th>Người mua</th><th class="so">Doanh thu</th><th>Nhóm</th></tr></thead><tbody>
+      ${k.hd.map(r => `<tr><td><a class="dc-mo" data-mo-doc="${r.idx}">${esc(r.kyHieu + '-' + r.so)}</a><div class="lt-ghi">${esc(date(r.ngay))}</div></td><td>${esc(r.ten)}</td><td class="so">${so(r.tong)}${r.kct || r.t0 ? `<div class="lt-ghi">trong đó không chịu thuế / 0%: ${so(r.kct + r.t0)}</div>` : ''}</td><td>${chon(r)}</td></tr>`).join('')}
+      </tbody></table>` : '';
+    const pt = v => String(v).replace('.', ',') + '%';
+    $('ltXemTruoc').innerHTML = `<div class="dc-h">Xem trước — A. Kê khai thuế GTGT, TNCN</div>
+      <table class="dc-tbl"><thead><tr><th>Nhóm ngành</th><th class="so">Doanh thu</th><th class="so">Thuế GTGT</th><th class="so">Được trừ</th><th class="so">Thuế TNCN</th></tr></thead><tbody>
+      ${k.dong.map(d => `<tr><td><b>${d.n.chiTieu}</b> ${esc(d.n.ten)}<div class="lt-ghi">${d.soHD} HĐ · GTGT ${pt(d.n.gtgt)} · TNCN ${pt(d.n.tncn)}</div></td><td class="so">${so(d.ct11)}</td><td class="so">${so(d.ct14)}</td><td class="so">${so(d.ct16)}</td><td class="so">${so(d.ct17)}</td></tr>`).join('')}
+      <tr style="font-weight:600"><td>[18] Tổng cộng</td><td class="so">${so(c.tongCT11)}</td><td class="so">${so(c.tongCT14)}</td><td class="so">${so(c.tongCT16)}</td><td class="so">${so(c.tongCT17)}</td></tr>
+      <tr style="font-weight:600"><td>[20] Số thuế còn phải nộp</td><td></td><td class="so">${so(c.tongCT14)}</td><td></td><td class="so">${so(c.tongCT17)}</td></tr>
+      </tbody></table>
+      ${k.thuNhap ? '' : `<div class="lt-ghi" style="margin-top:4px">Mức trừ ${so(k.nguong)} đ/năm: các kỳ trước đã trừ ${so(k.daTru)} đ, kỳ này trừ ${so(c.tongCT16)} đ, còn được trừ ${so(k.conLaiKySau)} đ vào kỳ sau.</div>`}
+      ${k.canhBao.map(b => `<div class="${b.muc === 'loi' ? 'dc-goiy' : 'lt-ghi'}" style="margin-top:4px">${b.muc === 'loi' ? '✖' : '⚠'} ${esc(b.noiDung)}</div>`).join('')}`;
   }
   function ltTinh04() {
     const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
@@ -3778,6 +3819,7 @@
     const L = window.LAP_TO_KHAI, mst = $('ltMst').value, ky = ltKy();
     if (!mst || !ky.nam) { $('ltXemTruoc').innerHTML = ''; return; }
     if (la04()) return ltTinh04();
+    if (laCNKD()) return ltTinhCNKD();
     _ltKq = L.tinhGTGT(docs, mst, ky, ltNhapTay());
     const k = _ltKq, c = k.ct, so = v => money(v) || '0';
     $('ltDem').textContent = `${k.ky.ten} (${k.ky.tuVN} → ${k.ky.denVN}): ${k.mua.length} hoá đơn mua vào, ${k.ban.length} hoá đơn bán ra`;
@@ -3795,6 +3837,7 @@
     if (!_ltKq) ltTinhLai();
     try { localStorage.setItem(KHOA_DN(dn.mst), JSON.stringify(dn)); } catch (e) { }
     if (la04()) return { xml: L.xml04(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst, L.MAU_04.maFile) };
+    if (laCNKD()) return { xml: L.xmlCNKD(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst, L.MAU_CNKD.maFile) };
     return { xml: L.xmlGTGT(_ltKq, ky, dn), ten: L.tenFile(ky, dn.mst) };
   }
   function moDlgLapTk(dat) {
@@ -3829,9 +3872,9 @@
     }
     document.querySelectorAll('#dlgLapTk [data-nt]').forEach(i => { i.value = '0'; });
     $('ltCt21').checked = false;
-    if (!$('lt04Nhom').options.length) $('lt04Nhom').innerHTML = window.LAP_TO_KHAI.NHOM_04.map(n => `<option value="${n.ma}">${n.tyLe}% — ${esc(n.ten)}</option>`).join('');
-    $('ltMau').value = dat.mau === '04' ? '04' : '01';
-    _lt04Nhom = {};
+    $('ltMau').value = dat.mau === '04' || dat.mau === 'CNKD' ? dat.mau : '01';
+    _lt04Nhom = {}; _ltMauNhom = '';
+    $('ltCnkdNguong').value = money(window.LAP_TO_KHAI.NGUONG_HKD); $('ltCnkdDaTru').value = ''; $('ltCnkdPp').value = 'doanhThu';
     ltDoiMau();
     ltNapMstKy();
     $('dlgLapTk').showModal();
@@ -3845,6 +3888,8 @@
   $('ltNam').onchange = ltNapMstKy;
   $('dlgLapTk').addEventListener('input', e => { if (e.target.matches('[data-nt], #ltCt21')) ltTinhLai(); });
   $('ltMau').onchange = () => { ltDoiMau(); ltTinhLai(); };
+  $('ltKhoiCnkd').addEventListener('input', () => ltTinhLai());
+  $('ltCnkdPp').addEventListener('change', () => ltTinhLai());
   $('lt04Nhom').onchange = () => { _lt04Nhom = {}; ltTinhLai(); };
   $('dlgLapTk').addEventListener('change', e => {
     const s = e.target.closest('[data-nhom-hd]');

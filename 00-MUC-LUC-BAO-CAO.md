@@ -1,6 +1,6 @@
 # [00] Mục lục báo cáo — thư mục `F:\AI\7.xml-pro`
 
-> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `11-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
+> Quy tắc: mỗi báo cáo mới lấy **số tiếp theo** (tiếp theo là `12-`), tên tệp `NN-BAO-CAO-<CHU-DE>.md`, dòng đầu ghi `[NN]`, dòng thứ ba ghi báo cáo nó tiếp nối và nguồn dữ liệu. Thêm một dòng vào bảng dưới đây mỗi khi có báo cáo mới.
 
 | Số | Báo cáo | Ngày | Tiếp nối | Nguồn dữ liệu chính | Kết luận một câu |
 |---|---|---|---|---|---|
@@ -14,3 +14,4 @@
 | 08 | [Dashboard kế toán mới (ghép C + A)](08-BAO-CAO-DASHBOARD-KE-TOAN.md) | 02/11/2026 | 07 | 3 mẫu thiết kế HTML; HD-TK (không lên git); 6 HĐ mẫu | Dashboard mới (thẻ theo kỳ + sổ theo kỳ), sửa lỗi Dashboard cũ cộng cả HĐ bị thay thế (dư 89.656.000), đối chiếu chỉ thẳng "kê cả HĐ đã bị thay thế"; test 29/29; bộ cài 3.0.1; tự khai: test vỏ gửi nhầm tệp mẫu vào app anh đang mở — đã chặn |
 | 09 | [Tờ khai bổ sung 01/GTGT (KHBS), 04/GTGT, sửa nhận nhầm 05/KK-TNCN](09-BAO-CAO-KHBS-04GTGT-TNCN.md) | 03/11/2026 | 08 | 4 tờ khai bổ sung 05/KK-TNCN thật của HTKK (khuôn KHBS); mẫu iTax KHBS + 04/GTGT; HD-TK (không lên git); 6 HĐ mẫu | 05/KK-TNCN hết bị coi là tờ khai GTGT / ngành hoá đơn (nhận theo mã mẫu); lập được tờ khai bổ sung kèm 01/KHBS, 01-1/KHBS (quý 1 thật: [40] 0 → 401.941, bản bổ sung khớp hoá đơn) và 04/GTGT; hộp lập tờ khai rộng ra, MST tự nhận, thanh bên gom vào "Công cụ", Dashboard bỏ thẻ kỳ, sổ theo kỳ có dòng cộng năm và nút lập tờ khai; test 39/39; bộ cài 3.0.2; chưa nạp thử HTKK, test vỏ chưa chạy vì app anh đang mở |
 | 10 | [Phát hành 3.0.3: kiểm tra bản mới, kho bộ cài, trang giới thiệu](10-BAO-CAO-PHAT-HANH-3.0.3.md) | 03/11/2026 | 09 | GitHub API, Firebase Hosting site xmlpro, bộ cài 3.0.3 | Trang xmlpro.web.app đã lên; kho công khai xml-pro-ban-phat-hanh chỉ chứa bộ cài, bản v3.0.3; kiểm tra cập nhật làm lại thật (thử với GitHub thật: 3.0.2 → báo có 3.0.3); không đẩy mã nguồn; test 39/39 |
+| 11 | [Lập tờ khai 01/CNKD hộ kinh doanh (TT 50/2026)](11-BAO-CAO-TO-KHAI-01CNKD-HO-KINH-DOANH.md) | 03/11/2026 | 10 | Văn bản TT 50/2026 (mẫu 01/CNKD), khuôn iTax mã 1266, bảng tỷ lệ NĐ 68/2026, 10 hoá đơn giả lập | Lập được 01/CNKD từ hoá đơn bán ra: 3 quý giả lập khớp Python độc lập (trừ dần mức 01 tỷ, ngành TNCN cao trừ trước), khuôn iTax dựng được; sửa lỗi hoá đơn bán hàng bị coi là 0%; test 41/41; bộ cài 3.0.4 chưa đăng; chưa nạp thử HTKK |

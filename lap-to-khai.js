@@ -537,7 +537,7 @@ ${the('ct8', kb.lyDo)}
       const t = DC.tachHoaDon(h);
       const tg = h.tien_te && h.tien_te !== 'VND' && Number(h.tyGia) > 0 ? Number(h.tyGia) : 1;
       const tong = h.tong != null ? h.tong * tg : t.V + t.T;
-      const khongChiu = t.kct + t.t0;
+      const khongChiu = t.nguon === 'tong' ? 0 : t.kct + t.t0; // hoá đơn bán hàng không ghi thuế suất: không suy ra 0%
       const idx = docs.indexOf(h);
       const nhom = nhomHD[idx] || nhomMacDinh;
       if (t.T) canhBao.push({ muc: 'chu_y', noiDung: `HĐ ${h.kyHieu}-${h.so} ngày ${ngayVN(h.ngay)} có ghi thuế GTGT ${tienVN(t.T)} đ — doanh nghiệp khai 04/GTGT thường xuất hoá đơn bán hàng; app tính doanh thu theo giá thanh toán ${tienVN(tong)} đ.` });
@@ -650,9 +650,235 @@ ${so('ct37')}
 `);
   }
 
+  // ---------- Tờ khai 01/CNKD (hộ kinh doanh, cá nhân kinh doanh) — TT 18/2026, sửa đổi bởi TT 50/2026, mã 1266 ----------
+  // Khuôn XML theo mẫu iTax tkhai_01_cnkd.xslt bản 2.9.8; cách ghi theo văn bản TT 50/2026 (mẫu 01/CNKD):
+  //  - dành cho hộ có doanh thu năm trên 01 tỷ đồng; khai quý (1–50 tỷ) hoặc tháng (trên 50 tỷ);
+  //  - mỗi nhóm ngành một dòng, mã chỉ tiêu (a)…(e); thuế GTGT = doanh thu chịu thuế × tỷ lệ;
+  //  - thuế TNCN theo doanh thu: được trừ 01 tỷ đồng, trừ dần qua các kỳ, chọn ngành có lợi nhất trừ trước.
+  // Tỷ lệ % theo bảng của Nghị định 68/2026/NĐ-CP (ngưỡng 01 tỷ theo NĐ 141/2026) — sửa được trên hộp thoại nếu văn bản thay đổi.
+  const MAU_CNKD = { maTKhai: '1266', tenTKhai: 'TỜ KHAI THUẾ ĐỐI VỚI HỘ KINH DOANH, CÁ NHÂN KINH DOANH', pban: '2.9.8', maFile: '01_CNKD',
+    moTa: '(Kèm theo Thông tư số 50/2026/TT-BTC ngày 13/5/2026 của Bộ trưởng Bộ Tài chính)' };
+  const NHOM_CNKD = [
+    { ma: '01', chiTieu: '(a)', ten: 'Phân phối, cung cấp hàng hóa', gtgt: 1, tncn: 0.5 },
+    { ma: '02', chiTieu: '(b)', ten: 'Dịch vụ, xây dựng không bao thầu nguyên vật liệu', gtgt: 5, tncn: 2 },
+    { ma: '03', chiTieu: '(c)', ten: 'Hoạt động cho thuê tài sản trừ bất động sản', gtgt: 5, tncn: 5 },
+    { ma: '04', chiTieu: '(d)', ten: 'Sản xuất, vận tải, dịch vụ có gắn với hàng hóa, xây dựng có bao thầu nguyên vật liệu', gtgt: 3, tncn: 1.5 },
+    { ma: '05', chiTieu: '(đ)', ten: 'Hoạt động cung cấp sản phẩm nội dung thông tin số về giải trí, trò chơi điện tử, phim số, ảnh số, nhạc số, quảng cáo số', gtgt: 5, tncn: 5 },
+    { ma: '06', chiTieu: '(e)', ten: 'Hoạt động kinh doanh khác', gtgt: 2, tncn: 1 }
+  ];
+  const NGUONG_HKD = 1000000000; // 01 tỷ đồng/năm
+  const TIEU_MUC_GTGT_HKD = { ma: '1701', ten: 'Thuế giá trị gia tăng hàng sản xuất, kinh doanh trong nước' };
+  const TIEU_MUC_TNCN_HKD = { ma: '1003', ten: 'Thuế thu nhập cá nhân từ hoạt động sản xuất, kinh doanh của cá nhân' };
+
+  /** Doanh thu (giá thanh toán) từng hoá đơn bán ra của MST trong khoảng ngày, tách phần không chịu thuế GTGT / thuế suất 0% */
+  function doanhThuBan(docs, mst, tu, den) {
+    const DC = window.DOI_CHIEU;
+    const { ban } = DC.chonHoaDon(docs, mst, tu, den);
+    ban.sort((a, b) => (a.ngay || '').localeCompare(b.ngay || '') || String(a.kyHieu).localeCompare(String(b.kyHieu)) || (Number(a.so) - Number(b.so)));
+    return ban.map(h => {
+      const t = DC.tachHoaDon(h);
+      const tg = h.tien_te && h.tien_te !== 'VND' && Number(h.tyGia) > 0 ? Number(h.tyGia) : 1;
+      return { h, idx: docs.indexOf(h), kyHieu: h.kyHieu, so: h.so, ngay: h.ngay, ten: h.mua?.Ten || '',
+        // Hoá đơn bán hàng không ghi thuế suất: tachHoaDon suy "thuế = 0" thành 0% — chỉ tách KCT / 0% khi hoá đơn ghi rõ thuế suất
+        tong: Math.round(h.tong != null ? h.tong * tg : t.V + t.T), kct: t.nguon === 'tong' ? 0 : Math.round(t.kct), t0: t.nguon === 'tong' ? 0 : Math.round(t.t0), coThue: !!t.T };
+    });
+  }
+
+  /**
+   * Tính 01/CNKD cho MST trong kỳ.
+   * opt: { nhomMacDinh: '01'…'06', nhomHD: {idx: mã nhóm}, phuongPhap: 'doanhThu' | 'thuNhap',
+   *        nguong: mức trừ cả năm (mặc định 01 tỷ), daTru: doanh thu đã trừ ở các kỳ trước trong năm (bỏ trống thì tự tính từ hoá đơn đang nạp) }
+   */
+  function tinhCNKD(docs, mst, ky, opt = {}) {
+    const k = khoangKy(ky);
+    const nguong = opt.nguong != null ? Number(opt.nguong) : NGUONG_HKD;
+    const thuNhap = opt.phuongPhap === 'thuNhap';
+    const canhBao = [];
+    const hd = doanhThuBan(docs, mst, k.tu, k.den).map(r => ({ ...r, nhom: (opt.nhomHD || {})[r.idx] || opt.nhomMacDinh || '01' }));
+    // Doanh thu các kỳ trước trong năm (từ hoá đơn đang nạp) → phần 01 tỷ đã trừ
+    const truocKy = k.tu > `${ky.nam}-01-01` ? doanhThuBan(docs, mst, `${ky.nam}-01-01`, ngayTruoc(k.tu)) : [];
+    const dtTruoc = truocKy.reduce((s, r) => s + r.tong, 0);
+    const daTruTuDong = Math.min(nguong, dtTruoc);
+    const daTru = opt.daTru != null && opt.daTru !== '' ? Math.max(0, Number(opt.daTru)) : daTruTuDong;
+    const dtNam = doanhThuBan(docs, mst, `${ky.nam}-01-01`, `${ky.nam}-12-31`).reduce((s, r) => s + r.tong, 0);
+
+    const dong = NHOM_CNKD.map(n => {
+      const ds = hd.filter(r => r.nhom === n.ma);
+      const ct11 = ds.reduce((s, r) => s + r.tong, 0), ct12 = ds.reduce((s, r) => s + r.kct, 0), ct13 = ds.reduce((s, r) => s + r.t0, 0);
+      return { n, soHD: ds.length, ct11, ct12, ct13, ct14: Math.round((ct11 - ct12 - ct13) * n.gtgt / 100), ct15: thuNhap ? 0 : ct11, ct16: 0, ct17: 0 };
+    }).filter(d => d.soHD);
+    // Mức trừ còn lại trong năm: trừ vào nhóm có thuế suất TNCN cao nhất trước (phương án có lợi nhất)
+    let conLai = thuNhap ? 0 : Math.max(0, nguong - daTru);
+    for (const d of [...dong].sort((a, b) => b.n.tncn - a.n.tncn)) {
+      d.ct16 = Math.min(d.ct15, conLai); conLai -= d.ct16;
+      d.ct17 = Math.round((d.ct15 - d.ct16) * d.n.tncn / 100);
+    }
+    const tong = key => dong.reduce((s, d) => s + d[key], 0);
+    const ct = { tongCT11: tong('ct11'), tongCT12: tong('ct12'), tongCT13: tong('ct13'), tongCT14: tong('ct14'), tongCT15: tong('ct15'), tongCT16: tong('ct16'), tongCT17: tong('ct17') };
+
+    if (!hd.length) canhBao.push({ muc: 'chu_y', noiDung: `Không có hoá đơn bán ra nào của MST ${mst} trong ${k.ten}.` });
+    if (hd.some(r => r.coThue)) canhBao.push({ muc: 'chu_y', noiDung: `Có ${hd.filter(r => r.coThue).length} hoá đơn ghi thuế GTGT riêng — hộ kinh doanh thường xuất hoá đơn bán hàng; app tính doanh thu theo giá thanh toán.` });
+    if (dtNam <= nguong) canhBao.push({ muc: 'chu_y', noiDung: `Doanh thu cả năm ${ky.nam} theo hoá đơn đang nạp là ${tienVN(dtNam)} đ, chưa vượt ${tienVN(nguong)} đ: hộ có doanh thu năm từ 01 tỷ trở xuống không phải nộp thuế GTGT, TNCN và thông báo doanh thu theo mẫu 01/TKN-CNKD (không khai 01/CNKD). Kiểm tra lại nếu còn doanh thu chưa có hoá đơn.` });
+    if (dtNam > 50000000000 && ky.kieu === 'Q') canhBao.push({ muc: 'loi', noiDung: 'Doanh thu năm trên 50 tỷ đồng: theo TT 50/2026 phải khai theo THÁNG, không khai quý.' });
+    if (thuNhap) canhBao.push({ muc: 'chu_y', noiDung: 'Nộp thuế TNCN theo thu nhập tính thuế: tờ khai chỉ kê doanh thu và thuế GTGT; thuế TNCN tạm nộp tính theo thu nhập (doanh thu trừ chi phí) — app không có số liệu chi phí nên để trống phần TNCN.' });
+    else if (dtNam > 3000000000) canhBao.push({ muc: 'chu_y', noiDung: `Doanh thu năm ${tienVN(dtNam)} đ trên 03 tỷ đồng: kiểm tra hộ có thuộc diện nộp thuế TNCN theo thu nhập tính thuế không (khi đó chọn phương pháp "theo thu nhập").` });
+    if (opt.daTru == null || opt.daTru === '') {
+      if (truocKy.length) canhBao.push({ muc: 'chu_y', noiDung: `Mức trừ 01 tỷ: các kỳ trước trong năm đã có ${tienVN(dtTruoc)} đ doanh thu (theo hoá đơn đang nạp) nên đã trừ ${tienVN(daTruTuDong)} đ. Nếu tờ khai các kỳ trước trừ khác, sửa ô "Đã trừ ở các kỳ trước".` });
+      else if (k.tu > `${ky.nam}-01-01`) canhBao.push({ muc: 'chu_y', noiDung: 'Không có hoá đơn các kỳ trước trong năm nên app coi như chưa trừ đồng nào. Nếu các kỳ trước đã trừ, nhập ở ô "Đã trừ ở các kỳ trước".' });
+    }
+    return { dong, ct, hd, canhBao, ky: k, nguong, daTru, conLaiKySau: thuNhap ? 0 : conLai, thuNhap, dtNam };
+  }
+  const ngayTruoc = iso => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
+
+  function xmlCNKD(tk, ky, dn, ngayLap = homNay()) {
+    const k = khoangKy(ky), c = tk.ct;
+    const dongXml = tk.dong.map(d => `<CTietDoanhThu>
+${the('ct09_ma', d.n.ma)}
+${the('ct09_ten', d.n.ten)}
+${the('ct10', d.n.chiTieu)}
+<ct11>${d.ct11}</ct11>
+<ct12>${d.ct12}</ct12>
+<ct13>${d.ct13}</ct13>
+${the('ct14_maTieuMuc', TIEU_MUC_GTGT_HKD.ma)}
+${the('ct14_tenTieuMuc', TIEU_MUC_GTGT_HKD.ten)}
+<ct14_soThue>${d.ct14}</ct14_soThue>
+<ct15>${d.ct15}</ct15>
+<ct16>${d.ct16}</ct16>
+${tk.thuNhap ? '<ct17_maTieuMuc/>\n<ct17_tenTieuMuc/>' : `${the('ct17_maTieuMuc', TIEU_MUC_TNCN_HKD.ma)}\n${the('ct17_tenTieuMuc', TIEU_MUC_TNCN_HKD.ten)}`}
+<ct17_soThue>${d.ct17}</ct17_soThue>
+</CTietDoanhThu>`).join('\n');
+    const nopThue = [
+      c.tongCT14 ? [TIEU_MUC_GTGT_HKD, c.tongCT14] : null,
+      c.tongCT17 ? [TIEU_MUC_TNCN_HKD, c.tongCT17] : null
+    ].filter(Boolean);
+    return dinhDang(`<?xml version="1.0" encoding="UTF-8"?>
+<HSoThueDTu xmlns="http://kekhaithue.gdt.gov.vn/TKhaiThue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<HSoKhaiThue id="ID_1">
+<TTinChung>
+<TTinDVu>
+${the('maDVu', DICH_VU.maDVu)}
+${the('tenDVu', DICH_VU.tenDVu)}
+${the('pbanDVu', DICH_VU.pbanDVu)}
+${the('ttinNhaCCapDVu', DICH_VU.ttinNhaCCapDVu)}
+</TTinDVu>
+<TTinTKhaiThue>
+<TKhaiThue>
+${the('maTKhai', MAU_CNKD.maTKhai)}
+${the('tenTKhai', MAU_CNKD.tenTKhai)}
+${the('moTaBMau', MAU_CNKD.moTa)}
+${the('pbanTKhaiXML', MAU_CNKD.pban)}
+<loaiTKhai>C</loaiTKhai>
+<soLan>0</soLan>
+<KyKKhaiThue>
+<kieuKy>${ky.kieu}</kieuKy>
+${the('kyKKhai', k.kyKKhai)}
+${the('kyKKhaiTuNgay', k.tuVN)}
+${the('kyKKhaiDenNgay', k.denVN)}
+<kyKKhaiTuThang/>
+<kyKKhaiDenThang/>
+</KyKKhaiThue>
+${the('maCQTNoiNop', dn.maCQTNoiNop)}
+${the('tenCQTNoiNop', dn.tenCQTNoiNop)}
+${the('ngayLapTKhai', ngayLap)}
+<GiaHan>
+<maLyDoGiaHan/>
+<lyDoGiaHan/>
+</GiaHan>
+${the('nguoiKy', dn.nguoiKy)}
+${the('ngayKy', ngayLap)}
+<nganhNgheKD/>
+</TKhaiThue>
+<NNT>
+${the('mst', dn.mst)}
+${the('tenNNT', dn.tenNNT)}
+${the('dchiNNT', dn.dchiNNT)}
+${the('phuongXa', dn.phuongXa)}
+<maHuyenNNT/>
+<tenHuyenNNT/>
+${the('maTinhNNT', dn.maTinhNNT)}
+${the('tenTinhNNT', dn.tenTinhNNT)}
+${the('dthoaiNNT', dn.dthoaiNNT)}
+<faxNNT/>
+${the('emailNNT', dn.emailNNT)}
+</NNT>
+</TTinTKhaiThue>
+</TTinChung>
+<CTieuTKhaiChinh>
+<mst_cu/>
+<Header>
+<nopThueTNCNDoanhThu>${tk.thuNhap ? 'false' : 'true'}</nopThueTNCNDoanhThu>
+<nopThueTNCNThunhapTinhThue>${tk.thuNhap ? 'true' : 'false'}</nopThueTNCNThunhapTinhThue>
+<hoatDongTMDT>false</hoatDongTMDT>
+<hoatDongKhac>false</hoatDongKhac>
+<hoatDongLPS>false</hoatDongLPS>
+<ToChucNopThueThay>
+<ct6_ten/>
+<ct6_1_ma/>
+<ct6_2_so/>
+<ct6_2_ngay xsi:nil="true"/>
+</ToChucNopThueThay>
+</Header>
+<KhaiThueGTGTTNCN>
+<KinhDoanhDiaDiemCoDinh>
+<DoanhThuThueGTGTTNCN>
+<stt>1</stt>
+<truSoChinh>true</truSoChinh>
+${the('mst_diaDiemKD', dn.mst)}
+<ma_diaDiemKD/>
+${the('ten_diaDiemKD', dn.tenNNT)}
+<diaChi_diaDiemKD>
+${the('diaChi', dn.dchiNNT)}
+<ma_xaPhuong/>
+${the('ten_xaPhuong', dn.phuongXa)}
+${the('ma_tinh', dn.maTinhNNT)}
+${the('ten_tinh', dn.tenTinhNNT)}
+</diaChi_diaDiemKD>
+${dongXml}
+</DoanhThuThueGTGTTNCN>
+</KinhDoanhDiaDiemCoDinh>
+<TongCongCT18>
+${['tongCT11', 'tongCT12', 'tongCT13', 'tongCT14', 'tongCT15', 'tongCT16', 'tongCT17'].map(x => `<${x}>${c[x]}</${x}>`).join('\n')}
+</TongCongCT18>
+<SoThueMienCT19>
+<soThueDuocMienCT14>0</soThueDuocMienCT14>
+<soThueDuocMienCT17>0</soThueDuocMienCT17>
+</SoThueMienCT19>
+<SoThueConPhaiNopCT20>
+<soThueGTGT_ct14>${c.tongCT14}</soThueGTGT_ct14>
+<soThueTNCN_ct17>${c.tongCT17}</soThueTNCN_ct17>
+</SoThueConPhaiNopCT20>
+</KhaiThueGTGTTNCN>
+<HoTroThongTinNopThue>
+${nopThue.map(([tm, tien]) => `<ChiTietThongTinNopTHue>
+${the('ct38_mst', dn.mst)}
+<ct38_ma/>
+${the('ct38_ten', dn.tenNNT)}
+${the('ct39', tm.ten)}
+<ct40>${tien}</ct40>
+<soTienChenhLech>0</soTienChenhLech>
+<ct41_ma/>
+${the('ct42_ma', tm.ma)}
+<ct43_maDBHC/>
+<ct43_tenDBHC/>
+<ct44_maCQThu/>
+<ct44_tenCQThu/>
+${the('ct45_maCQThue', dn.maCQTNoiNop)}
+${the('ct45_tenCQThue', dn.tenCQTNoiNop)}
+${the('ct46', hanNop(ky))}
+</ChiTietThongTinNopTHue>`).join('\n')}
+<tongTienCT47>${c.tongCT14 + c.tongCT17}</tongTienCT47>
+</HoTroThongTinNopThue>
+<soTienTruKyTiep>${tk.conLaiKySau}</soTienTruKyTiep>
+</CTieuTKhaiChinh>
+<PLuc/>
+</HSoKhaiThue>
+</HSoThueDTu>
+`);
+  }
+
   /** Tên tệp theo cách HTKK đặt: <MST>000-01_GTGT_TT80-Q32026-L00.xml (kỳ tháng: -M102026-; bổ sung lần n: -L0n) */
   const tenFile = (ky, mst, maFile = MAU.maFile, soLan = 0) => `${String(mst).replace(/[^0-9-]/g, '')}000-${maFile}-${ky.kieu === 'Q' ? 'Q' + ky.quy : 'M' + pad(ky.thang)}${ky.nam}-L${pad(soLan)}.xml`;
 
   window.LAP_TO_KHAI = { tinhGTGT, xmlGTGT, khoangKy, kyTruoc, timCt22, thongTinDN, tenFile, NHAP_TAY_TRONG,
-    tinhKHBS, xmlKHBS, toKhaiMoiNhat, hanNop, tinh04, xml04, NHOM_04, MAU_04 };
+    tinhKHBS, xmlKHBS, toKhaiMoiNhat, hanNop, tinh04, xml04, NHOM_04, MAU_04, tinhCNKD, xmlCNKD, NHOM_CNKD, MAU_CNKD, NGUONG_HKD };
 })();

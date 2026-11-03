@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HDon><DLHDon Id="GL-C26HHK-7"><TTChung><PBan>2.1.0</PBan><THDon>Hóa đơn bán hàng</THDon><KHMSHDon>2</KHMSHDon><KHHDon>C26HHK</KHHDon><SHDon>7</SHDon><NLap>2026-08-19</NLap><DVTTe>VND</DVTTe><TGia>1</TGia><HTTToan>TM/CK</HTTToan></TTChung>
+<NDHDon><NBan><Ten>HỘ KINH DOANH MẪU NGUYỄN VĂN A (GIẢ LẬP)</Ten><MST>8000000001</MST><DChi>Số 1 đường Mẫu, phường Mẫu, tỉnh Mẫu (giả lập)</DChi></NBan>
+<NMua><Ten>Công ty TNHH Khách Mẫu Hai (giả lập)</Ten><MST></MST><DChi>Địa chỉ giả lập</DChi></NMua>
+<DSHHDVu><HHDVu><TChat>1</TChat><STT>1</STT><THHDVu>Thiết bị điện</THHDVu><DVTinh>lô</DVTinh><SLuong>1</SLuong><DGia>450000000</DGia><ThTien>450000000</ThTien></HHDVu></DSHHDVu>
+<TToan><TgTCThue>450000000</TgTCThue><TgTThue>0</TgTThue><TTCKTMai>0</TTCKTMai><TgTTTBSo>450000000</TgTTTBSo><TgTTTBChu>(giả lập)</TgTTTBChu></TToan></NDHDon></DLHDon></HDon>
