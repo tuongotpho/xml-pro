@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>XML-Pro — đọc XML thuế, hoá đơn điện tử, lập tờ khai GTGT</title>
 <meta name="description" content="XML-Pro: phần mềm miễn phí cho Windows đọc tờ khai HTKK, hoá đơn điện tử XML, đối chiếu tờ khai 01/GTGT với hoá đơn và lập tờ khai 01/GTGT, 04/GTGT, tờ khai bổ sung. Đọc cả tờ khai hải quan, chứng từ TNCN, hồ sơ BHXH, BHYT, sao kê ngân hàng, hồ sơ đấu thầu. Chạy trên máy, không gửi dữ liệu đi đâu.">
 <meta property="og:title" content="XML-Pro — đọc XML thuế, hoá đơn điện tử, lập tờ khai GTGT">
@@ -14,18 +15,7 @@
     --chinh: #1d4ed8; --chinh-dam: #1e40af; --chinh-nen: #e9effd; --xanh: #15803d; --xanh-nen: #e6f4ea;
     --vang: #a16207; --vang-nen: #fdf4e2; --do: #b91c1c; --do-nen: #fdecec; --bong: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0d1218; --bg2: #121922; --panel: #161e28; --ink: #e8edf3; --muted: #97a3b0; --line: #26313d;
-      --chinh: #7aa7ff; --chinh-dam: #9bbcff; --chinh-nen: #18253c; --xanh: #6fd394; --xanh-nen: #14291c;
-      --vang: #f0b860; --vang-nen: #2c2210; --do: #ff8f8f; --do-nen: #321717; --bong: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0d1218; --bg2: #121922; --panel: #161e28; --ink: #e8edf3; --muted: #97a3b0; --line: #26313d;
-    --chinh: #7aa7ff; --chinh-dam: #9bbcff; --chinh-nen: #18253c; --xanh: #6fd394; --xanh-nen: #14291c;
-    --vang: #f0b860; --vang-nen: #2c2210; --do: #ff8f8f; --do-nen: #321717; --bong: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
-  }
+  :root { color-scheme: light; }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -44,8 +34,6 @@
   .nut:hover { transform: translateY(-1px); box-shadow: var(--bong); }
   .nut.chinh { background: var(--chinh); border-color: var(--chinh); color: #fff; }
   .nut.nho { padding: 7px 14px; font-size: 14px; border-radius: 8px; }
-  :root[data-theme="dark"] .nut.chinh { color: #0b1220; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nut.chinh { color: #0b1220; } }
   .nut svg { width: 18px; height: 18px; flex: none; }
 
   /* Mở đầu */
@@ -80,8 +68,6 @@
   .chip { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
   .chip.xong { background: var(--xanh-nen); color: var(--xanh); } .chip.lech { background: var(--do-nen); color: var(--do); }
   .chip.xem { background: var(--vang-nen); color: var(--vang); } .chip.lap { background: var(--chinh); color: #fff; }
-  :root[data-theme="dark"] .chip.lap { color: #0b1220; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.lap { color: #0b1220; } }
   .cs-ghi { text-align: center; color: var(--muted); font-size: 12px; margin-top: 10px; }
 
   /* Khối nội dung */
@@ -105,8 +91,6 @@
   .quy-trinh { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: b; }
   .buoc { position: relative; padding: 24px 22px 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
   .buoc::before { counter-increment: b; content: counter(b); position: absolute; top: -14px; left: 22px; width: 28px; height: 28px; border-radius: 50%; background: var(--chinh); color: #fff; font-weight: 700; font-size: 14px; display: grid; place-items: center; }
-  :root[data-theme="dark"] .buoc::before { color: #0b1220; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .buoc::before { color: #0b1220; } }
   .buoc h3 { margin: 4px 0 6px; font-size: 16.5px; }
   .buoc p { margin: 0; color: var(--muted); font-size: 14.5px; }
 
@@ -133,8 +117,6 @@
   /* Kêu gọi cuối */
   .cuoi { padding: 8px 16px 64px; }
   .cuoi .hop { text-align: center; background: var(--chinh); color: #fff; border-radius: 20px; padding: 48px 24px; }
-  :root[data-theme="dark"] .cuoi .hop { color: #0b1220; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cuoi .hop { color: #0b1220; } }
   .cuoi h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 30px); }
   .cuoi p { margin: 0 0 24px; opacity: .88; }
   .cuoi .nut { background: #fff; color: #1e40af; border-color: #fff; }
