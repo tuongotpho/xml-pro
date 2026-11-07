@@ -43,6 +43,22 @@ sealed class KhungCongThue : Panel
         Controls.Add(_wv);
     }
 
+    /// <summary>Chụp trang cổng để trang app hiện mờ phía sau thẻ tải: người dùng thấy cổng thật vẫn ở đó. Ảnh chỉ nằm trong bộ nhớ, không ghi xuống đĩa.</summary>
+    public async void ChupGuiTrang()
+    {
+        try
+        {
+            if (_wv.CoreWebView2 == null) return;
+            await Task.Delay(900);
+            if (IsDisposed || _wv.CoreWebView2 == null) return;
+            var ms = new MemoryStream();
+            await _wv.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Jpeg, ms);
+            if (IsDisposed) return;
+            _chinh.GuiTrang(new Dictionary<string, object> { { "loai", "anhCong" }, { "anh", "data:image/jpeg;base64," + Convert.ToBase64String(ms.ToArray()) } });
+        }
+        catch { } // không chụp được thì thẻ tải hiện trên nền trơn
+    }
+
     /// <summary>Chuyển lệnh của XML-Pro xuống trang cổng (bắt đầu tải, dừng)</summary>
     public void GuiXuong(Dictionary<string, object> m)
     {
@@ -76,7 +92,7 @@ sealed class KhungCongThue : Panel
                 e.Handled = true;
                 if (ChoPhep(e.Uri)) c.Navigate(e.Uri); else MoNgoai(e.Uri);
             };
-            c.WindowCloseRequested += (s, e) => _chinh.DongCongThue(false);
+            c.WindowCloseRequested += (s, e) => _chinh.DongCongThue(true);
             c.WebMessageReceived += NhanLenh;
             c.Navigate(_cong);
         }

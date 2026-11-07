@@ -11,7 +11,7 @@
   const MA_THUE = new Set(['[24]', '[25]', '[31]', '[33]', '[35]']); // lệch các dòng này là lệch tiền thuế
 
   // Lựa chọn của người xem (giữ khi vẽ lại)
-  const chon = { mst: '', kieu: '', namMo: {}, doiTacMo: {} }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
+  const chon = { mst: '', kieu: '', namMo: {}, doiTacMo: {}, loc: null }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
   const canh = { pham: [], docs: [] }; // phạm vi của lần vẽ gần nhất, dùng khi bấm khoá sổ / mở bảng hoá đơn
 
   function coDuLieu(docs) {
@@ -152,9 +152,40 @@
       const mo = !!chon.doiTacMo[ma], hien = mo ? dsDt : dsDt.slice(0, 6);
       return `<div class="ktt-khoi" data-doi-tac="${ma}"><div class="ktt-khoi-dau"><b>${tieuDe} <span class="ktt-nho">(${dsDt.length})</span></b><span>${phu}</span></div>
       ${mo && dsDt.length > 10 ? `<div class="ktt-tim-dt"><input type="search" placeholder="Tìm tên hoặc MST…" data-tim-dt="${ma}"></div>` : ''}
-      <div class="${mo ? 'ktt-dt-cuon' : ''}"><table class="ktt-bang"><tbody>${hien.map((g, i) => `<tr data-tim="${esc((g.ten + ' ' + g.mst).toLowerCase())}"><td>${mo ? `<span class="ktt-nho">${i + 1}.</span> ` : ''}${esc(g.ten)}<div class="ktt-nho">${esc(g.mst)} · ${g.n} HĐ</div></td><td>${so(g.v)}</td><td class="ktt-nho">${tong ? (g.v / tong * 100).toFixed(1).replace('.', ',') + '%' : ''}</td></tr>`).join('') || '<tr><td class="ktt-nho">Chưa có</td></tr>'}</tbody></table></div>
+      <div class="${mo ? 'ktt-dt-cuon' : ''}"><table class="ktt-bang"><tbody>${hien.map((g, i) => `<tr data-tim="${esc((g.ten + ' ' + g.mst).toLowerCase())}" ${attrLoc({ c: ma === 'kh' ? 'ban' : 'mua', dt: g.mst || g.ten })} title="Xem hoá đơn của đơn vị này"><td>${mo ? `<span class="ktt-nho">${i + 1}.</span> ` : ''}${esc(g.ten)}<div class="ktt-nho">${esc(g.mst)} · ${g.n} HĐ</div></td><td>${so(g.v)}</td><td class="ktt-nho">${tong ? (g.v / tong * 100).toFixed(1).replace('.', ',') + '%' : ''}</td></tr>`).join('') || '<tr><td class="ktt-nho">Chưa có</td></tr>'}</tbody></table></div>
       ${dsDt.length > 6 ? `<button type="button" class="ktt-xem-them" data-xem-dt="${ma}">${mo ? 'Thu gọn' : `Xem tất cả ${dsDt.length} ${tieuDe.toLowerCase()}`}</button>` : ''}</div>`;
     };
+
+    // Bảng hoá đơn: như Dashboard cũ, thẻ tổng, ô tiền của kỳ và dòng đối tác đều là bộ lọc, bấm là thấy hoá đơn ngay
+    const attrLoc = p => `data-loc-hd="${esc(JSON.stringify(p))}"`;
+    const giongLoc = p => JSON.stringify(p) === JSON.stringify(chon.loc);
+    const canChuY = d => (d.notes || []).some(n => n[0] === 'warn');
+    const tatCaHd = [...ban.map(d => ({ d, c: 'ban' })), ...mua.map(d => ({ d, c: 'mua' }))].sort((a, b) => (b.d.ngay || '').localeCompare(a.d.ngay || ''));
+    const doiTacCua = x => x.c === 'ban' ? x.d.mua : x.d.ban;
+    const dungLoc = x => {
+      const l = chon.loc;
+      if (!l) return true;
+      if (l.c && x.c !== l.c) return false;
+      if (l.ky && khoaKy(kieu, x.d.ngay) !== l.ky) return false;
+      if (l.chuY && !canChuY(x.d)) return false;
+      if (l.dt) { const p = doiTacCua(x); if ((DC.sachMst(p?.MST) || p?.Ten || '?') !== l.dt) return false; }
+      return true;
+    };
+    const hdLoc = tatCaHd.filter(dungLoc);
+    const nhanLoc = () => { const l = chon.loc; if (!l) return ''; const y = []; if (l.c) y.push(l.c === 'ban' ? 'Bán ra' : 'Mua vào'); if (l.ky) y.push(tenKy(l.ky)); if (l.chuY) y.push('Cần chú ý'); if (l.dt) { const p = hdLoc[0] && doiTacCua(hdLoc[0]); y.push(p?.Ten || l.dt); } return y.join(' · '); };
+    const congLoc = hdLoc.reduce((s, x) => { const t = DC.tachHoaDon(x.d); s.V += t.V; s.T += t.T; return s; }, { V: 0, T: 0 });
+    const HIEN_TOI_DA = 200;
+    const dongHd = x => { const p = doiTacCua(x), t = DC.tachHoaDon(x.d), i = docs.indexOf(x.d);
+      return `<tr data-mo-doc="${i}" style="cursor:pointer" title="Mở hoá đơn"><td><span class="tag-pl ${x.c}">${x.c === 'ban' ? 'BÁN RA' : 'MUA VÀO'}</span></td><td>${esc(x.d.kyHieu)}-${esc(x.d.so)}</td><td>${esc((x.d.ngay || '').split('-').reverse().join('/'))}</td><td>${esc(p?.Ten || '')}<div class="ktt-nho">${esc(p?.MST || '')}</div></td><td>${so(t.V)}</td><td>${so(t.T)}</td><td>${canChuY(x.d) ? '<span class="ktt-huy ktt-xem">Cần chú ý</span>' : ''}</td></tr>`; };
+    const khoiHd = `<div class="ktt-khoi" id="kttHoaDon"><div class="ktt-khoi-dau"><b>Hoá đơn</b><div class="ktt-chip">
+        <button type="button" ${attrLoc({ tat: 1 })} class="${chon.loc ? '' : 'on'}">Tất cả (${tatCaHd.length})</button>
+        <button type="button" ${attrLoc({ c: 'mua' })} class="${giongLoc({ c: 'mua' }) ? 'on' : ''}">Mua vào (${mua.length})</button>
+        <button type="button" ${attrLoc({ c: 'ban' })} class="${giongLoc({ c: 'ban' }) ? 'on' : ''}">Bán ra (${ban.length})</button>
+        <button type="button" ${attrLoc({ chuY: 1 })} class="${giongLoc({ chuY: 1 }) ? 'on' : ''}">Cần chú ý (${tatCaHd.filter(x => canChuY(x.d)).length})</button>
+        ${chon.loc ? `<span class="ktt-dang-loc" id="kttDangLoc">Đang lọc: <b>${esc(nhanLoc())}</b> · ${hdLoc.length} hoá đơn · trước thuế ${so(congLoc.V)} · thuế ${so(congLoc.T)}</span>` : ''}
+      </div></div>
+      <div class="ktt-hd-cuon"><table class="ktt-bang ktt-bang-hd"><thead><tr><th>Loại</th><th>Hoá đơn</th><th>Ngày</th><th>Đối tác</th><th>Trước thuế</th><th>Thuế</th><th></th></tr></thead><tbody>${hdLoc.slice(0, HIEN_TOI_DA).map(dongHd).join('') || '<tr><td colspan="7" class="ktt-nho">Không có hoá đơn nào khớp bộ lọc.</td></tr>'}</tbody></table></div>
+      ${hdLoc.length > HIEN_TOI_DA ? `<div class="ktt-nho" style="padding:8px">Hiện ${HIEN_TOI_DA} hoá đơn mới nhất trong ${hdLoc.length}. Xem đủ ở Kho hoá đơn.</div>` : ''}</div>`;
 
     // Sổ theo kỳ là nơi làm việc chính: mỗi năm một dòng cộng nổi bật (bấm để gập / mở), dưới là các kỳ, mới nhất trên cùng.
     // Mở sẵn năm mới nhất và năm có kỳ lệch / cần xem; năm cũ chỉ "chưa lập" thường là chưa nạp tờ khai năm đó — gập lại cho gọn
@@ -162,6 +193,7 @@
     const congDs = dsN => dsN.reduce((x, g) => ({ banV: x.banV + g.banV, banT: x.banT + g.banT, muaV: x.muaV + g.muaV, muaT: x.muaT + g.muaT,
       n: x.n + g.nBan + g.nMua, pn: x.pn + (g.dc ? g.dc.tk.ct.ct40 || 0 : 0) }), { banV: 0, banT: 0, muaV: 0, muaT: 0, n: 0, pn: 0 });
     const oSo = c => `<td>${so(c.banV)}</td><td>${so(c.banT)}</td><td>${so(c.muaV)}</td><td>${so(c.muaT)}</td><td>${so(c.banT - c.muaT)}</td>`;
+    const oSoKy = g => { const b = attrLoc({ c: 'ban', ky: g.k }), m = attrLoc({ c: 'mua', ky: g.k }); return `<td ${b} title="Xem hoá đơn bán ra của kỳ">${so(g.banV)}</td><td ${b}>${so(g.banT)}</td><td ${m} title="Xem hoá đơn mua vào của kỳ">${so(g.muaV)}</td><td ${m}>${so(g.muaT)}</td><td>${so(g.banT - g.muaT)}</td>`; };
     const tenHd = i => esc(docs[i].kyHieu + '-' + docs[i].so);
     // Cột Tờ khai: chưa lập → nút lập ngay; đã có → bấm trạng thái để mở tờ khai; lệch → thêm nút lập bổ sung
     const nutKhoa = g => {
@@ -180,7 +212,7 @@
     const dongKy = g => `<tr class="ktt-dong-ky ktt-${g.loai}" data-trang-thai="${esc(g.nhan)}" data-ky="${esc(g.k)}"><td><span class="ktt-ten-ky">${tenKy(g.k)}</span>${
         g.so.khoa ? (g.so.ss.moTa.length ? `<div class="ktt-ly-do ktt-doi-sau-khoa" title="Khoá sổ ngày ${esc(g.so.lucVN)}">Sau khi khoá sổ: ${esc(g.so.ss.moTa.join(', '))}</div>` : `<div class="ktt-nho">Khoá sổ ngày ${esc(g.so.lucVN)}${g.so.ss.chuaNap ? ' · chưa nạp hoá đơn kỳ này' : ''}</div>`)
         : (g.loai === 'loi' || g.loai === 'xem') && g.moTa.length ? `<div class="ktt-ly-do" title="${esc(g.moTa.join(' · '))}">${esc(g.moTa[0])}${g.hdMo ? ` · <a class="ktt-lk" data-mo-doc="${g.hdMo.idx}">mở HĐ ${tenHd(g.hdMo.idx)}</a>` : ''}</div>`
-        : !g.tkDoc && !khacKieu ? `<div class="ktt-nho">Hạn nộp ${hanNop(g.k)}</div>` : ''}</td>${oSo(g)}<td>${g.dc ? so(g.dc.tk.ct.ct40) : ''}</td><td>${window.SO_TAY ? `<button type="button" class="ktt-so-hd" data-so-hd="${esc(g.k)}" title="Xem hoá đơn của kỳ, thêm ghi chú">${g.nBan + g.nMua}</button>` : g.nBan + g.nMua}</td><td class="ktt-o-tk">${oToKhai(g)}${nutKhoa(g)}</td></tr>`;
+        : !g.tkDoc && !khacKieu ? `<div class="ktt-nho">Hạn nộp ${hanNop(g.k)}</div>` : ''}</td>${oSoKy(g)}<td>${g.dc ? so(g.dc.tk.ct.ct40) : ''}</td><td>${window.SO_TAY ? `<button type="button" class="ktt-so-hd" data-so-hd="${esc(g.k)}" title="Xem hoá đơn của kỳ, thêm ghi chú">${g.nBan + g.nMua}</button>` : g.nBan + g.nMua}</td><td class="ktt-o-tk">${oToKhai(g)}${nutKhoa(g)}</td></tr>`;
     const dongNam = nam => {
       const dsN = dsKy.filter(g => g.k.startsWith(nam)).reverse(), c = congDs(dsN);
       const demN = l => dsN.filter(g => g.loai === l).length;
@@ -207,8 +239,8 @@
       </div>
       ${(n => n ? `<div class="ktt-tom"><span class="ktt-loi">${n} kỳ đã khoá sổ có hoá đơn thay đổi</span></div>` : '')(dsKy.filter(g => g.so.khoa && g.so.ss.moTa.length).length)}
       <div class="ktt-tong">
-        <div><span>Bán ra</span><b>${so(t.banV)}</b></div><div><span>Thuế đầu ra</span><b>${so(t.banT)}</b></div>
-        <div><span>Mua vào</span><b>${so(t.muaV)}</b></div><div><span>Thuế đầu vào</span><b>${so(t.muaT)}</b></div>
+        <div ${attrLoc({ c: 'ban' })} class="${giongLoc({ c: 'ban' }) ? 'on' : ''}" title="Bấm để xem hoá đơn bán ra"><span>Bán ra</span><b>${so(t.banV)}</b></div><div ${attrLoc({ c: 'ban' })}><span>Thuế đầu ra</span><b>${so(t.banT)}</b></div>
+        <div ${attrLoc({ c: 'mua' })} class="${giongLoc({ c: 'mua' }) ? 'on' : ''}" title="Bấm để xem hoá đơn mua vào"><span>Mua vào</span><b>${so(t.muaV)}</b></div><div ${attrLoc({ c: 'mua' })}><span>Thuế đầu vào</span><b>${so(t.muaT)}</b></div>
         <div><span>Chênh lệch thuế</span><b class="${t.banT - t.muaT > 0 ? 'ktt-am' : ''}">${t.banT - t.muaT > 0 ? '+' : ''}${so(t.banT - t.muaT)}</b></div>
       </div>
       <div class="ktt-khoi"><div class="ktt-khoi-dau"><b>Theo kỳ kê khai</b><span>Đơn vị: đồng · bấm trạng thái để mở tờ khai${nams.length > 1 ? ' · bấm dòng năm để gập / mở' : ''}</span></div>
@@ -216,6 +248,7 @@
           ${nams.map(dongNam).join('')}
           ${(c => `<tr class="ktt-cong"><td>Cộng${nams.length > 1 ? ` ${nams.length} năm` : ''}</td>${oSo(c)}<td>${c.pn ? so(c.pn) : ''}</td><td>${c.n}</td><td></td></tr>`)(congDs(dsKy))}
         </tbody></table></div>
+      ${khoiHd}
       <div class="ktt-hai">${bangDoiTac('kh', 'Khách hàng', 'Giá trị bán ra', kh, t.banV)}${bangDoiTac('ncc', 'Nhà cung cấp', 'Giá trị mua vào', ncc, t.muaV)}</div>
       <div class="ktt-chan">Số liệu chưa trừ thuế kỳ trước chuyển sang · hoá đơn trùng và hoá đơn bị thay thế đã loại · (C) August87 - 0982722036</div>
     </div>`;
@@ -233,9 +266,18 @@
     });
     khung.addEventListener('click', e => {
       const cty = e.target.closest('[data-cty]');
-      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; chon.namMo = {}; chon.doiTacMo = {}; if (chonCty) chonCty(chon.mst); veLai(); return; }
+      if (cty) { chon.mst = cty.dataset.cty; chon.kieu = ''; chon.namMo = {}; chon.doiTacMo = {}; chon.loc = null; if (chonCty) chonCty(chon.mst); veLai(); return; }
+      const lh = e.target.closest('[data-loc-hd]');
+      if (lh && !e.target.closest('a, input, [data-so-hd], [data-khoa-so], [data-lap-tk], [data-khbs], [data-mo-doc]')) {
+        const p = JSON.parse(lh.dataset.locHd), giong = JSON.stringify(p) === JSON.stringify(chon.loc);
+        chon.loc = p.tat || giong ? null : p; // bấm lại đúng bộ lọc đang bật thì tắt
+        veLai();
+        const b = khung.querySelector('#kttHoaDon');
+        if (b) b.scrollIntoView({ block: 'start' });
+        return;
+      }
       const k = e.target.closest('.ktt-chon-ky [data-kieu]');
-      if (k) { chon.kieu = k.dataset.kieu; chon.namMo = {}; veLai(); return; }
+      if (k) { chon.kieu = k.dataset.kieu; chon.namMo = {}; chon.loc = null; veLai(); return; }
       const n = e.target.closest('[data-nam-tg]');
       if (n && !e.target.closest('button, a')) { chon.namMo[n.dataset.namTg] = n.dataset.mo !== '1'; veLai(); return; }
       const x = e.target.closest('[data-xem-dt]');

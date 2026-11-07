@@ -275,7 +275,10 @@ sealed class CuaSoChinh : Form
                 _cong.GuiXuong(xuong);
                 break;
             case "dongCong":
-                DongCongThue(false);
+                DongCongThue(false); // trang app đã tự về màn khác và tự hỏi xác nhận, không báo ngược lại
+                break;
+            case "chupCong":
+                if (_cong != null) _cong.ChupGuiTrang();
                 break;
             case "chonThuMucNoiLai":
                 string tmMoi = HopChonThuMuc.Hien(this, "Chọn thư mục mới của hoá đơn");
@@ -356,16 +359,15 @@ sealed class CuaSoChinh : Form
         _cong.BringToFront();
     }
 
-    public void DongCongThue(bool khongHoi)
+    /// <summary>baoTrang = true khi khung tự đóng (lỗi, trang gọi window.close), để trang app biết mà về màn khác</summary>
+    public void DongCongThue(bool baoTrang)
     {
         if (_cong == null) return;
-        if (!khongHoi && _cong.DangTai && Environment.GetEnvironmentVariable("XMLPRO_CONG_THU") == null
-            && MessageBox.Show(this, "Đang tải hoá đơn. Đóng sẽ dừng tải, các tệp đã tải vẫn được giữ lại. Đóng?", Chung.TenApp, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
         var k = _cong;
         _cong = null;
         Controls.Remove(k);
         k.Dispose();
-        Gui(new Dictionary<string, object> { { "loai", "congDaDong" } });
+        if (baoTrang) Gui(new Dictionary<string, object> { { "loai", "congDaDong" } });
     }
 
     public void GuiTrang(Dictionary<string, object> m) { Gui(m); }

@@ -26,7 +26,7 @@ Lưu ý khi lên 3.0.0 từ bản cũ: MST đã cài, lịch sử tệp, phiên 
 
 1. **🧰 Công cụ → ⬇ Tải hoá đơn từ cổng thuế.** Trang cổng thuế thật hiện ngay trong XML-Pro, thanh bên vẫn dùng được.
 2. Tự đăng nhập, tự gõ captcha trên trang đó. XML-Pro không có ô nhập mật khẩu, không đọc, không lưu. Bấm **Đóng và đăng xuất** là hết phiên. **Về XML-Pro** thì giữ phiên, chọn lại mục trong Công cụ để quay về.
-3. Đăng nhập xong trang cổng tự ẩn, chỉ còn thẻ chọn tháng trong XML-Pro. Chọn tháng, Mua vào / Bán ra, bấm **Chọn thư mục và tải**. Cần xem trang cổng thì bấm **Xem trang cổng**. Hết phiên thì trang đăng nhập tự hiện lại.
+3. Đăng nhập xong trang cổng tự ẩn, chỉ còn thẻ chọn tháng trong XML-Pro. Chọn tháng, Mua vào / Bán ra, bấm **Chọn thư mục và tải**. Trang cổng hiện mờ phía sau thẻ để anh chị thấy cổng thật vẫn ở đó. Cần xem rõ thì bấm **×** trên thẻ hoặc **Xem trang cổng**, bấm **Hiện thẻ tải** để quay lại. Hết phiên thì trang đăng nhập tự hiện lại.
 4. Tệp lưu theo dạng `<thư mục>\<MST>\MUA-VAO\HD-DIEN-TU\XML\…`, có thêm bảng `TOM-TAT-HOA-DON-….xlsx`, và `CAN-XEM-LAI-….txt` nếu có hoá đơn thiếu hoặc lỗi. Tải xong tệp tự nạp vào app, bấm **Xem trên Dashboard** để xem.
 
 * Tải lại cùng thư mục thì chỉ tải bù hoá đơn còn thiếu, không ghi đè tệp đã có. Bấm Dừng hay hết phiên giữa chừng vẫn giữ tệp đã tải.

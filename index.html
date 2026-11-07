@@ -354,6 +354,18 @@
   .ktt-doi-sau-khoa { color: var(--warn); font-weight: 600; }
   .ktt-so-hd { font: inherit; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; text-decoration: underline dotted; }
   .ktt-so-hd:hover { color: var(--ktt-chinh); }
+  .ktt-tong [data-loc-hd] { cursor: pointer; }
+  .ktt-tong [data-loc-hd]:hover b { text-decoration: underline; }
+  .ktt-tong [data-loc-hd].on { outline: 2px solid var(--ktt-chinh); outline-offset: -2px; }
+  td[data-loc-hd] { cursor: pointer; }
+  td[data-loc-hd]:hover, tr[data-loc-hd]:hover td { text-decoration: underline; }
+  tr[data-loc-hd] { cursor: pointer; }
+  .ktt-chip { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .ktt-chip button { font: inherit; font-size: 12px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); cursor: pointer; }
+  .ktt-chip button.on { background: var(--ktt-chinh); border-color: var(--ktt-chinh); color: #fff; }
+  html.dark .ktt-chip button.on { color: #0e1217; }
+  .ktt-dang-loc { color: var(--muted); font-size: 12px; }
+  .ktt-hd-cuon { max-height: 480px; overflow: auto; }
   .nav-chinh { display: flex; gap: 6px; padding: 0 12px 8px; }
   .nav-chinh button { flex: 1 1 0; min-width: 0; font: inherit; font-size: 12.5px; font-weight: 600; padding: 7px 4px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
   .nav-chinh button:not(.primary) { background: var(--panel); color: var(--ink); }
@@ -393,7 +405,12 @@
   .cong-thanh span { flex: 1; color: var(--muted); }
   .cong-thanh button { font: inherit; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
   #main:has(#congViTri) { padding: 0; overflow: hidden; }
-  .cong-the { max-width: 620px; margin: 28px auto; padding: 22px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; }
+  #main:has(.cong-man) { padding: 0; }
+  .cong-man { position: relative; min-height: calc(100% - 52px); padding: 26px 16px; box-sizing: border-box; overflow: hidden; }
+  .cong-nen { position: absolute; inset: 0; background-size: cover; background-position: top center; opacity: .2; filter: blur(1.5px); pointer-events: none; }
+  #cgTatThe { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; padding: 0; border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+  #cgTatThe:hover { color: var(--ink); }
+  .cong-the { position: relative; max-width: 620px; margin: 0 auto; padding: 22px 24px; box-shadow: 0 6px 24px rgba(0, 0, 0, .18); border: 1px solid var(--line); border-radius: 10px; background: var(--panel); display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; }
   .cong-da { display: flex; flex-direction: column; gap: 3px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
   .cong-da b { font-size: 15px; }
   .cong-da span { color: var(--muted); }
@@ -1238,7 +1255,7 @@
         <li><b>Kiểm chữ ký số</b> ngay trên máy (vân tay dữ liệu và chữ ký trong chứng thư) — bắt được hồ sơ bị sửa sau khi ký. Không kiểm chứng thư có bị thu hồi hay không (việc đó tra trên cổng thuế điện tử).</li>
         <li><b>Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền</b> — chỉ ra chỉ tiêu lệch và hoá đơn gây lệch; nhiều công ty, kỳ tháng hoặc quý.</li>
         <li><b>Lập tờ khai từ hoá đơn</b> (🧰 Công cụ → Lập tờ khai từ hoá đơn): 01/GTGT, 04/GTGT, <b>01/CNKD cho hộ kinh doanh</b> (Thông tư 50/2026), và <b>tờ khai bổ sung</b> kèm 01/KHBS, 01-1/KHBS. Xuất XML theo khuôn HTKK, chưa ký số.</li>
-        <li><b>Dashboard kế toán</b> — sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng; khách hàng, nhà cung cấp.</li>
+        <li><b>Dashboard kế toán</b> — sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng; bấm thẻ Mua vào, Bán ra, ô tiền của kỳ hoặc tên đối tác là lọc và xem hoá đơn ngay.</li>
         <li><b>Tải hoá đơn từ cổng thuế</b> (🧰 Công cụ): <b>anh chị tự đăng nhập ngay trên trang thật của cổng thuế; XML-Pro không thấy và không lưu mật khẩu</b>. Đăng nhập xong trang cổng tự ẩn, chỉ còn thẻ chọn tháng; XML mua vào, bán ra, cả hoá đơn máy tính tiền (tự gõ captcha), về thư mục đã chọn rồi nạp luôn. Đóng là hết phiên; lần sau chỉ tải bù hoá đơn còn thiếu.</li>
         <li><b>Kho hoá đơn</b>: hoá đơn tự vào kho khi tải hoặc mở thư mục, còn nguyên lần sau mở app. Lọc theo công ty, kỳ, mua bán, trạng thái; đánh dấu đã hạch toán, đã thanh toán, cần xem; đối soát với cổng thuế để biết hoá đơn chưa có XML, bị huỷ, thay thế; xuất Excel; sao lưu sang máy khác. Kho chỉ là chỉ mục, tệp XML vẫn là bản gốc.</li>
         <li><b>Khoá sổ theo kỳ</b> — kỳ đã nộp không lập lại tờ khai, không sửa ghi chú; hoá đơn của kỳ thay đổi về sau thì Dashboard cảnh báo.</li>
@@ -3489,8 +3506,9 @@
     VO.postMessage({ lenh: 'hienCong', x: r.left * t, y: r.top * t, w: r.width * t, h: r.height * t });
   }
   function veTheCong() {
-    return `<div class="cong-the">
-      <div class="cong-da"><b>Đã đăng nhập cổng thuế</b><span>Anh chị tự đăng nhập trên trang của cổng. XML-Pro không thấy và không lưu mật khẩu.</span></div>
+    return `<div class="cong-man"><div class="cong-nen" id="cgNen"${cong.anhNen ? ` style="background-image:url('${esc(cong.anhNen)}')"` : ''}></div><div class="cong-the">
+      <button type="button" id="cgTatThe" title="Tắt thẻ này để xem trang cổng thuế" aria-label="Tắt thẻ">×</button>
+      <div class="cong-da"><b>Đã đăng nhập cổng thuế</b><span>Phía sau là trang thật của cổng thuế. Anh chị tự đăng nhập trên đó, XML-Pro không thấy và không lưu mật khẩu. Bấm × để xem trang cổng.</span></div>
       <div class="cong-hang"><label>Từ tháng<input type="month" id="cgTu" value="${esc(cong.tu)}"></label><label>Đến tháng<input type="month" id="cgDen" value="${esc(cong.den)}"></label></div>
       <div class="cong-hang"><label class="cong-chon"><input type="checkbox" id="cgMua"${cong.mua ? ' checked' : ''}> Mua vào</label><label class="cong-chon"><input type="checkbox" id="cgBan"${cong.ban ? ' checked' : ''}> Bán ra</label></div>
       <div class="cong-hang"><label class="cong-chon"><input type="checkbox" id="cgMttMua"${cong.mttMua ? ' checked' : ''}> Máy tính tiền mua vào</label><label class="cong-chon"><input type="checkbox" id="cgMttBan"${cong.mttBan ? ' checked' : ''}> Máy tính tiền bán ra</label></div>
@@ -3504,19 +3522,19 @@
       <div id="cgTT">${esc(cong.tt)}</div>
       <div id="cgNk"${cong.nk.length ? '' : ' hidden'}>${esc(cong.nk.join('\n'))}</div>
       <p class="lt-ghi">Tải chậm có chủ ý, khoảng 1 giây một hoá đơn, để cổng không khoá tài khoản.</p>
-    </div>`;
+    </div></div>`;
   }
   function veCong() {
     selected = -3;
     const trang = !cong.dangNhap || cong.xemTrang;
     $('main').innerHTML = `<div class="cong-thanh"><b>Tải hoá đơn từ cổng thuế</b><span>${cong.dangNhap ? '' : 'Tự đăng nhập trên trang của cổng thuế bên dưới. XML-Pro không thấy và không lưu mật khẩu.'}</span>
-      ${cong.dangNhap ? `<button type="button" id="btnXemTrang">${cong.xemTrang ? 'Về thẻ tải' : 'Xem trang cổng'}</button>` : ''}
+      ${cong.dangNhap ? `<button type="button" id="btnXemTrang">${cong.xemTrang ? 'Hiện thẻ tải' : 'Xem trang cổng'}</button>` : ''}
       <button type="button" id="btnVeApp">Về XML-Pro</button><button type="button" id="btnDongCong" title="Đóng cổng thuế, hết phiên đăng nhập">Đóng và đăng xuất</button></div>
       ${trang ? '<div id="congViTri"></div>' : veTheCong()}`;
     $('main').scrollTop = 0;
     document.title = 'Tải hoá đơn từ cổng thuế — XML-Pro';
     renderList();
-    if (trang) baoViTriCong(); else VO.postMessage({ lenh: 'anCong' });
+    if (trang) baoViTriCong(); else { VO.postMessage({ lenh: 'anCong' }); VO.postMessage({ lenh: 'chupCong' }); }
   }
   async function moKho() {
     anCong();
@@ -3526,6 +3544,10 @@
     await window.KHO_HD.moKho($('main'), { myMst, moTep: moLai });
     $('main').scrollTop = 0;
     renderList();
+  }
+  function datLaiCong() {
+    Object.assign(cong, { mo: false, dangNhap: false, xemTrang: false, dang: false, coTep: false, tt: '', nk: [], anh: '', anhNen: '', coDs: false });
+    $('cgNhac').hidden = true;
   }
   function moCong() { cong.mo = true; $('cgNhac').hidden = true; veCong(); }
   function anCong() {
@@ -5157,7 +5179,14 @@ Read-Host
     if (e.target.id === 'cgKho') moKho();
     if (e.target.id === 'cgGuiMa') guiMa(false);
     if (e.target.id === 'cgBoMa') guiMa(true);
-    if (e.target.id === 'btnDongCong') VO.postMessage({ lenh: 'dongCong' });
+    if (e.target.id === 'btnDongCong') {
+      if (cong.dang && !confirm('Đang tải hoá đơn. Đóng sẽ dừng tải, các tệp đã tải vẫn được giữ lại. Đóng?')) return;
+      // Trang tự về màn khác ngay, không chờ vỏ báo lại: bấm mở lại liền tay cũng không bị lệnh đóng trễ đè lên
+      datLaiCong();
+      VO.postMessage({ lenh: 'dongCong' });
+      moDashboard('');
+    }
+    if (e.target.id === 'cgTatThe') { cong.xemTrang = true; veCong(); }
   });
   $('main').addEventListener('keydown', e => { if (e.target.id === 'cgNhapMa' && e.key === 'Enter') { e.preventDefault(); guiMa(false); } });
   $('cgNhac').onclick = () => { $('cgNhac').hidden = true; moCong(); if ($('cgNhapMa')) $('cgNhapMa').focus(); };
@@ -5232,6 +5261,7 @@ Read-Host
       const m = e.data || {};
       if (m.loai === 'tep') nhanTepTuVo(m);
       else if (m.loai === 'congTien') nhanTienCong(m);
+      else if (m.loai === 'anhCong') { cong.anhNen = m.anh || ''; const n = $('cgNen'); if (n) n.style.backgroundImage = `url('${cong.anhNen}')`; }
       else if (m.loai === 'congDangNhap') {
         // Đăng nhập xong: trang cổng lùi xuống, chỉ còn thẻ chọn tháng. Hết phiên: trang đăng nhập hiện lại
         const doi = cong.dangNhap !== !!m.co;
@@ -5240,8 +5270,7 @@ Read-Host
       }
       else if (m.loai === 'congDaDong') {
         const dangXem = cong.mo;
-        Object.assign(cong, { mo: false, dangNhap: false, xemTrang: false, dang: false, coTep: false, tt: '', nk: [], anh: '' });
-        $('cgNhac').hidden = true;
+        datLaiCong();
         if (dangXem) moDashboard('');
       }
       else if (m.loai === 'ketQuaDuongDan') { nl.mat = Array.isArray(m.mat) ? m.mat : []; if ($('dlgNoiLai').open) veNoiLai(); }

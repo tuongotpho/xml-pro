@@ -232,6 +232,19 @@ def main():
         tren = so_khung_tren(p.pid)
         danh_gia('Đăng nhập xong: trang cổng tự lùi, chỉ còn thẻ chọn tháng trong XML-Pro', r['an'] and tren == 'app', f'{r} tren={tren!r}')
         danh_gia('Thẻ tải đủ rộng, ô tháng không tràn', not r['tran'] and r['rong'] >= 400, f"{r['rong']:.0f} px")
+        for _ in range(30):
+            if chinh.ev("(document.getElementById('cgNen')?.style.backgroundImage || '').includes('data:image')") is True:
+                break
+            time.sleep(0.2)
+        r = chinh.ev("(() => { const n = document.getElementById('cgNen'), c = getComputedStyle(n); return { anh: n.style.backgroundImage.length, mo: Number(c.opacity), the: getComputedStyle(document.querySelector('.cong-the')).backgroundColor }; })()")
+        danh_gia('Trang cổng hiện mờ phía sau thẻ tải', r['anh'] > 2000 and 0 < r['mo'] < 0.4, str(r))
+        chinh.ev("document.getElementById('cgTatThe').click(); true")
+        time.sleep(0.5)
+        a1 = {'tren': so_khung_tren(p.pid), 'vt': chinh.ev("!!document.getElementById('congViTri')"), 'nut': chinh.ev("document.getElementById('btnXemTrang').textContent")}
+        danh_gia('Bấm × tắt thẻ: hiện trang cổng, có nút Hiện thẻ tải', a1['tren'] == 'cong' and a1['vt'] and a1['nut'] == 'Hiện thẻ tải', str(a1))
+        chinh.ev("document.getElementById('btnXemTrang').click(); true")
+        time.sleep(0.5)
+        danh_gia('Bấm Hiện thẻ tải: thẻ quay lại, trang cổng lùi', chinh.ev("!!document.getElementById('cgChay')") is True and so_khung_tren(p.pid) == 'app')
         if os.environ.get('XMLPRO_ANH'):
             open(os.environ['XMLPRO_ANH'], 'wb').write(goi_anh(chinh))
         if '--do-nhip' in sys.argv:
@@ -241,6 +254,29 @@ def main():
             print('NHIP', json.dumps(kq))
             return
 
+        print('=== 2c. Đóng rồi bật lại ===')
+        for lan in range(1, 4):
+            chinh.ev("document.getElementById('btnDongCong').click(); true")
+            chinh.ev("document.getElementById('btnNavCong').click(); true")  # bấm liền tay, không chờ
+            r = None
+            for _ in range(40):
+                r = chinh.ev("({ vt: !!document.getElementById('congViTri'), rong: document.getElementById('congViTri')?.getBoundingClientRect().width || 0 })")
+                if r['vt']:
+                    break
+                time.sleep(0.15)
+            time.sleep(1.2)
+            cong = Tab(tim_tab(f'http://127.0.0.1:{CONG_WEB}/')['webSocketDebuggerUrl'])
+            for _ in range(40):
+                if cong.ev("window.__taiHdXmlPro === true") is True:
+                    break
+                time.sleep(0.2)
+            tren = so_khung_tren(p.pid)
+            danh_gia(f'Đóng và bật lại ngay, lần {lan}: trang đăng nhập hiện đúng chỗ', r['vt'] and tren == 'cong' and chinh.ev("!!document.getElementById('congViTri')") is True, f'{r} {tren}')
+        cong.ev("window.__jwtGia = 'jwt-gia'; true")
+        for _ in range(30):
+            if chinh.ev("!!document.getElementById('cgChay')") is True:
+                break
+            time.sleep(0.2)
         print('=== 3. Tải lần đầu ===')
         t0 = time.time()
         tt, nk = bam_tai(chinh)
@@ -363,7 +399,11 @@ def main():
         danh_gia('Trang không rời được cổng thuế', cong.ev('location.origin') == f'http://127.0.0.1:{CONG_WEB}')
 
         print('=== 6. Đóng cửa sổ là hết phiên ===')
-        chinh.ev("document.getElementById('cgXem').click(); true")
+        chinh.ev("document.getElementById('btnNavCong').click(); true")
+        time.sleep(0.4)
+        chinh.ev("document.getElementById('btnXemTrang').textContent === 'Hiện thẻ tải' && document.getElementById('btnXemTrang').click(); true")
+        time.sleep(0.4)
+        chinh.ev("document.getElementById('cgXem').hidden = false; document.getElementById('cgXem').click(); true")
         time.sleep(0.6)
         r = {'dash': chinh.ev("!!document.querySelector('.ktt-dash')"), 'tren': so_khung_tren(p.pid)}
         danh_gia('Xem trên Dashboard: về app, phiên còn', r['dash'] and r['tren'] == 'app', str(r))
