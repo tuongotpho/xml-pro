@@ -632,9 +632,279 @@ def kiem_cnkd(ev, J):
     m2 = mong[2]
     danh_gia('01/CNKD qua giao diện: chọn mẫu, đổi nhóm dịch vụ → tệp XML mã 1266 đúng số, 2 dòng (a)(b), mẫu iTax TT 50/2026 dựng được, ô "nộp TNCN trên doanh thu" được tích',
              r['tieuDe'].endswith('01/CNKD từ hoá đơn đã nạp') and r['an01'] and r['mtk'] == '1266' and not r['loi'] and r['duPhong'] == 0
-             and r['ten'] == f'{gl.MST}000-01_CNKD-Q22026-L00.xml' and r['x']['gtgt'] == str(m2['gtgt']) and r['x']['tncn'] == str(m2['tncn'])
+             and r['ten'] == f'{gl.MST}000-01_CNKD-Q22026-L00.xml' and r['x']['gtgt'] == str(m2['gtgt']) and r['x']['tncn'] == str(m2['conLai'] * 0 + m2['tncn'])
              and r['x']['tru'] == str(m2['conLai']) and r['x']['dong'] == 2 and r['x']['ct10'] == ['(a)', '(b)'] and r['mau'] and r['tich'],
              J({k: r[k] for k in ('tieuDe', 'ten', 'mtk', 'duPhong', 'x', 'mau', 'tich')}, ensure_ascii=False) + f' mong {m2}')
+
+
+def kiem_tndn(ev, J, hd):
+    print('=== 14. Bảng tính tự động Thuế TNDN và lợi nhuận sau thuế trên Dashboard ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    kq_hd = cong_hoa_don(hd, MST, '2026-01-01', '2026-12-31')
+    dt_nam = round(sum(v for v, _ in kq_hd['ban'].values()))
+    mua_nam = round(kq_hd['mua_V'])
+    luong_q4 = 100_000_000
+    tncn_cung_mst = to_khai_tncn(4, 0, 5, luong_q4, 1_500_000).replace('0100000001', MST)
+    tep = [[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd] + [['05-tncn-q4.xml', tncn_cung_mst]]
+
+    r = ev(r'''(async () => {
+          localStorage.removeItem('xmlpro.tndn.v1');
+          localStorage.removeItem('xmlpro.theme.v2');
+          const macDinhSang = !document.documentElement.classList.contains('dark');
+          const A = window.__xemXmlThue, K = window.DASHBOARD_KE_TOAN;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'tndn/' + ten);
+          A.setMyMst('%s'); A.select(-2); await new Promise(r => setTimeout(r, 300));
+          const dsTab = [...document.querySelectorAll('[data-ktt-tab]')].map(b => b.dataset.kttTab);
+          const tab1Mo = !document.querySelector('[data-tab-panel="gtgt"]').hidden && document.querySelector('[data-tab-panel="tndn"]').hidden && document.querySelector('[data-tab-panel="hoadon"]').hidden;
+
+          document.querySelector('[data-ktt-tab="tndn"]').click();
+          await new Promise(r => setTimeout(r, 100));
+          const tab2Mo = !document.querySelector('[data-tab-panel="tndn"]').hidden && document.querySelector('[data-tab-panel="gtgt"]').hidden;
+
+          const lay = m => document.querySelector(`[data-tndn-o="${m}"]`)?.textContent || '';
+          const tuDong = { ts: lay('tomThueSuat'), lnTruoc: lay('tomLnTruoc'), thue: lay('tomThueNam'), lnSau: lay('tomLnSau'), cpKhac: lay('cpKhacNam') };
+
+          const oCp = document.querySelector('[data-tndn-nhap="cpKhac"][data-quy="4"]');
+          oCp.focus(); oCp.value = '200.000.000'; oCp.dispatchEvent(new Event('input', { bubbles: true }));
+          const giuFocus = document.activeElement === oCp;
+          const oLoai = document.querySelector('[data-tndn-nhap="cpLoai"][data-quy="4"]');
+          oLoai.value = '10000000'; oLoai.dispatchEvent(new Event('input', { bubbles: true }));
+          const oLo = document.querySelector('[data-tndn-nhap="mienLo"]');
+          oLo.value = '30000000'; oLo.dispatchEvent(new Event('input', { bubbles: true }));
+          const sauNhap = { giuFocus, lnTruoc: lay('lnTruocNam'), tntt: lay('tnttNam'), thue: lay('thueNam'), lnSau: lay('lnSauNam'), nutReset: !document.querySelector('[data-tndn-reset]').hidden };
+
+          const sel = document.querySelector('[data-tndn-ts]');
+          sel.value = '20'; sel.dispatchEvent(new Event('change', { bubbles: true }));
+          const ts20 = { ts: lay('tomThueSuat'), thue: lay('thueNam'), lnSau: lay('lnSauNam') };
+          document.querySelector('[data-tndn-reset]').click();
+          const sauReset = { ts: lay('tomThueSuat'), thue: lay('thueNam'), lnSau: lay('lnSauNam'), nutReset: !document.querySelector('[data-tndn-reset]').hidden };
+
+          document.querySelector('[data-ktt-tab="hoadon"]').click();
+          await new Promise(r => setTimeout(r, 100));
+          const tab3Mo = !document.querySelector('[data-tab-panel="hoadon"]').hidden && !!document.querySelector('.ktt-hd-tom') && !!document.querySelector('#kttHoaDon');
+
+          const dlMau = dt => ({ dt: [0, 0, dt, 0, 0], mua: [0, 100_000_000, 50_000_000, 0, 0], soBan: [0, 0, 1, 0, 0], soMua: [0, 1, 1, 0, 0], luongTk: [0, 0, 0, 0, 0], daNop: [0, 0, 0, 0, 0], daNopKhac: 0 });
+          const chAuto = { tsCheDo: 'auto', tsKhac: 10, cpKhac: {}, cpLoai: {}, mienLo: null };
+          const b15 = K.tinhTndnNam('2026', dlMau(400_000_000), chAuto);
+          const b17 = K.tinhTndnNam('2026', dlMau(10_000_000_000), chAuto);
+          const b20 = K.tinhTndnNam('2026', dlMau(60_000_000_000), chAuto);
+
+          const shEx = K.xuatTndnExcel(A.docs, '%s');
+          return { macDinhSang, dsTab, tab1Mo, tab2Mo, tab3Mo, tuDong, sauNhap, ts20, sauReset,
+                   bac: [b15.thueSuat, b17.thueSuat, b20.thueSuat],
+                   buLoQ1Q2: { q1Tntt: b15.tntt[1], q2Tntt: b15.tntt[2], q2Thue: b15.thue[2], namThue: b15.thueNam, namLnSau: b15.lnSauNam },
+                   excel: shEx ? { name: shEx.name, rows: shEx.rows.length } : null }; })()''' % (J(tep), MST, MST))
+
+    danh_gia('Giao diện Sáng mặc định & Dashboard chia 3 tab (Thuế GTGT / Thu nhập DN & LN sau thuế / Hóa đơn & Khách hàng)',
+             r['macDinhSang'] and r['dsTab'] == ['gtgt', 'tndn', 'hoadon'] and r['tab1Mo'] and r['tab2Mo'] and r['tab3Mo'],
+             J({k: r[k] for k in ('macDinhSang', 'dsTab', 'tab1Mo', 'tab2Mo', 'tab3Mo')}, ensure_ascii=False))
+
+    so_vn = lambda n: ('−' if n < 0 else '') + f'{abs(round(n)):,}'.replace(',', '.')
+    ln_truoc_0 = dt_nam - mua_nam - luong_q4
+    thue_0 = round(max(0, ln_truoc_0) * 0.15)
+    ln_sau_0 = ln_truoc_0 - thue_0
+    danh_gia('TNDN tự động: bậc 15% (DT ≤ 3 tỷ, Luật 67/2025), tự lấy lương 05/KK-TNCN cùng MST, tính đúng LN trước thuế, thuế TNDN & LN sau thuế',
+             r['tuDong'] == {'ts': '15%', 'lnTruoc': so_vn(ln_truoc_0), 'thue': so_vn(thue_0), 'lnSau': so_vn(ln_sau_0), 'cpKhac': so_vn(luong_q4)}
+             and r['bac'] == [15, 17, 20],
+             J({'app': r['tuDong'], 'bac': r['bac']}, ensure_ascii=False))
+
+    ln_truoc_1 = dt_nam - mua_nam - 200_000_000
+    tntt_1 = max(0, ln_truoc_1 + 10_000_000 - 30_000_000)
+    thue_15 = round(tntt_1 * 0.15)
+    thue_20 = round(tntt_1 * 0.20)
+    danh_gia('TNDN tương tác: nhập CP ngoài HĐ, CP loại trừ [B4], chuyển lỗ [C3] cập nhật tức thì giữ focus; đổi 20% & Đặt lại mặc định chuẩn xác',
+             r['sauNhap'] == {'giuFocus': True, 'lnTruoc': so_vn(ln_truoc_1), 'tntt': so_vn(tntt_1), 'thue': so_vn(thue_15), 'lnSau': so_vn(ln_truoc_1 - thue_15), 'nutReset': True}
+             and r['ts20'] == {'ts': '20%', 'thue': so_vn(thue_20), 'lnSau': so_vn(ln_truoc_1 - thue_20)}
+             and r['sauReset'] == {'ts': '15%', 'thue': so_vn(thue_0), 'lnSau': so_vn(ln_sau_0), 'nutReset': False},
+             J({'sauNhap': r['sauNhap'], 'ts20': r['ts20'], 'sauReset': r['sauReset']}, ensure_ascii=False))
+
+    # Quý 1 mua 100tr (lỗ -100tr), Quý 2 bán 400tr mua 50tr (lãi +350tr) → luỹ kế lãi 250tr → Q1 thuế 0, Q2 thuế 250tr*15% = 37.500.000, LN sau thuế năm = 212.500.000
+    danh_gia('TNDN luỹ kế quý & Xuất Excel: Quý 1 lỗ tự bù trừ sang Quý 2 (TNTT 250tr, thuế 37,5tr, LN sau thuế 212,5tr) và sinh sheet Excel',
+             r['buLoQ1Q2'] == {'q1Tntt': 0, 'q2Tntt': 250_000_000, 'q2Thue': 37_500_000, 'namThue': 37_500_000, 'namLnSau': 212_500_000}
+             and r['excel'] == {'name': 'Thuế TNDN & Lợi nhuận', 'rows': 10},
+             J({'buLoQ1Q2': r['buLoQ1Q2'], 'excel': r['excel']}, ensure_ascii=False))
+
+
+def kiem_kiem_toan_va_misa(ev, J, hd):
+    print('=== 15. Kiểm toán rủi ro hoá đơn & Xuất Excel chuẩn MISA + tự học định khoản (báo cáo 20) ===')
+    nap_lai_trang(ev)
+    MST = '2601102955'
+    kq_py = cong_hoa_don(hd, MST, '2026-01-01', '2026-12-31')
+    tong_ban_v = round(sum(v for v, _ in kq_py['ban'].values()))
+    tong_mua_v = round(kq_py['mua_V'])
+
+    goc_ban = open(hd[0], encoding='utf-8-sig').read()
+    goc_mua = open(hd[4], encoding='utf-8-sig').read()  # hd_mau_5 (mua vào)
+
+    # Tạo 5 hoá đơn rủi ro giả lập cho Nhóm 1:
+    # (1) Bán ra số 22 (bỏ trống số 21 → thủng dải số 21), lập 30/09/2026 nhưng ký số 02/10/2026 (vắt quý Q3 → Q4)
+    hd_vat_quy = re.sub(r'<SHDon>[^<]*</SHDon>', '<SHDon>22</SHDon>', goc_ban)
+    hd_vat_quy = re.sub(r'<NLap>[^<]*</NLap>', '<NLap>2026-09-30</NLap>', hd_vat_quy)
+    hd_vat_quy = re.sub(r'<SigningTime>[^<]*</SigningTime>', '<SigningTime>2026-10-02T09:30:00</SigningTime>', hd_vat_quy, count=1)
+
+    def sua_mua(xml_goc, kh, so_hd, ngay, mst_ban, ten_ban, httt, tien_hang, thue, ten_mua=None, dchi_mua=None):
+        x = re.sub(r'<KHHDon>[^<]*</KHHDon>', f'<KHHDon>{kh}</KHHDon>', xml_goc)
+        x = re.sub(r'<SHDon>[^<]*</SHDon>', f'<SHDon>{so_hd}</SHDon>', x)
+        x = re.sub(r'<NLap>[^<]*</NLap>', f'<NLap>{ngay}</NLap>', x)
+        x = re.sub(r'<HTTToan>[^<]*</HTTToan>', f'<HTTToan>{httt}</HTTToan>', x)
+        x = re.sub(r'(<NBan>.*?<Ten>)[^<]*(</Ten>)', rf'\g<1>{ten_ban}\2', x, count=1, flags=re.S)
+        x = re.sub(r'(<NBan>.*?<MST>)[^<]*(</MST>)', rf'\g<1>{mst_ban}\2', x, count=1, flags=re.S)
+        if ten_mua is not None:
+            x = re.sub(r'(<NMua>.*?<Ten>)[^<]*(</Ten>)', rf'\g<1>{ten_mua}\2', x, count=1, flags=re.S)
+        if dchi_mua is not None:
+            x = re.sub(r'(<NMua>.*?<DChi>)[^<]*(</DChi>)', rf'\g<1>{dchi_mua}\2', x, count=1, flags=re.S)
+        x = re.sub(r'<TgTCThue>[^<]*</TgTCThue>', f'<TgTCThue>{tien_hang}</TgTCThue>', x)
+        x = re.sub(r'<TgTThue>[^<]*</TgTThue>', f'<TgTThue>{thue}</TgTThue>', x)
+        x = re.sub(r'<TgTTTBSo>[^<]*</TgTTTBSo>', f'<TgTTTBSo>{tien_hang + thue}</TgTTTBSo>', x)
+        x = re.sub(r'<SigningTime>[^<]*</SigningTime>', f'<SigningTime>{ngay}T10:00:00</SigningTime>', x)
+        return x
+
+    # (2) Mua vào đơn lẻ 5.500.000 đ thanh toán tiền mặt thuần "TM"
+    hd_tm_don = sua_mua(goc_mua, 'C26TM1', '101', '2026-10-12', '0108881112', 'CÔNG TY VẬT TƯ A', 'TM', 5_000_000, 500_000)
+    # (3)+(4) Hai hoá đơn mua cùng ngày 15/10/2026 của cùng NCC 0109998887, mỗi tờ 3.300.000 đ (cộng dồn 6.600.000 đ >= 5tr)
+    hd_gop_1 = sua_mua(goc_mua, 'C26TM2', '201', '2026-10-15', '0109998887', 'CÔNG TY CUNG ỨNG B', 'TM/CK', 3_000_000, 300_000)
+    hd_gop_2 = sua_mua(goc_mua, 'C26TM2', '202', '2026-10-15', '0109998887', 'CÔNG TY CUNG ỨNG B', 'TM/CK', 3_000_000, 300_000)
+    # (5) Mua vào ghi sai loại hình tên người mua (CỔ PHẦN thay vì TNHH) và sai địa chỉ trụ sở
+    hd_sai_mua = sua_mua(goc_mua, 'C26SAI', '301', '2026-10-18', '0107776665', 'CÔNG TY DỊCH VỤ C', 'CK', 2_000_000, 200_000,
+                         ten_mua='CÔNG TY CỔ PHẦN THƯƠNG MẠI NGA ANH PHÚ THỌ',
+                         dchi_mua='Số 999 Đường Nguyễn Trãi, Phường Thanh Xuân, Hà Nội')
+
+    tep_sach = [[os.path.basename(f), open(f, encoding='utf-8-sig').read()] for f in hd]
+    tep_rui_ro = [
+        ['rr-vat-quy.xml', hd_vat_quy],
+        ['rr-tm-don.xml', hd_tm_don],
+        ['rr-gop-1.xml', hd_gop_1],
+        ['rr-gop-2.xml', hd_gop_2],
+        ['rr-sai-mua.xml', hd_sai_mua],
+    ]
+
+    r = ev(r'''(async () => {
+          localStorage.removeItem('xmlpro.dinhKhoan.v1');
+          const A = window.__xemXmlThue, KM = window.KIEM_TOAN_MISA;
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'ktm/' + ten);
+          A.setMyMst('%s');
+          const sach0 = KM.kiemToanHoaDon(A.docs, A.docs, '%s').tongSoRuiRo;
+
+          // --- Kiểm thử Nhóm 2 trước trên 6 hoá đơn chuẩn ---
+          A.select(-2); await new Promise(r => setTimeout(r, 200));
+          document.querySelector('[data-mo-misa]').click();
+          await new Promise(r => setTimeout(r, 150));
+          const dlgMo = document.getElementById('dlgMisa')?.open === true;
+          const tkTt200 = [...document.querySelectorAll('#misaBangBody input[data-misa-truong="tkNo"]')].map(e => e.value);
+
+          // Chuyển sang TT133 kiểm tra đổi tài khoản gợi ý
+          const selCd = document.getElementById('misaCheDo');
+          selCd.value = 'TT133'; selCd.dispatchEvent(new Event('change', { bubbles: true }));
+          const tkTt133 = [...document.querySelectorAll('#misaBangBody input[data-misa-truong="tkNo"]')].map(e => e.value);
+
+          // Chuyển lại TT200, sửa dòng đầu tiên để kiểm tra bộ nhớ tự học định khoản
+          selCd.value = 'TT200'; selCd.dispatchEvent(new Event('change', { bubbles: true }));
+          const tr0 = document.querySelector('#misaBangBody tr[data-kqt]');
+          const oMa = tr0.querySelector('input[data-misa-truong="maHang"]');
+          const oTk = tr0.querySelector('input[data-misa-truong="tkNo"]');
+          oMa.value = 'VT_TU_HOC_01'; oMa.dispatchEvent(new Event('input', { bubbles: true }));
+          oTk.value = '6421'; oTk.dispatchEvent(new Event('input', { bubbles: true }));
+          const nhanSauSua = tr0.querySelector('.misa-nho-nhan')?.textContent;
+          const demDaNho = document.getElementById('misaSoDaNho')?.textContent;
+          document.getElementById('btnMisaDong').click();
+
+          // Mở lại từ menu Công cụ thanh bên để xác nhận tự nhớ
+          document.querySelector('#congCu summary').click();
+          document.getElementById('btnMisa').click();
+          await new Promise(r => setTimeout(r, 100));
+          const menuDong = !document.getElementById('congCu').open;
+          const tr0Lai = document.querySelector('#misaBangBody tr[data-kqt]');
+          const nhoLai = {
+            maHang: tr0Lai.querySelector('input[data-misa-truong="maHang"]').value,
+            tkNo: tr0Lai.querySelector('input[data-misa-truong="tkNo"]').value,
+            nhan: tr0Lai.querySelector('.misa-nho-nhan').textContent
+          };
+
+          // Xuất file Excel MISA (.xlsx) và đọc lại bằng JSZip
+          let blobMisa = null;
+          const gocUrl = URL.createObjectURL;
+          URL.createObjectURL = b => { blobMisa = b; return gocUrl.call(URL, b); };
+          document.getElementById('btnMisaXuat').click();
+          await new Promise(r => setTimeout(r, 400));
+          URL.createObjectURL = gocUrl;
+          document.getElementById('btnMisaDong').click();
+
+          const zip = await JSZip.loadAsync(blobMisa);
+          const wbXml = await zip.file('xl/workbook.xml').async('string');
+          const s1Xml = await zip.file('xl/worksheets/sheet1.xml').async('string');
+          const kqSheets = KM.taoSheetsMisa(A.docs, '%s', '');
+          const congMuaMisa = kqSheets.sheets[0].rows.reduce((s, r) => s + Number(r[20] || 0), 0);
+          const congBanMisa = kqSheets.sheets[1].rows.reduce((s, r) => s + Number(r[20] || 0), 0);
+
+          // --- Kiểm thử Nhóm 1: Nạp thêm 5 hoá đơn rủi ro ---
+          for (const [ten, vb] of %s) A.addText(vb, ten, 'ktrr/' + ten);
+          A.select(-2);
+          document.querySelector('[data-ktt-tab="hoadon"]').click();
+          await new Promise(r => setTimeout(r, 200));
+
+          const kt = KM.kiemToanHoaDon(A.docs, A.docs, '%s');
+          const chuDash = document.querySelector('.ktt-dash').innerText;
+          // Bấm thẻ lọc rủi ro tiền mặt trên Tab 3
+          document.querySelector('[data-loc-hd*="tienMat"]').click();
+          await new Promise(r => setTimeout(r, 120));
+          const soDongLocTm = document.querySelectorAll('.ktt-bang-hd tbody tr[data-mo-doc]').length;
+          const nhanDangLoc = document.getElementById('kttDangLoc')?.innerText || '';
+
+          // Đo tương phản chế độ tối ngay trên Tab 3 khi có bảng khuyết số & huy hiệu cảnh báo
+          const rgb = s => (s.match(/[\d.]+/g) || []).map(Number);
+          const lum = ([r, g, b]) => { const f = c => { c /= 255; return c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+          const nen = el => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.backgroundImage !== 'none') return null;
+              const c = rgb(cs.backgroundColor); if (c.length >= 3 && (c.length < 4 || c[3] > .5)) return c; } return [255, 255, 255]; };
+          A.apDungTheme('dark');
+          const loiToi = [];
+          document.querySelectorAll('#kttKiemToan *').forEach(el => {
+            if (!el.offsetParent || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+            const b = nen(el); if (!b) return;
+            const a = lum(rgb(getComputedStyle(el).color)), c = lum(b);
+            const tl = (Math.max(a, c) + .05) / (Math.min(a, c) + .05);
+            if (tl < 3) loiToi.push(tl.toFixed(1) + ':' + el.textContent.trim().slice(0, 25));
+          });
+          A.apDungTheme('light');
+
+          const shKtEx = KM.xuatKiemToanExcel(A.docs, '%s');
+          return {
+            sach0, dlgMo, tkTt200, tkTt133, nhanSauSua, demDaNho, menuDong, nhoLai,
+            wbHas3Sheets: ['MISA_Mua_hang', 'MISA_Ban_hang', 'Tong_hop_Dinh_khoan'].every(n => wbXml.includes(n)),
+            s1HasRule: s1Xml.includes('VT_TU_HOC_01') && s1Xml.includes('6421'),
+            congMuaMisa, congBanMisa,
+            kt: {
+              ngayKy: kt.lechNgayKy.length,
+              vatQuy: kt.lechNgayKy.filter(x => x.vatQuy).length,
+              tienMat: kt.ruiRoTienMat.length,
+              congDon: kt.ruiRoTienMat.filter(x => x.loai === 'congDonNgay').length,
+              khuyet: kt.khuyetSoBan.map(g => g.nhanDai + ':' + g.dsThieuText),
+              saiMua: kt.saiThongTinMua.length
+            },
+            soDongLocTm, nhanDangLoc, chuDash, loiToi,
+            excelKt: shKtEx ? { name: shKtEx.name, rows: shKtEx.rows.length } : null
+          };
+        })()''' % (J(tep_sach), MST, MST, MST, J(tep_rui_ro), MST, MST))
+
+    emoji = [ch for ch in r['chuDash'] if ord(ch) >= 0x1F300 or 0x2600 <= ord(ch) <= 0x27BF]
+    danh_gia('Kiểm toán rủi ro HĐ (Nhóm 1): 6 HĐ chuẩn báo 0 lỗi; nạp 5 HĐ bẫy thuế bắt đúng ký vắt quý (1), tiền mặt ≥ 5tr & cộng dồn cùng ngày (3), thủng dải số 21 (1), sai tên/ĐC người mua (1)',
+             r['sach0'] == 0 and r['kt'] == {'ngayKy': 1, 'vatQuy': 1, 'tienMat': 3, 'congDon': 2, 'khuyet': ['1C26TNA:21'], 'saiMua': 1},
+             J({'sach0': r['sach0'], 'kt': r['kt']}, ensure_ascii=False))
+
+    danh_gia('Giao diện Kiểm toán Tab 3 & Xuất Excel rủi ro: bấm thẻ lọc đúng 3 HĐ tiền mặt, không emoji, chế độ tối tương phản >= 3:1, sinh sheet Excel 6 dòng',
+             r['soDongLocTm'] == 3 and 'tiền mặt' in r['nhanDangLoc'] and not emoji and not r['loiToi']
+             and r['excelKt'] == {'name': 'Kiểm toán rủi ro HĐ', 'rows': 6},
+             J({'loc': r['soDongLocTm'], 'nhan': r['nhanDangLoc'], 'emoji': emoji, 'loiToi': r['loiToi'], 'excelKt': r['excelKt']}, ensure_ascii=False))
+
+    co_doi_che_do = any(x in ('1561', '6427', '6423') for x in r['tkTt200']) and any(x in ('156', '6422') for x in r['tkTt133'])
+    danh_gia('Định khoản thông minh & Tự học (Nhóm 2): chuyển đổi TT200 ↔ TT133, sửa Mã hàng/TK Nợ tự lưu localStorage và nhớ lại chính xác khi mở lại',
+             r['dlgMo'] and co_doi_che_do and r['nhanSauSua'] == 'Đã nhớ' and r['demDaNho'] == '1' and r['menuDong']
+             and r['nhoLai'] == {'maHang': 'VT_TU_HOC_01', 'tkNo': '6421', 'nhan': 'Đã nhớ'},
+             J({k: r[k] for k in ('dlgMo', 'tkTt200', 'tkTt133', 'nhoLai', 'menuDong')}, ensure_ascii=False))
+
+    danh_gia(f'Xuất Excel chuẩn MISA (.xlsx): đủ 3 sheet (Mua hàng, Bán hàng, Tổng hợp ĐK), chứa quy tắc đã học, tổng tiền hàng khớp Python ({tong_mua_v:,} / {tong_ban_v:,})',
+             r['wbHas3Sheets'] and r['s1HasRule'] and r['congMuaMisa'] == tong_mua_v and r['congBanMisa'] == tong_ban_v,
+             J({'wbHas3Sheets': r['wbHas3Sheets'], 's1HasRule': r['s1HasRule'], 'mua': (r['congMuaMisa'], tong_mua_v), 'ban': (r['congBanMisa'], tong_ban_v)}, ensure_ascii=False))
 
 
 def main():
@@ -823,6 +1093,8 @@ def main():
         kiem_thanh_ben(ev, J, hd)
         kiem_nhieu_nam(ev, J, hd)
         kiem_cnkd(ev, J)
+        kiem_tndn(ev, J, hd)
+        kiem_kiem_toan_va_misa(ev, J, hd)
     finally:
         p.kill()
         shutil.rmtree(tam, ignore_errors=True)

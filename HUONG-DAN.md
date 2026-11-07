@@ -50,6 +50,13 @@ Nút **🧾 Kho hoá đơn** ở thanh bên. Hoá đơn tải về hoặc mở t
 * **Nối lại đường dẫn tệp** (🧰 Công cụ): thư mục chuyển chỗ thì chọn thư mục mới. App so nội dung nên tệp đổi tên vẫn nối được; mục chỉ có trong Lịch sử nối theo tên, tên trùng thì bỏ qua. Không sửa tệp nào trên ổ cứng. Chỉ chạy trong app cài trên máy.
 * Sổ tay lưu trên máy này (`so-tay.js`, khoá `xmlpro.soTay.v1`). Nút xoá dữ liệu phiên không xoá sổ tay. Hoá đơn nhận theo MST bán + mẫu + ký hiệu + số, nên đổi thư mục không mất ghi chú. Đổi máy thì dùng nút Sao lưu trong Kho hoá đơn.
 
+## Dashboard 3 Tab, Thuế TNDN, Kiểm toán rủi ro HĐ & Xuất MISA (bản 3.0.8)
+
+* **Giao diện Sáng mặc định & Dashboard 3 Tab:** Tab 1 (*Thuế GTGT*), Tab 2 (*Thu nhập DN & Lợi nhuận sau thuế*), Tab 3 (*Tổng hợp hóa đơn & Khách hàng*).
+* **Tính tự động Thuế TNDN & Lợi nhuận sau thuế (Tab 2):** tự lấy doanh thu/chi phí từ hoá đơn hiệu lực, tiền lương từ tờ khai `05/KK-TNCN`, giấy nộp tiền tiểu mục `1052`; tự áp thuế suất **15% / 17% / 20%** theo quy mô doanh thu (Luật 67/2025/QH15), tự bù lỗ luỹ kế giữa các quý và xuất sheet Excel `Thuế TNDN & Lợi nhuận`.
+* **Kiểm toán rủi ro Hóa đơn trước thanh tra thuế (Tab 3):** tự động rà soát 4 nhóm rủi ro trọng yếu: (1) ngày ký số người bán lệch ngày lập / vắt tháng / vắt quý; (2) thanh toán tiền mặt vượt ngưỡng **5 triệu** từ `01/07/2025` (**20 triệu** trước đó), kể cả nhiều hoá đơn mua cùng ngày của cùng nhà cung cấp cộng dồn vượt ngưỡng; (3) thủng dải số hoá đơn bán ra theo `Mẫu số + Ký hiệu`; (4) sai lệch tên/địa chỉ/MST người mua trên hoá đơn đầu vào. Bấm vào từng thẻ cảnh báo để lọc danh sách hoá đơn; xuất kèm sheet `Kiểm toán rủi ro HĐ`.
+* **Xuất Bảng kê chuẩn Import MISA / FAST & Tự học định khoản:** mở từ nút **Xuất MISA / Định khoản** trên đầu Dashboard hoặc menu **🧰 Công cụ**. Hỗ trợ **Thông tư 200 / TT99** và **Thông tư 133**, sửa Mã hàng hoặc Tài khoản Nợ/Có một lần là máy tự động ghi nhớ (`xmlpro.dinhKhoan.v1`) cho các kỳ sau, xuất tệp `.xlsx` 3 sheet (`MISA_Mua_hang`, `MISA_Ban_hang`, `Tong_hop_Dinh_khoan`).
+
 ## Bản cài đặt (.exe) — để bấm đúp tệp .xml là mở
 
 - Bộ cài: `dong-goi\ban-phat-hanh\CaiDat-XML-Pro-<phiên bản>.exe` (vd `CaiDat-XML-Pro-2.0.1.exe`) → bấm đúp → Có. Cài vào `%LOCALAPPDATA%\Programs\XemXmlThue`, không cần quyền quản trị.

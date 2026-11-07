@@ -1559,7 +1559,11 @@
       });
     }
 
-    // Tạo file XLSX
+    // Tạo file XLSX (kèm sheet Thuế TNDN & Lợi nhuận và Kiểm toán rủi ro HĐ nếu có dữ liệu)
+    const shTndn = window.DASHBOARD_KE_TOAN && window.DASHBOARD_KE_TOAN.xuatTndnExcel ? window.DASHBOARD_KE_TOAN.xuatTndnExcel(docs) : null;
+    if (shTndn) sheets.push(shTndn);
+    const shKt = window.KIEM_TOAN_MISA && window.KIEM_TOAN_MISA.xuatKiemToanExcel ? window.KIEM_TOAN_MISA.xuatKiemToanExcel(docs) : null;
+    if (shKt) sheets.push(shKt);
     try {
       const blob = await buildXlsx(sheets);
       const now = new Date();

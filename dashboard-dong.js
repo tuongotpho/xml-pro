@@ -154,7 +154,7 @@
 
   // Tờ khai HTKK chia ngành theo MÃ MẪU, không gộp hết vào "Hoá đơn & GTGT":
   // 05/KK-TNCN, 05/QTT-TNCN… là việc nhân sự; tờ khai GTGT đi với hoá đơn; BCTC, TNDN… không thuộc ngành nào có Dashboard riêng.
-  const MA_TK_GTGT = ['842', '01', '844', '02', '846', '04', '847', '07', '850', '53', '132'];
+  const MA_TK_GTGT = ['842', '01', '844', '02', '846', '04', '847', '07', '850', '53', '132', '892', '03', '402', '671', '672', '683', '684', '685', '686', '1273', '1280', '1281', '1282', '1283'];
   function loaiToKhai(d) {
     const ten = String(d.title || d.tenTKhai || '');
     if (/TNCN/i.test(ten)) return 'tncn';

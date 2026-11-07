@@ -1,4 +1,4 @@
-# Đóng gói Xem XML thuế thành bộ cài .exe — chạy trong PowerShell:
+﻿# Đóng gói Xem XML thuế thành bộ cài .exe — chạy trong PowerShell:
 #   powershell -ExecutionPolicy Bypass -File F:\AI\6.chrome-ex\xem-xml-thue\dong-goi\dong-goi.ps1
 # Mỗi lần chạy tự tăng phiên bản (1.0.0 -> 1.0.1 ...), ghi ở dong-goi\phien-ban.txt.
 #   -GiuPhienBan   : đóng gói lại, giữ nguyên số phiên bản
@@ -57,6 +57,7 @@ $nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
            "/resource:$app\nganh-doc.js,nganh-doc.js",
            "/resource:$app\doi-chieu.js,doi-chieu.js",
            "/resource:$app\lap-to-khai.js,lap-to-khai.js",
+           "/resource:$app\kiem-toan-misa.js,kiem-toan-misa.js",
            "/resource:$app\dashboard-ke-toan.js,dashboard-ke-toan.js",
            "/resource:$app\so-tay.js,so-tay.js",
            "/resource:$app\kho-hoa-don.js,kho-hoa-don.js",

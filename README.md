@@ -6,6 +6,15 @@ Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuong
 
 ---
 
+## Phiên bản 3.0.8 — Dashboard 3 Tab, Thuế TNDN tự động, Kiểm toán rủi ro HĐ & Xuất MISA tự học định khoản
+
+Chi tiết ở [20-BAO-CAO-DASHBOARD-3-TAB-TNDN-KIEM-TOAN-MISA.md](20-BAO-CAO-DASHBOARD-3-TAB-TNDN-KIEM-TOAN-MISA.md).
+
+* **Giao diện Sáng mặc định & Dashboard kế toán 3 Tab:** tách riêng *Thuế GTGT*, *Thu nhập DN & Lợi nhuận sau thuế*, và *Tổng hợp hóa đơn & Khách hàng*.
+* **Bảng tính tự động Thuế TNDN & Lợi nhuận sau thuế:** tự áp bậc thuế suất **15% / 17% / 20%** theo Luật Thuế TNDN 67/2025/QH15, tự lấy lương từ `05/KK-TNCN`, tự bù lỗ luỹ kế Quý 1..4 và xuất sheet Excel riêng.
+* **Bộ Kiểm toán rủi ro Hóa đơn:** bắt tự động ký số vắt kỳ, thanh toán tiền mặt ≥ 5 triệu từ `01/07/2025` (kể cả tách lẻ nhiều hoá đơn cùng ngày cùng NCC), thủng dải số bán ra, và sai tên/địa chỉ người mua trên hoá đơn đầu vào.
+* **Xuất Bảng kê chuẩn Import MISA / FAST (`kiem-toan-misa.js`):** hỗ trợ TT200/TT99 và TT133, tự học và ghi nhớ quy tắc định khoản trên máy (`localStorage`), xuất `.xlsx` 3 sheet chuẩn nhập khẩu.
+
 ## Phiên bản 3.0.0 — phần mềm Windows thật (WebView2)
 
 Chi tiết ở [07-BAO-CAO-VO-WEBVIEW2-V3.md](07-BAO-CAO-VO-WEBVIEW2-V3.md). Bản 2.0.4 (cửa sổ Edge) vẫn giữ ở thẻ git `v2.0.4`.

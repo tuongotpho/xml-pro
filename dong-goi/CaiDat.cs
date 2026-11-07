@@ -20,7 +20,7 @@ using System.Windows.Forms;
 
 static class CaiDat
 {
-    public static readonly string[] Tep = { "XML-Pro.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll", "WebView2Loader.dll", "index.html", "dashboard-dong.js", "so-tay.js", "kho-hoa-don.js", "tai-hoa-don.js", "tai-hoa-don-loi.js", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "doi-chieu.js", "lap-to-khai.js", "dashboard-ke-toan.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
+    public static readonly string[] Tep = { "XML-Pro.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll", "WebView2Loader.dll", "index.html", "dashboard-dong.js", "so-tay.js", "kho-hoa-don.js", "tai-hoa-don.js", "tai-hoa-don-loi.js", "phien-ban.js", "jszip.min.js", "xuat-excel.js", "nganh-doc.js", "doi-chieu.js", "lap-to-khai.js", "kiem-toan-misa.js", "dashboard-ke-toan.js", "mau-itax.js", "ten-chi-tieu.js", "HUONG-DAN.md" };
 
     [STAThread]
     static int Main(string[] args)
