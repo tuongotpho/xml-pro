@@ -22,7 +22,7 @@ foreach ($t in $tep) {
 }
 if ((Get-Item (Join-Path $ra 'XML-Pro.exe')).VersionInfo.ProductVersion -notlike "$pb*") { throw "XML-Pro.exe không phải bản $pb — chạy lại dong-goi.ps1 -GiuPhienBan" }
 foreach ($t in @('index.html', 'dashboard-dong.js', 'phien-ban.js', 'jszip.min.js', 'xuat-excel.js', 'nganh-doc.js', 'doi-chieu.js',
-                 'lap-to-khai.js', 'dashboard-ke-toan.js', 'mau-itax.js', 'ten-chi-tieu.js', 'HUONG-DAN.md')) {
+                 'lap-to-khai.js', 'dashboard-ke-toan.js', 'so-tay.js', 'kho-hoa-don.js', 'tai-hoa-don.js', 'tai-hoa-don-loi.js', 'mau-itax.js', 'ten-chi-tieu.js', 'HUONG-DAN.md')) {
   Copy-Item (Join-Path $app $t) $goi
 }
 

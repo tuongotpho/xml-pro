@@ -12,6 +12,7 @@
 
   // Lựa chọn của người xem (giữ khi vẽ lại)
   const chon = { mst: '', kieu: '', namMo: {}, doiTacMo: {} }; // namMo: năm người dùng tự mở / gập (giữ khi vẽ lại)
+  const canh = { pham: [], docs: [] }; // phạm vi của lần vẽ gần nhất, dùng khi bấm khoá sổ / mở bảng hoá đơn
 
   function coDuLieu(docs) {
     const DC = window.DOI_CHIEU;
@@ -61,6 +62,7 @@
   /** Vẽ Dashboard. docs: toàn bộ tài liệu; pham: tài liệu trong thư mục đang xem; opt: { myMst } */
   function ve(docs, pham, opt) {
     const DC = window.DOI_CHIEU;
+    canh.pham = pham; canh.docs = docs;
     const ds = dsCongTy(pham, opt.myMst);
     if (!ds.length) return '';
     if (!ds.some(c => c.mst === chon.mst)) chon.mst = ds[0].mst;
@@ -128,6 +130,8 @@
         y.push(khacKieu ? `Đã có ${g.nBan + g.nMua} hoá đơn. Tờ khai và đối chiếu xem ở chế độ ${kieuKhai === 'Q' ? 'Quý' : 'Tháng'}.` : `Đã có ${g.nBan + g.nMua} hoá đơn. Hạn nộp tờ khai: ${hanNop(g.k)}.`);
       }
       g.moTa = y;
+      g.so = window.SO_TAY ? window.SO_TAY.trangThaiKy(mst, g.k, pham) : { khoa: null };
+      if (g.so.khoa && !g.tkDoc) g.loai = 'daKhoa'; // kỳ đã khoá không còn là việc "chưa lập"
       g.hdMo = c ? (c.dong.flatMap(r => r.goiY).find(x => x.idx >= 0) || null) : null;
     }
 
@@ -160,16 +164,23 @@
     const oSo = c => `<td>${so(c.banV)}</td><td>${so(c.banT)}</td><td>${so(c.muaV)}</td><td>${so(c.muaT)}</td><td>${so(c.banT - c.muaT)}</td>`;
     const tenHd = i => esc(docs[i].kyHieu + '-' + docs[i].so);
     // Cột Tờ khai: chưa lập → nút lập ngay; đã có → bấm trạng thái để mở tờ khai; lệch → thêm nút lập bổ sung
+    const nutKhoa = g => {
+      const l = g.so.khoa;
+      if (!window.SO_TAY || (!l && g.so.giao)) return '';
+      return `<button type="button" class="ktt-huy ktt-bam ktt-phu" data-khoa-so="${esc(JSON.stringify({ mst, k: l ? l.ky : g.k, mo: !!l }))}">${l ? 'Mở khoá' : 'Khoá sổ'}</button>`;
+    };
     const oToKhai = g => {
+      if (g.so.khoa) return (g.tkDoc ? `<button type="button" class="ktt-huy ktt-${g.loai} ktt-bam" data-mo-doc="${docs.indexOf(g.tkDoc)}" title="Mở tờ khai và đối chiếu">${g.nhan}</button>` : '') + `<span class="ktt-huy ktt-khoa">Đã khoá sổ</span>`;
       if (!g.tkDoc) return khacKieu ? `<span class="ktt-huy ktt-cho">${g.nhan}</span>`
         : `<button type="button" class="ktt-huy ktt-cho ktt-bam" data-lap-tk="${esc(JSON.stringify({ mst, ky: kyLap(g.k) }))}" title="Hạn nộp ${hanNop(g.k)}">+ Lập tờ khai</button>`;
       const i = docs.indexOf(g.tkDoc);
       return `<button type="button" class="ktt-huy ktt-${g.loai} ktt-bam" data-mo-doc="${i}" title="Mở tờ khai và đối chiếu">${g.nhan}</button>`
         + (g.loai === 'loi' || g.loai === 'xem' ? `<button type="button" class="ktt-huy ktt-bam ktt-phu" data-khbs="${i}" title="Lập tờ khai bổ sung theo hoá đơn">Lập bổ sung</button>` : '');
     };
-    const dongKy = g => `<tr class="ktt-dong-ky ktt-${g.loai}" data-trang-thai="${esc(g.nhan)}"><td><span class="ktt-ten-ky">${tenKy(g.k)}</span>${
-        (g.loai === 'loi' || g.loai === 'xem') && g.moTa.length ? `<div class="ktt-ly-do" title="${esc(g.moTa.join(' · '))}">${esc(g.moTa[0])}${g.hdMo ? ` · <a class="ktt-lk" data-mo-doc="${g.hdMo.idx}">mở HĐ ${tenHd(g.hdMo.idx)}</a>` : ''}</div>`
-        : !g.tkDoc && !khacKieu ? `<div class="ktt-nho">Hạn nộp ${hanNop(g.k)}</div>` : ''}</td>${oSo(g)}<td>${g.dc ? so(g.dc.tk.ct.ct40) : ''}</td><td>${g.nBan + g.nMua}</td><td class="ktt-o-tk">${oToKhai(g)}</td></tr>`;
+    const dongKy = g => `<tr class="ktt-dong-ky ktt-${g.loai}" data-trang-thai="${esc(g.nhan)}" data-ky="${esc(g.k)}"><td><span class="ktt-ten-ky">${tenKy(g.k)}</span>${
+        g.so.khoa ? (g.so.ss.moTa.length ? `<div class="ktt-ly-do ktt-doi-sau-khoa" title="Khoá sổ ngày ${esc(g.so.lucVN)}">Sau khi khoá sổ: ${esc(g.so.ss.moTa.join(', '))}</div>` : `<div class="ktt-nho">Khoá sổ ngày ${esc(g.so.lucVN)}${g.so.ss.chuaNap ? ' · chưa nạp hoá đơn kỳ này' : ''}</div>`)
+        : (g.loai === 'loi' || g.loai === 'xem') && g.moTa.length ? `<div class="ktt-ly-do" title="${esc(g.moTa.join(' · '))}">${esc(g.moTa[0])}${g.hdMo ? ` · <a class="ktt-lk" data-mo-doc="${g.hdMo.idx}">mở HĐ ${tenHd(g.hdMo.idx)}</a>` : ''}</div>`
+        : !g.tkDoc && !khacKieu ? `<div class="ktt-nho">Hạn nộp ${hanNop(g.k)}</div>` : ''}</td>${oSo(g)}<td>${g.dc ? so(g.dc.tk.ct.ct40) : ''}</td><td>${window.SO_TAY ? `<button type="button" class="ktt-so-hd" data-so-hd="${esc(g.k)}" title="Xem hoá đơn của kỳ, thêm ghi chú">${g.nBan + g.nMua}</button>` : g.nBan + g.nMua}</td><td class="ktt-o-tk">${oToKhai(g)}${nutKhoa(g)}</td></tr>`;
     const dongNam = nam => {
       const dsN = dsKy.filter(g => g.k.startsWith(nam)).reverse(), c = congDs(dsN);
       const demN = l => dsN.filter(g => g.loai === l).length;
@@ -194,6 +205,7 @@
       <div class="ktt-tom">
         ${dem('loi') ? `<span class="ktt-loi">${dem('loi')} kỳ lệch thuế</span>` : ''}${dem('xem') ? `<span class="ktt-xem">${dem('xem')} kỳ cần xem lại</span>` : ''}${dem('xong') ? `<span class="ktt-xong">${dem('xong')} kỳ đã xong</span>` : ''}${dem('cho') && !khacKieu ? `<span class="ktt-cho">${dem('cho')} kỳ chưa lập</span>` : ''}
       </div>
+      ${(n => n ? `<div class="ktt-tom"><span class="ktt-loi">${n} kỳ đã khoá sổ có hoá đơn thay đổi</span></div>` : '')(dsKy.filter(g => g.so.khoa && g.so.ss.moTa.length).length)}
       <div class="ktt-tong">
         <div><span>Bán ra</span><b>${so(t.banV)}</b></div><div><span>Thuế đầu ra</span><b>${so(t.banT)}</b></div>
         <div><span>Mua vào</span><b>${so(t.muaV)}</b></div><div><span>Thuế đầu vào</span><b>${so(t.muaT)}</b></div>
@@ -211,7 +223,7 @@
 
   /** Gắn sự kiện một lần lên khung chính. veLai(): vẽ lại Dashboard; moLapTk(preset): mở hộp lập tờ khai;
    *  chonCty(mst): báo app công ty vừa chọn, để danh sách bên trái gắn nhãn Mua vào / Bán ra theo công ty đó */
-  function ganSuKien(khung, veLai, moLapTk, chonCty) {
+  function ganSuKien(khung, veLai, moLapTk, chonCty, moDoc) {
     // Lọc danh sách khách hàng / nhà cung cấp ngay khi gõ (không vẽ lại cả Dashboard)
     khung.addEventListener('input', e => {
       const o = e.target.closest('[data-tim-dt]');
@@ -228,6 +240,15 @@
       if (n && !e.target.closest('button, a')) { chon.namMo[n.dataset.namTg] = n.dataset.mo !== '1'; veLai(); return; }
       const x = e.target.closest('[data-xem-dt]');
       if (x) { chon.doiTacMo[x.dataset.xemDt] = !chon.doiTacMo[x.dataset.xemDt]; veLai(); return; }
+      const ks = e.target.closest('[data-khoa-so]');
+      if (ks) {
+        const p = JSON.parse(ks.dataset.khoaSo), ST = window.SO_TAY, ten = ST.tenKy(p.k);
+        if (p.mo) { if (confirm(`Mở khoá sổ ${ten}?\nGhi chú và lập tờ khai của kỳ này sẽ làm được trở lại.`)) { ST.moKhoa(p.mst, p.k); veLai(); } return; }
+        if (confirm(`Khoá sổ ${ten}?\n\n- Ghi chú hoá đơn của kỳ không sửa được nữa.\n- Không lập tờ khai hay tờ khai bổ sung cho kỳ này.\n- App ghi lại danh sách hoá đơn và số tiền hiện tại, sau này hoá đơn của kỳ thay đổi sẽ cảnh báo.`)) { ST.khoaKy(p.mst, p.k, canh.pham); veLai(); }
+        return;
+      }
+      const sh = e.target.closest('[data-so-hd]');
+      if (sh) { window.SO_TAY.moBang({ docs: canh.docs, pham: canh.pham, mst: chon.mst, k: sh.dataset.soHd, moDoc: moDoc || (() => {}), doiThay: veLai }); return; }
       const l = e.target.closest('[data-lap-tk]');
       if (l) { let p = {}; try { p = JSON.parse(l.dataset.lapTk); } catch (err) { } moLapTk(p); }
     });

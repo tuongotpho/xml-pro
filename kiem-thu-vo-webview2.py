@@ -115,6 +115,9 @@ def main():
         r2 = cho("document.getElementById('main').textContent.includes('Không mở lại được')", 5)
         danh_gia('Mở lại từ Lịch sử: tệp còn → mở được; tệp mất → báo rõ', r1 == ban_sao and bool(r2), f'{r1} / báo lỗi: {r2}')
 
+        r = ev('''new Promise(ok => { const v = window.chrome.webview, f = e => { if (e.data && e.data.loai === 'ketQuaDuongDan') { v.removeEventListener('message', f); ok(e.data.mat); } };
+              v.addEventListener('message', f); v.postMessage({ lenh: 'kiemDuongDan', ds: [%s, 'C:\\\\khong-co-that\\\\x.xml'] }); })''' % json.dumps(hd[0]))
+        danh_gia('Nối lại đường dẫn: vỏ báo đúng tệp đã mất, tệp còn không bị báo', r == ['C:\\khong-co-that\\x.xml'], str(r))
         print('=== An toàn ===')
         r = ev('''(async () => {
             const thu = async u => { try { const x = await fetch(u); return x.status; } catch (e) { return 'chặn'; } };

@@ -61,7 +61,11 @@ static class Chung
     }
     public static string ThuMucDuLieu
     {
-        get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XemXmlThue"); }
+        get
+        {
+            string thu = Environment.GetEnvironmentVariable("XMLPRO_THU_DU_LIEU"); // chỉ dùng khi kiểm thử, để không đụng bản đang mở trên máy
+            return !string.IsNullOrEmpty(thu) ? thu : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XemXmlThue");
+        }
     }
     public static string LoiTat
     {

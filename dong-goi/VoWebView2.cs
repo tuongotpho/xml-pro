@@ -31,7 +31,8 @@ static class ChuongTrinh
 {
     public const string MayTrang = "xml-pro.example";      // địa chỉ nội bộ của trang
     public const string MayTep = "tep.xml-pro.example";    // địa chỉ nội bộ phục vụ tệp người dùng đã chọn
-    static readonly string TenOng = "XMLPro-v3-" + Environment.UserName.Replace('\\', '_');
+    static readonly string HauToThu = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("XMLPRO_THU_DU_LIEU")) ? "" : "-thu"; // kiểm thử: khoá riêng, chạy song song được
+    static readonly string TenOng = "XMLPro-v3-" + Environment.UserName.Replace('\\', '_') + HauToThu;
 
     [STAThread]
     static int Main(string[] args)
@@ -56,7 +57,7 @@ static class ChuongTrinh
         }
 
         bool moi;
-        using (var khoa = new Mutex(true, @"Local\XMLPro-v3-cua-so", out moi))
+        using (var khoa = new Mutex(true, @"Local\XMLPro-v3-cua-so" + HauToThu, out moi))
         {
             if (!moi)
             {
@@ -138,6 +139,7 @@ sealed class CuaSoChinh : Form
     List<string> _moLucDau;
     bool _sanSang;
     CoreWebView2Environment _env;
+    KhungCongThue _cong;
 
     public CuaSoChinh(string thuMuc, List<string> moLucDau)
     {
@@ -257,6 +259,33 @@ sealed class CuaSoChinh : Form
                 string tm = HopChonThuMuc.Hien(this, "Chọn thư mục hoá đơn / tờ khai");
                 if (tm != null) GuiDuongDan(new List<string> { tm }, "chon");
                 break;
+            case "hienCong":
+                DatViTriCong(m);
+                break;
+            case "anCong":
+                // Lùi xuống sau trang app, không ẩn hẳn: ẩn thì Chromium giãn đồng hồ của trang, tải sẽ rất chậm
+                if (_cong != null) { _cong.SendToBack(); _wv.Focus(); }
+                break;
+            case "lenhCong":
+                object hanh, tc, gv;
+                if (_cong == null || !m.TryGetValue("hanh", out hanh)) break;
+                var xuong = new Dictionary<string, object> { { "loai", Convert.ToString(hanh) } };
+                if (m.TryGetValue("tuyChon", out tc)) xuong["tuyChon"] = tc;
+                if (m.TryGetValue("giaTri", out gv)) xuong["giaTri"] = gv;
+                _cong.GuiXuong(xuong);
+                break;
+            case "dongCong":
+                DongCongThue(false);
+                break;
+            case "chonThuMucNoiLai":
+                string tmMoi = HopChonThuMuc.Hien(this, "Chọn thư mục mới của hoá đơn");
+                if (tmMoi != null) GuiDuongDan(new List<string> { tmMoi }, "noiLai");
+                break;
+            case "kiemDuongDan":
+                object dsDd;
+                var cacDuong = m.TryGetValue("ds", out dsDd) && dsDd is System.Collections.IEnumerable ? ((System.Collections.IEnumerable)dsDd).Cast<object>().Select(Convert.ToString).Take(30000).ToList() : new List<string>();
+                Task.Run(() => cacDuong.Where(x => !File.Exists(x)).ToList()).ContinueWith(t => Gui(new Dictionary<string, object> { { "loai", "ketQuaDuongDan" }, { "mat", t.Result } }), TaskScheduler.FromCurrentSynchronizationContext());
+                break;
             case "kiemCapNhat":
                 // tuDong = true: lúc mở app, tối đa 1 lần / 20 giờ, lỗi mạng thì im lặng; false: người dùng bấm nút
                 object td;
@@ -306,6 +335,41 @@ sealed class CuaSoChinh : Form
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
+    public void NapTuCongThue(List<string> ds) { GuiDuongDan(ds, "congThue"); }
+
+    // Khung cổng thuế là một WebView2 đặt đè lên đúng vùng nội dung; trang app báo vị trí theo điểm ảnh thật
+    void DatViTriCong(Dictionary<string, object> m)
+    {
+        Func<string, int> so = k => { object v; return m.TryGetValue(k, out v) ? (int)Math.Round(Convert.ToDouble(v)) : 0; };
+        int rong = so("w"), cao = so("h");
+        if (rong < 50 || cao < 50) return;
+        if (_cong == null || _cong.IsDisposed)
+        {
+            _cong = new KhungCongThue(this, _env, _thuMuc);
+            _cong.SetBounds(so("x"), so("y"), rong, cao);
+            Controls.Add(_cong);
+            _cong.BringToFront();
+            var khoiTao = _cong.KhoiTao();
+            return;
+        }
+        _cong.SetBounds(so("x"), so("y"), rong, cao);
+        _cong.BringToFront();
+    }
+
+    public void DongCongThue(bool khongHoi)
+    {
+        if (_cong == null) return;
+        if (!khongHoi && _cong.DangTai && Environment.GetEnvironmentVariable("XMLPRO_CONG_THU") == null
+            && MessageBox.Show(this, "Đang tải hoá đơn. Đóng sẽ dừng tải, các tệp đã tải vẫn được giữ lại. Đóng?", Chung.TenApp, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        var k = _cong;
+        _cong = null;
+        Controls.Remove(k);
+        k.Dispose();
+        Gui(new Dictionary<string, object> { { "loai", "congDaDong" } });
+    }
+
+    public void GuiTrang(Dictionary<string, object> m) { Gui(m); }
+
     public void NhanTuBanKhac(List<string> ds)
     {
         if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Maximized;
@@ -347,7 +411,7 @@ sealed class CuaSoChinh : Form
         {
             if (t.Exception != null || t.Result.Count == 0)
             {
-                if (nguon == "chon") Gui(new Dictionary<string, object> { { "loai", "thongBao" }, { "noiDung", "Không thấy tệp .xml hoặc .zip nào trong lựa chọn." } });
+                if (nguon == "chon" || nguon == "noiLai") Gui(new Dictionary<string, object> { { "loai", "thongBao" }, { "noiDung", "Không thấy tệp .xml hoặc .zip nào trong lựa chọn." } });
                 return;
             }
             Gui(new Dictionary<string, object> { { "loai", "tep" }, { "nguon", nguon }, { "ds", t.Result } });

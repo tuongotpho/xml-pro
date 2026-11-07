@@ -213,6 +213,12 @@
   }
 
   // Hàm xuất Excel chính
+  /** Xuất một bảng bất kỳ, dùng cho Kho hoá đơn */
+  window.xuatBangTuy = async (ten, sheets) => {
+    const n = new Date(), p = v => String(v).padStart(2, '0');
+    downloadBlob(await buildXlsx(sheets), `${ten}_${n.getFullYear()}${p(n.getMonth() + 1)}${p(n.getDate())}_${p(n.getHours())}${p(n.getMinutes())}.xlsx`);
+  };
+
   async function xuatExcel(docs) {
     if (!docs || !docs.length) {
       alert('Chưa có file nào trong danh sách. Hãy chọn hoặc kéo thả file XML/ZIP trước khi xuất Excel!');
@@ -463,8 +469,8 @@
             ten: inv.title || 'Hàng hóa, dịch vụ',
             dvt: '',
             sl: 1,
-            dg: inv.tienHang || 0,
-            tien: inv.tienHang || 0,
+            dg: inv.tongTruocThue ?? inv.tienHang ?? 0,
+            tien: inv.tongTruocThue ?? inv.tienHang ?? 0,
             ts: inv.thueSuat || ''
           }];
           items.forEach(l => {
@@ -476,7 +482,7 @@
               sttMua++,
               inv.so || '',
               inv.ngayLap || inv.ngay || '',
-              inv.mauSo || '',
+              inv.mau || inv.mauSo || '',
               inv.kyHieu || '',
               inv.ban?.MST || inv.mst || '',
               inv.ban?.Ten || inv.ban?.ten || '',
@@ -541,8 +547,8 @@
             ten: inv.title || 'Hàng hóa, dịch vụ',
             dvt: '',
             sl: 1,
-            dg: inv.tienHang || 0,
-            tien: inv.tienHang || 0,
+            dg: inv.tongTruocThue ?? inv.tienHang ?? 0,
+            tien: inv.tongTruocThue ?? inv.tienHang ?? 0,
             ts: inv.thueSuat || ''
           }];
           items.forEach(l => {
@@ -554,7 +560,7 @@
               sttBan++,
               inv.so || '',
               inv.ngayLap || inv.ngay || '',
-              inv.mauSo || '',
+              inv.mau || inv.mauSo || '',
               inv.kyHieu || '',
               inv.mua?.MST || '',
               inv.mua?.Ten || inv.mua?.ten || '',
@@ -613,16 +619,16 @@
           const matHang = (inv.lines && inv.lines.length) ? inv.lines.map(l => l.ten).filter(Boolean).slice(0, 3).join(', ') : (inv.title || '');
           bkBanRows.push([
             sttBkBan++,
-            inv.mauSo || '',
+            inv.mau || inv.mauSo || '',
             inv.kyHieu || '',
             inv.so || '',
             inv.ngayLap || inv.ngay || '',
             inv.mua?.Ten || inv.mua?.ten || '',
             inv.mua?.MST || '',
             matHang,
-            typeof inv.tienHang === 'number' ? inv.tienHang : (Number(inv.tienHang) || 0),
-            typeof inv.tienThue === 'number' ? inv.tienThue : (Number(inv.tienThue) || 0),
-            inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : ''
+            Number(inv.tongTruocThue ?? inv.tienHang) || 0,
+            Number(inv.tongThue ?? inv.tienThue) || 0,
+            [inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : '', window.SO_TAY ? window.SO_TAY.ghiChu(inv) : ''].filter(Boolean).join(' · ')
           ]);
         });
         if (bkBanRows.length > 0) {
@@ -668,16 +674,16 @@
           const matHang = (inv.lines && inv.lines.length) ? inv.lines.map(l => l.ten).filter(Boolean).slice(0, 3).join(', ') : (inv.title || '');
           bkMuaRows.push([
             sttBkMua++,
-            inv.mauSo || '',
+            inv.mau || inv.mauSo || '',
             inv.kyHieu || '',
             inv.so || '',
             inv.ngayLap || inv.ngay || '',
             inv.ban?.Ten || inv.ban?.ten || '',
             inv.ban?.MST || inv.mst || '',
             matHang,
-            typeof inv.tienHang === 'number' ? inv.tienHang : (Number(inv.tienHang) || 0),
-            typeof inv.tienThue === 'number' ? inv.tienThue : (Number(inv.tienThue) || 0),
-            inv.phanLoai === 'khac' ? 'Chưa xác định mua/bán' : (inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : '')
+            Number(inv.tongTruocThue ?? inv.tienHang) || 0,
+            Number(inv.tongThue ?? inv.tienThue) || 0,
+            inv.phanLoai === 'khac' ? 'Chưa xác định mua/bán' : ([inv.lienQuan ? 'HĐ điều chỉnh/thay thế' : '', window.SO_TAY ? window.SO_TAY.ghiChu(inv) : ''].filter(Boolean).join(' · '))
           ]);
         });
         if (bkMuaRows.length > 0) {

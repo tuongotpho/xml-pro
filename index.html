@@ -350,6 +350,97 @@
   .ktt-bam:hover { border-color: currentColor; }
   button.ktt-huy.ktt-cho { background: var(--ktt-chinh); color: #fff; font-weight: 600; }
   html.dark button.ktt-huy.ktt-cho { color: #0e1217; }
+  .ktt-khoa { background: var(--line); color: var(--ink); }
+  .ktt-doi-sau-khoa { color: var(--warn); font-weight: 600; }
+  .ktt-so-hd { font: inherit; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; text-decoration: underline dotted; }
+  .ktt-so-hd:hover { color: var(--ktt-chinh); }
+  .nav-chinh { display: flex; gap: 6px; padding: 0 12px 8px; }
+  .nav-chinh button { flex: 1 1 0; min-width: 0; font: inherit; font-size: 12.5px; font-weight: 600; padding: 7px 4px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+  .nav-chinh button:not(.primary) { background: var(--panel); color: var(--ink); }
+  .home-tai { display: flex; align-items: center; gap: 18px; padding: 16px 18px; margin: 14px 0 4px; border: 1px solid var(--ktt-chinh); border-radius: 10px; background: var(--panel); text-align: left; }
+  .home-tai > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .home-tai b { font-size: 15px; color: var(--ink); }
+  .home-tai span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .home-tai button { padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .home-kho { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; margin: 8px 0; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; }
+  .home-kho[hidden] { display: none; }
+  .home-kho button { font: inherit; font-weight: 600; padding: 7px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+  .kho { padding: 18px 22px; font-size: 13px; }
+  .kho h1 { margin: 0; font-size: 19px; }
+  .kho-dau { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .kho-nut, .kho-loat { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .kho-loc { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .kho-loc select, .kho-loc input { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .kho-loc #khoCty { max-width: 320px; }
+  .kho-loc #khoQ { flex: 1; min-width: 180px; }
+  .kho button { font: inherit; font-size: 12.5px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+  .kho button:disabled { opacity: .5; cursor: default; }
+  .kho-loat { margin: 10px 0; }
+  .kho-loat #khoBao { color: var(--muted); }
+  .kho-khung { max-height: none; }
+  .kho .st-bang td { vertical-align: top; }
+  .kho .kho-ten { max-width: 230px; overflow: hidden; text-overflow: ellipsis; }
+  .kho .kho-tt { white-space: normal; max-width: 210px; }
+  .kho .st-bang td:last-child { width: 22%; min-width: 150px; }
+  .kho-nhan { display: inline-block; margin: 0 3px 3px 0; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--line); color: var(--ink); white-space: nowrap; }
+  .kho-do { background: #fde2e1; color: #a11a14; }
+  .kho-xanh { background: #dcf3e3; color: #14622f; }
+  .kho-vang { background: #fdf0cf; color: #7c5a05; }
+  .kho-canh b { color: var(--warn); }
+  .kho-rong { padding: 18px; color: var(--muted); text-align: center; }
+  .kho-trang { display: flex; gap: 10px; justify-content: center; align-items: center; margin: 10px 0; }
+  .cong-thanh { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .cong-thanh span { flex: 1; color: var(--muted); }
+  .cong-thanh button { font: inherit; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+  #main:has(#congViTri) { padding: 0; overflow: hidden; }
+  .cong-the { max-width: 620px; margin: 28px auto; padding: 22px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; }
+  .cong-da { display: flex; flex-direction: column; gap: 3px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .cong-da b { font-size: 15px; }
+  .cong-da span { color: var(--muted); }
+  .cong-hang { display: flex; gap: 14px; }
+  .cong-hang > label { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .cong-hang > label.cong-chon, .cong-chon { flex-direction: row; display: flex; align-items: center; gap: 6px; }
+  .cong-the input[type=month] { width: 100%; box-sizing: border-box; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .cong-the button { font: inherit; padding: 9px; border-radius: 6px; cursor: pointer; }
+  #cgChay.dang { background: var(--muted); border-color: var(--muted); }
+  #cgXem { border: 1px solid var(--line); background: var(--panel); color: var(--ink); font-weight: 600; }
+  #cgTT { font-weight: 600; min-height: 18px; }
+  #cgMa { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+  #cgMa[hidden] { display: none; }
+  #cgMoTa { font-weight: 600; }
+  .cong-ma { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  #cgAnh { height: 56px; min-width: 150px; background: #fff; border-radius: 6px; }
+  #cgNhapMa { width: 110px; font: inherit; font-size: 15px; letter-spacing: 2px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .cong-ma button { padding: 7px 12px; }
+  #cgBoMa { border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+  #cgNhac { position: fixed; right: 18px; bottom: 18px; z-index: 50; font: inherit; font-weight: 600; padding: 10px 16px; border: 0; border-radius: 8px; background: var(--ktt-chinh); color: #fff; cursor: pointer; }
+  html.dark #cgNhac { color: #0e1217; }
+  #cgNhac[hidden] { display: none; }
+  #cgNk { max-height: 240px; overflow: auto; white-space: pre-wrap; background: var(--bg, transparent); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; }
+  .st-dlg { width: min(1180px, 96vw); max-width: none; max-height: 94vh; font-size: 13px; }
+  .st-cu { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .st-cu input[type=search], .st-cu input[type=text] { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .st-cu #stNoiDung { flex: 1; min-width: 220px; }
+  .st-khung { max-height: 62vh; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+  .st-bang { width: 100%; border-collapse: collapse; }
+  .st-bang th { position: sticky; top: 0; background: var(--panel); text-align: left; font-size: 12px; z-index: 1; }
+  .st-bang th, .st-bang td { padding: 4px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .st-bang .st-so { text-align: right; font-variant-numeric: tabular-nums; }
+  .st-bang .st-ten { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .st-bang td:last-child { width: 34%; min-width: 220px; }
+  .st-gc { width: 100%; box-sizing: border-box; font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--ink); }
+  .st-gc:hover:not(:disabled), .st-gc:focus { border-color: var(--line); background: var(--panel); }
+  .st-gc:disabled, html.dark .st-gc:disabled { color: var(--muted); background: transparent; border-color: transparent; }
+  html.dark .st-gc { background: transparent; border-color: #475569; }
+  html.dark .st-gc:hover:not(:disabled), html.dark .st-gc:focus { background: #0f172a; border-color: #475569; }
+  .st-bang a { color: inherit; text-decoration: underline; }
+  .st-bang tr.st-bo td { color: var(--muted); }
+  .st-o-hd { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+  .st-o-hd label { display: flex; flex: 1; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; }
+  .st-o-hd input { flex: 1; font: inherit; font-weight: 400; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .tag-pl.ghi { background: var(--line); color: var(--ink); }
+  .nl-ds { max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; margin: 8px 0; font-size: 12px; word-break: break-all; }
+  @media print { .st-o-hd { display: none !important; } }
   .ktt-bam.ktt-phu { background: var(--panel); color: var(--ink); border-color: var(--line); }
   .ktt-tong { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 18px 0 14px; }
   .ktt-tong div { padding: 10px 14px; border-right: 1px solid var(--line); }
@@ -1079,10 +1170,13 @@
         <div class="cc-menu">
           <button id="btnLapTk" type="button" title="Lập tờ khai 01/GTGT, 04/GTGT hoặc 01/CNKD hộ kinh doanh (tháng / quý) từ các hoá đơn đã nạp, xuất XML nạp HTKK / eTax">📝 Lập tờ khai từ hoá đơn</button>
           <button id="btnDoiTen" type="button" title="Đổi tên tệp XML trên ổ cứng theo dạng ngày-MST-số HĐ-tên công ty, dễ tìm trong Windows Explorer">🏷 Đổi tên file hàng loạt</button>
+          <button id="btnCongThue" type="button" title="Mở cổng hoadondientu.gdt.gov.vn ngay trong app, anh chị tự đăng nhập, app tải XML hoá đơn về thư mục đã chọn và nạp luôn">⬇ Tải hoá đơn từ cổng thuế</button>
+          <button id="btnNoiLai" type="button" title="Thư mục hoá đơn bị chuyển chỗ? Chọn thư mục mới để nối lại các tệp đang nạp và lịch sử">🔗 Nối lại đường dẫn tệp</button>
           <button id="btnCaiDatMst" type="button" title="App tự nhận MST công ty từ tờ khai / hoá đơn để gắn nhãn Mua vào / Bán ra. Cài tay khi app nhận sai">⚙ MST công ty: <b id="lblMyMst">chưa nhận ra</b></button>
         </div>
       </details>
     </div>
+    <div class="nav-chinh"><button type="button" id="btnNavCong" class="primary" title="Anh chị tự đăng nhập trên trang thật của cổng thuế, XML-Pro không thấy và không lưu mật khẩu">⬇ Tải hoá đơn</button><button type="button" id="btnNavKho" title="Xem, lọc, đánh dấu toàn bộ hoá đơn đã có, không cần nạp lại">🧾 Kho hoá đơn</button></div>
     <div class="summary" id="summary">Chưa có file nào.</div>
     <div class="seg"><button id="segMo" class="on">Đang mở</button><button id="segCay" title="Khám phá cấu trúc thư mục & tập tin (Explorer)">📁 Explorer</button><button id="segLs">Lịch sử</button></div>
     <div id="folderFilterBar" class="folder-filter-bar" style="display:none">
@@ -1107,7 +1201,12 @@
   <div class="tabs" id="tabs"></div>
   <main id="main">
     <div class="empty" id="homeEmpty">
-      <h2>XML-Pro — Trình xem & Trích xuất chứng từ điện tử</h2>
+      <h2>XML-Pro — Tải, quản lý hoá đơn và lập tờ khai</h2>
+      <div class="home-tai">
+        <div><b>Tải hoá đơn từ cổng thuế</b><span>Anh chị tự đăng nhập trên trang thật của cổng thuế. XML-Pro không thấy và không lưu mật khẩu. Chọn tháng là tải cả mua vào, bán ra, về thẳng máy.</span></div>
+        <button type="button" id="btnEmptyCong" class="primary">⬇ Tải hoá đơn</button>
+      </div>
+      <div class="home-kho" id="homeKho" hidden><span id="homeKhoChu"></span><button type="button" id="btnEmptyKho">🧾 Mở Kho hoá đơn</button></div>
       <div style="display:flex;gap:12px;margin:16px 0 20px;flex-wrap:wrap">
         <button type="button" id="btnEmptyFile" class="primary" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📂 Chọn file XML / Zip…</button>
         <button type="button" id="btnEmptyDir" style="padding:10px 18px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer">📁 Chọn cả thư mục…</button>
@@ -1140,9 +1239,14 @@
         <li><b>Đối chiếu tờ khai 01/GTGT ↔ hoá đơn ↔ giấy nộp tiền</b> — chỉ ra chỉ tiêu lệch và hoá đơn gây lệch; nhiều công ty, kỳ tháng hoặc quý.</li>
         <li><b>Lập tờ khai từ hoá đơn</b> (🧰 Công cụ → Lập tờ khai từ hoá đơn): 01/GTGT, 04/GTGT, <b>01/CNKD cho hộ kinh doanh</b> (Thông tư 50/2026), và <b>tờ khai bổ sung</b> kèm 01/KHBS, 01-1/KHBS. Xuất XML theo khuôn HTKK, chưa ký số.</li>
         <li><b>Dashboard kế toán</b> — sổ theo kỳ cộng từng năm, trạng thái từng kỳ, nút lập tờ khai ngay trên dòng; khách hàng, nhà cung cấp.</li>
+        <li><b>Tải hoá đơn từ cổng thuế</b> (🧰 Công cụ): <b>anh chị tự đăng nhập ngay trên trang thật của cổng thuế; XML-Pro không thấy và không lưu mật khẩu</b>. Đăng nhập xong trang cổng tự ẩn, chỉ còn thẻ chọn tháng; XML mua vào, bán ra, cả hoá đơn máy tính tiền (tự gõ captcha), về thư mục đã chọn rồi nạp luôn. Đóng là hết phiên; lần sau chỉ tải bù hoá đơn còn thiếu.</li>
+        <li><b>Kho hoá đơn</b>: hoá đơn tự vào kho khi tải hoặc mở thư mục, còn nguyên lần sau mở app. Lọc theo công ty, kỳ, mua bán, trạng thái; đánh dấu đã hạch toán, đã thanh toán, cần xem; đối soát với cổng thuế để biết hoá đơn chưa có XML, bị huỷ, thay thế; xuất Excel; sao lưu sang máy khác. Kho chỉ là chỉ mục, tệp XML vẫn là bản gốc.</li>
+        <li><b>Khoá sổ theo kỳ</b> — kỳ đã nộp không lập lại tờ khai, không sửa ghi chú; hoá đơn của kỳ thay đổi về sau thì Dashboard cảnh báo.</li>
+        <li><b>Ghi chú theo hoá đơn</b> — bấm số hoá đơn trên dòng kỳ để ghi, dán cột từ Excel, Ctrl+D; ghi chú ra cột Ghi chú của bảng kê Excel.</li>
+        <li><b>Nối lại đường dẫn tệp</b> (🧰 Công cụ) — thư mục chuyển chỗ thì chọn thư mục mới, app so nội dung để nối lại, ghi chú không mất.</li>
         <li><b>Xuất Excel</b> bảng kê (.xlsx) cho toàn bộ hồ sơ; <b>đổi tên tệp hàng loạt</b> cho dễ tìm trong Windows Explorer.</li>
       </ul>
-      <p>Chạy hoàn toàn trên máy, không gửi dữ liệu đi đâu. Việc duy nhất ra mạng là hỏi xem có bản mới (tắt được trong mục Giới thiệu).</p>
+      <p>Chạy trên máy. Chỉ ra mạng trong hai việc: hỏi GitHub xem có bản mới (tắt được), và khi anh chị tự mở khung tải hoá đơn, lúc đó app nói chuyện thẳng với cổng thuế, không qua máy chủ nào khác.</p>
 
     </div>
   </main>
@@ -1159,7 +1263,7 @@
     <h3 style="margin:0">Giới thiệu</h3>
     <button type="button" id="btnXoaPhien" title="Xoá phiên làm việc đã lưu (nội dung các tệp đã nạp) và lịch sử tệp đã mở trên máy này">🗑 Xoá dữ liệu phiên</button>
   </div>
-  <p style="margin:6px 0"><b>XML-Pro</b> <span id="pbGioiThieu"></span> — chạy ngay trên máy, không cần mạng, không gửi dữ liệu đi đâu. Việc duy nhất ra mạng là hỏi GitHub xem có bản mới (không gửi kèm gì, tắt được ở dưới).</p>
+  <p style="margin:6px 0"><b>XML-Pro</b> <span id="pbGioiThieu"></span> — Chạy trên máy. Chỉ ra mạng trong hai việc: hỏi GitHub xem có bản mới (tắt được), và khi anh chị tự mở khung tải hoá đơn, lúc đó app nói chuyện thẳng với cổng thuế, không qua máy chủ nào khác.</p>
   <div class="cn-khoi">
     <div class="cn-dong"><b>Cập nhật</b><span id="cnTrangThai" class="cn-ghi"></span>
       <button type="button" id="btnKiemCapNhat">Kiểm tra bản mới</button></div>
@@ -1172,6 +1276,7 @@
   </div>
   <p style="margin:6px 0"><b>Xem:</b> tờ khai, phụ lục, BCTC HTKK / eTax theo đúng mẫu iTax Viewer (cả 01/CNKD hộ kinh doanh), hoá đơn điện tử, thông báo thuế, chứng từ nộp tiền, tờ khai hải quan, chứng từ khấu trừ TNCN, hồ sơ BHXH, bảng kê BHYT, sao kê ngân hàng, hồ sơ dự thầu — tệp .xml, .zip hoặc cả thư mục.</p>
   <p style="margin:6px 0"><b>Làm:</b> đối chiếu tờ khai 01/GTGT với hoá đơn và giấy nộp tiền; lập tờ khai 01/GTGT, 04/GTGT, 01/CNKD hộ kinh doanh và tờ khai bổ sung (01/KHBS, 01-1/KHBS) từ hoá đơn; Dashboard kế toán; xuất Excel; đổi tên tệp hàng loạt.</p>
+  <p style="margin:6px 0"><b>Mật khẩu thuế:</b> khi tải hoá đơn, anh chị tự đăng nhập trên trang thật của cổng thuế. XML-Pro không thấy, không đọc và không lưu mật khẩu; không có ô nhập mật khẩu nào của XML-Pro. Đóng khung tải là hết phiên, không còn gì trên máy.</p>
   <p style="margin:6px 0">Chữ ký số: app kiểm ngay trên máy cả vân tay dữ liệu lẫn chữ ký trong chứng thư số — bắt được hồ sơ bị sửa sau khi ký. <b>Không kiểm chứng thư có bị thu hồi hay không</b> (việc đó cần mạng); muốn chắc chắn thì tra trên cổng thuế điện tử.</p>
   <p style="margin:6px 0">Dữ liệu lưu trên máy này: phiên làm việc gần nhất (nội dung các tệp đã nạp, để khôi phục) và lịch sử tệp đã mở. Bấm "🗑 Xoá dữ liệu phiên" ở trên để xoá.</p>
       <div class="dn-box">
@@ -1263,6 +1368,32 @@
   </div>
 </dialog>
 
+<button type="button" id="cgNhac" hidden>Tải hoá đơn đang chờ anh chị gõ captcha</button>
+
+<dialog id="dlgSoHd" class="st-dlg">
+  <h3 style="margin:0" id="stTieuDe">Hoá đơn của kỳ</h3>
+  <div class="st-cu">
+    <input type="search" id="stTim" placeholder="Tìm số, tên, MST…" aria-label="Tìm hoá đơn">
+    <input type="text" id="stNoiDung" maxlength="500" placeholder="Nội dung ghi cho các dòng đã chọn…" aria-label="Nội dung ghi chú hàng loạt">
+    <button type="button" id="stApDung" class="primary">Ghi cho dòng đã chọn</button>
+    <button type="button" id="stDong">Đóng</button>
+  </div>
+  <div class="st-khung"><table class="st-bang"><thead><tr><th><input type="checkbox" id="stChonTat" aria-label="Chọn tất cả"></th><th>Loại</th><th>Ngày</th><th>Hoá đơn</th><th>Đối tác</th><th class="st-so">Trước thuế</th><th class="st-so">Thuế</th><th>Ghi chú</th></tr></thead><tbody></tbody></table></div>
+  <p class="lt-ghi" style="margin:8px 0 0"><b>Ctrl+D</b>: chép ghi chú dòng trên xuống (hoặc từ dòng chọn đầu tiên sang các dòng chọn). <b>Ctrl+V</b> một cột từ Excel: điền dọc từ ô đang đứng. Giữ <b>Shift</b> khi tích để chọn một đoạn. Dòng thuộc kỳ khoá sổ được bỏ qua.</p>
+  <p id="stBao" style="color:var(--muted);margin:4px 0 0"></p>
+</dialog>
+
+<dialog id="dlgNoiLai" style="max-width:720px;width:95%">
+  <h3 style="margin:0">Nối lại đường dẫn tệp</h3>
+  <p class="lt-ghi" style="margin:8px 0">Khi thư mục hoá đơn bị chuyển chỗ, chọn thư mục mới: app so <b>nội dung</b> từng tệp để nối lại, tệp đã đổi tên vẫn nối được. Mục trong Lịch sử không lưu nội dung nên chỉ nối theo tên, tên trùng nhiều nơi thì bỏ qua. Không tệp nào trên ổ cứng bị sửa.</p>
+  <div id="nlTom"></div>
+  <div class="nl-ds" id="nlDs" hidden></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+    <button type="button" id="nlChon" class="primary">Chọn thư mục mới…</button>
+    <button type="button" id="nlDong">Đóng</button>
+  </div>
+</dialog>
+
 <dialog id="dlgKhbs" class="lt-dlg">
   <h3 style="margin:0 0 4px">📝 Lập tờ khai bổ sung 01/GTGT</h3>
   <div class="lt-ghi">Tính lại tờ khai từ hoá đơn đang nạp, giữ nguyên các chỉ tiêu kế toán tự nhập ([22], [37], [38]…) của tờ khai cũ. File xuất ra gồm tờ khai đã điều chỉnh, phụ lục <b>01/KHBS</b> và <b>01-1/KHBS</b>, <b>chưa ký số</b> — nạp vào HTKK hoặc eTax để kiểm tra, ký và nộp.</div>
@@ -1335,6 +1466,8 @@
 <script src="nganh-doc.js"></script>
 <script src="doi-chieu.js"></script>
 <script src="lap-to-khai.js"></script>
+<script src="so-tay.js"></script>
+<script src="kho-hoa-don.js"></script>
 <script src="dashboard-ke-toan.js"></script>
 <script src="dashboard-dong.js"></script>
 <script src="phien-ban.js"></script>
@@ -3253,6 +3386,8 @@
     // Nếu nạp nhiều file hoặc cả thư mục: Ưu tiên mở ngay Dashboard tổng hợp, KHÔNG mở hàng nghìn tab
     // Lưu phiên làm việc IndexedDB tự động v2.0.0
     luuPhienIndexedDb();
+    if (window.KHO_HD) { await window.KHO_HD.themDocs(docs.slice(batDau)).catch(e => console.warn('Lỗi ghi kho:', e)); }
+    if (cong.mo) return; // đang xem cổng thuế: nạp ngầm, không kéo người dùng ra khỏi trang đang đọc
     const soFileMoi = docs.length - batDau;
     if (soFileMoi > 1) {
       moDashboard(selectedFolder);
@@ -3287,6 +3422,7 @@
   const VO = window.chrome && window.chrome.webview ? window.chrome.webview : null;
   async function nhanTepTuVo(m) {
     const ds = Array.isArray(m.ds) ? m.ds : [];
+    if (m.nguon === 'noiLai') return noiLaiTuTep(ds);
     const files = new Array(ds.length);
     let tiep = 0;
     const tai = async () => {
@@ -3306,7 +3442,8 @@
     if (!co.length) return;
     if (m.nguon === 'mo') cheDo = 'mo';
     await addFiles(co);
-    if (docs.length) select(docs.length - 1);
+    if (m.nguon === 'congThue') { if (!cong.mo) moDashboard(''); } // đang xem cổng thì nạp ngầm, bấm nút mới về Dashboard
+    else if (docs.length) select(docs.length - 1);
   }
 
   // ---------- Lịch sử đường dẫn file đã mở (lưu trong trình duyệt của app, chỉ trên máy này) ----------
@@ -3338,8 +3475,179 @@
     x.onerror = () => baoLoiMo(duongDan);
     try { x.send(); } catch (e) { baoLoiMo(duongDan); }
   }
+  // ---------- Khung cổng thuế: vỏ đặt một WebView2 riêng đè lên vùng #congViTri, trang app chỉ báo vị trí ----------
+  const thangNay = (d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)(new Date());
+  const cong = { mo: false, dangNhap: false, xemTrang: false, dang: false, coTep: false, tt: '', nk: [], tu: thangNay, den: thangNay, mua: true, ban: true, boQua: true, mttMua: false, mttBan: false, anh: '', moTa: '' };
+  const lenhCong = (hanh, them) => VO.postMessage({ lenh: 'lenhCong', hanh, ...them });
+  function baoViTriCong() {
+    if (!VO || !cong.mo) return;
+    const o = $('congViTri');
+    if (!o) return;
+    o.style.height = Math.max(120, innerHeight - o.getBoundingClientRect().top) + 'px';
+    if (document.querySelector('dialog[open]')) { VO.postMessage({ lenh: 'anCong' }); return; }
+    const r = o.getBoundingClientRect(), t = window.devicePixelRatio || 1;
+    VO.postMessage({ lenh: 'hienCong', x: r.left * t, y: r.top * t, w: r.width * t, h: r.height * t });
+  }
+  function veTheCong() {
+    return `<div class="cong-the">
+      <div class="cong-da"><b>Đã đăng nhập cổng thuế</b><span>Anh chị tự đăng nhập trên trang của cổng. XML-Pro không thấy và không lưu mật khẩu.</span></div>
+      <div class="cong-hang"><label>Từ tháng<input type="month" id="cgTu" value="${esc(cong.tu)}"></label><label>Đến tháng<input type="month" id="cgDen" value="${esc(cong.den)}"></label></div>
+      <div class="cong-hang"><label class="cong-chon"><input type="checkbox" id="cgMua"${cong.mua ? ' checked' : ''}> Mua vào</label><label class="cong-chon"><input type="checkbox" id="cgBan"${cong.ban ? ' checked' : ''}> Bán ra</label></div>
+      <div class="cong-hang"><label class="cong-chon"><input type="checkbox" id="cgMttMua"${cong.mttMua ? ' checked' : ''}> Máy tính tiền mua vào</label><label class="cong-chon"><input type="checkbox" id="cgMttBan"${cong.mttBan ? ' checked' : ''}> Máy tính tiền bán ra</label></div>
+      <p class="lt-ghi" style="margin:0">Hoá đơn máy tính tiền phải tự gõ captcha: tháng 31 ngày là 12 lần cho mua vào, 4 lần cho bán ra (tháng 30 ngày 9 và 3), thêm 1 lần mỗi trang kết quả.</p>
+      <label class="cong-chon"><input type="checkbox" id="cgChiDs"${cong.chiDs ? ' checked' : ''}> Chỉ đối soát với Kho, không tải XML</label>
+      <label class="cong-chon"><input type="checkbox" id="cgBoQua"${cong.boQua ? ' checked' : ''}> Bỏ qua hoá đơn đã có trong thư mục</label>
+      <button type="button" id="cgChay" class="primary">${cong.dang ? 'Dừng' : 'Chọn thư mục và tải'}</button>
+      <button type="button" id="cgXem"${cong.coTep ? '' : ' hidden'}>Xem trên Dashboard</button>
+      <button type="button" id="cgKho"${cong.coDs ? '' : ' hidden'}>Xem trong Kho hoá đơn</button>
+      <div id="cgMa"${cong.anh ? '' : ' hidden'}><div id="cgMoTa">${esc(cong.moTa)}</div><div class="cong-ma"><img id="cgAnh" alt="Ảnh captcha của cổng thuế" src="${esc(cong.anh)}"><input id="cgNhapMa" maxlength="6" autocomplete="off" spellcheck="false" aria-label="Gõ captcha"><button type="button" id="cgGuiMa" class="primary">Gửi</button><button type="button" id="cgBoMa">Bỏ qua đoạn này</button></div></div>
+      <div id="cgTT">${esc(cong.tt)}</div>
+      <div id="cgNk"${cong.nk.length ? '' : ' hidden'}>${esc(cong.nk.join('\n'))}</div>
+      <p class="lt-ghi">Tải chậm có chủ ý, khoảng 1 giây một hoá đơn, để cổng không khoá tài khoản.</p>
+    </div>`;
+  }
+  function veCong() {
+    selected = -3;
+    const trang = !cong.dangNhap || cong.xemTrang;
+    $('main').innerHTML = `<div class="cong-thanh"><b>Tải hoá đơn từ cổng thuế</b><span>${cong.dangNhap ? '' : 'Tự đăng nhập trên trang của cổng thuế bên dưới. XML-Pro không thấy và không lưu mật khẩu.'}</span>
+      ${cong.dangNhap ? `<button type="button" id="btnXemTrang">${cong.xemTrang ? 'Về thẻ tải' : 'Xem trang cổng'}</button>` : ''}
+      <button type="button" id="btnVeApp">Về XML-Pro</button><button type="button" id="btnDongCong" title="Đóng cổng thuế, hết phiên đăng nhập">Đóng và đăng xuất</button></div>
+      ${trang ? '<div id="congViTri"></div>' : veTheCong()}`;
+    $('main').scrollTop = 0;
+    document.title = 'Tải hoá đơn từ cổng thuế — XML-Pro';
+    renderList();
+    if (trang) baoViTriCong(); else VO.postMessage({ lenh: 'anCong' });
+  }
+  async function moKho() {
+    anCong();
+    selected = -4;
+    document.title = 'Kho hoá đơn — XML-Pro';
+    if (docs.some(d => d.kind === 'hd' && !d.error)) await window.KHO_HD.themDocs(docs);
+    await window.KHO_HD.moKho($('main'), { myMst, moTep: moLai });
+    $('main').scrollTop = 0;
+    renderList();
+  }
+  function moCong() { cong.mo = true; $('cgNhac').hidden = true; veCong(); }
+  function anCong() {
+    if (!cong.mo) return;
+    cong.mo = false;
+    $('cgNhac').hidden = !cong.anh; // rời thẻ khi captcha đang chờ gõ thì để nút nhắc lại
+    if (VO) VO.postMessage({ lenh: 'anCong' });
+  }
+  // Ảnh của cổng là nội dung bên ngoài: chỉ cho hiện qua thẻ <img> (ảnh SVG trong <img> không chạy được mã), không chèn vào trang
+  const anhCaptcha = s => { s = String(s || '').trim(); return /^<svg[\s>]/i.test(s) && s.length < 300000 ? 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s))) : ''; };
+  function guiMa(boQua) {
+    const v = boQua ? '' : $('cgNhapMa').value.trim();
+    if (!boQua && v.length !== 6) { $('cgMoTa').textContent = cong.moTa + ' (mã có 6 ký tự)'; return; }
+    cong.anh = ''; $('cgMa').hidden = true; $('cgNhac').hidden = true;
+    lenhCong(boQua ? 'boQuaMa' : 'captcha', { giaTri: v });
+  }
+  function nhanTienCong(m) {
+    if (m.moi) { cong.nk = []; cong.coTep = false; }
+    if (m.captcha !== undefined) {
+      cong.anh = anhCaptcha(m.captcha); cong.moTa = m.moTa || '';
+      $('cgNhac').hidden = !cong.anh || cong.mo; // đang xem Dashboard: nhắc ở góc màn hình, không kéo người dùng đi
+      if ($('cgMa')) {
+        $('cgMa').hidden = !cong.anh; $('cgAnh').src = cong.anh; $('cgMoTa').textContent = cong.moTa; $('cgNhapMa').value = '';
+        if (cong.anh) $('cgNhapMa').focus();
+      }
+    }
+    if (m.tt !== undefined) cong.tt = m.tt;
+    if (m.ghi) cong.nk.push(m.ghi);
+    if (m.dang !== undefined) cong.dang = !!m.dang;
+    if (m.coTep) cong.coTep = true;
+    if (m.danhSach && window.KHO_HD) {
+      window.KHO_HD.doiSoat({ dong: m.danhSach, tu: m.kyTu, den: m.kyDen, coMtt: m.coMtt, du: m.du }).then(k => {
+        cong.coDs = true;
+        nhanTienCong({ ghi: `Đối soát với kho: cổng có ${k.soCong} hoá đơn; chưa có XML ${k.chuaCoXml}; bị huỷ, thay thế, điều chỉnh ${k.biHuy}${k.trongKyKhoa ? ` (${k.trongKyKhoa} hoá đơn trong kỳ đã khoá sổ)` : ''}; lệch tiền ${k.lechTien}; không thấy trên cổng ${k.khongTrenCong}.` });
+      }).catch(e => console.warn('Lỗi đối soát:', e));
+    }
+    if (m.dang === false && !cong.dangNhap && cong.mo) { veCong(); return; } // hết phiên giữa lượt tải: hiện lại trang đăng nhập
+    if (!cong.mo || !$('cgTT')) return;
+    $('cgTT').textContent = cong.tt;
+    const nk = $('cgNk');
+    nk.hidden = !cong.nk.length; nk.textContent = cong.nk.join('\n'); nk.scrollTop = nk.scrollHeight;
+    $('cgChay').textContent = cong.dang ? 'Dừng' : 'Chọn thư mục và tải';
+    $('cgChay').classList.toggle('dang', cong.dang);
+    $('cgXem').hidden = !cong.coTep;
+    $('cgKho').hidden = !cong.coDs;
+  }
+  // ---------- Nối lại đường dẫn: vỏ báo tệp nào đã mất, người dùng chọn thư mục mới, trang so nội dung ----------
+  const nl = { mat: [] };
+  const dsDuongDan = () => [...new Set([...docs.map(d => d.duongDan).filter(Boolean), ...docLs().map(x => x.p)])];
+  const dauVanTep = s => { // không cần chống giả mạo, chỉ cần nhận đúng tệp đã nạp
+    let a = 0xdeadbeef, b = 0x41c6ce57;
+    for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 2654435761); b = Math.imul(b ^ c, 1597334677); }
+    return `${s.length}:${(a >>> 0).toString(36)}:${(b >>> 0).toString(36)}`;
+  };
+  const tenTep = p => p.split(/[\\/]/).pop().toLowerCase();
+  function veNoiLai(them) {
+    const n = nl.mat.length, co = dsDuongDan().length;
+    $('nlTom').innerHTML = (them ? `<p style="margin:0 0 6px"><b>${esc(them)}</b></p>` : '')
+      + (!VO ? 'Tính năng này chạy trong XML-Pro cài trên máy; trình duyệt không xem được tệp trên ổ cứng.'
+        : `Đã kiểm ${co.toLocaleString('vi-VN')} đường dẫn: ${n ? `<b>${n.toLocaleString('vi-VN')} tệp không còn ở chỗ cũ</b>.` : 'tất cả vẫn đúng chỗ.'}`);
+    $('nlDs').hidden = !n;
+    $('nlDs').innerHTML = nl.mat.slice(0, 200).map(p => `<div>${esc(p)}</div>`).join('') + (n > 200 ? `<div>… và ${n - 200} tệp nữa</div>` : '');
+    $('nlChon').disabled = !VO || !n;
+  }
+  function moNoiLai() {
+    nl.mat = [];
+    veNoiLai();
+    if (!$('dlgNoiLai').open) $('dlgNoiLai').showModal();
+    if (VO) { $('nlTom').textContent = 'Đang kiểm các đường dẫn…'; VO.postMessage({ lenh: 'kiemDuongDan', ds: dsDuongDan() }); }
+  }
+  async function noiLaiTuTep(ds) {
+    const mat = new Set(nl.mat.map(p => p.toLowerCase()));
+    const conMat = docs.filter(d => d.duongDan && mat.has(d.duongDan.toLowerCase()));
+    const theoTen = new Map();
+    for (const x of ds) { const k = x.ten.toLowerCase(); if (!theoTen.has(k)) theoTen.set(k, []); theoTen.get(k).push(x); }
+    $('nlTom').textContent = `Đang đọc ${ds.length.toLocaleString('vi-VN')} tệp trong thư mục mới…`;
+    // Dấu vân tay nội dung của các tệp xml trong thư mục mới
+    const theoVan = new Map();
+    let tiep = 0;
+    const doc1 = async () => {
+      while (tiep < ds.length) {
+        const x = ds[tiep++];
+        if (!x.ten.toLowerCase().endsWith('.xml')) continue;
+        try {
+          const r = await fetch(x.url);
+          if (r.ok) { const v = dauVanTep(decode(await r.arrayBuffer())); if (!theoVan.has(v)) theoVan.set(v, x); }
+        } catch (e) { }
+      }
+    };
+    await Promise.all([doc1(), doc1(), doc1(), doc1(), doc1(), doc1()]);
+    const doi = new Map(); // đường dẫn cũ (chữ thường) → mục tệp mới
+    let theoNoiDung = 0, theoTenTep = 0, trungTen = 0;
+    for (const d of conMat) {
+      const cu = d.duongDan.toLowerCase();
+      if (cu.endsWith('.zip')) continue;
+      const x = d.rawXml ? theoVan.get(dauVanTep(d.rawXml)) : null;
+      if (!x) continue;
+      doi.set(cu, x); theoNoiDung++;
+      d.duongDan = x.duongDan;
+      if (!docs.some(k => k !== d && k.source === x.relPath)) { d.source = x.relPath; d.relPath = x.relPath; }
+    }
+    // Tệp zip và mục lịch sử không có nội dung để so: nối theo tên, chỉ khi tên là duy nhất
+    for (const p of nl.mat) {
+      const cu = p.toLowerCase();
+      if (doi.has(cu)) continue;
+      const cand = theoTen.get(tenTep(p)) || [];
+      if (cand.length === 1) { doi.set(cu, cand[0]); theoTenTep++; }
+      else if (cand.length > 1) trungTen++;
+    }
+    for (const d of conMat) { const x = doi.get(d.duongDan.toLowerCase()); if (x) d.duongDan = x.duongDan; }
+    const ls = docLs();
+    for (const x of ls) { const moi = doi.get(x.p.toLowerCase()); if (moi) x.p = moi.duongDan; }
+    const daCo = new Set();
+    luuLs(ls.filter(x => { const k = x.p.toLowerCase(); if (daCo.has(k)) return false; daCo.add(k); return true; }));
+    nl.mat = nl.mat.filter(p => !doi.has(p.toLowerCase()));
+    folderTreeRoot = null;
+    luuPhienIndexedDb();
+    renderList();
+    veNoiLai(`Đã nối ${doi.size.toLocaleString('vi-VN')} tệp (${theoNoiDung} theo nội dung, ${theoTenTep} theo tên)${trungTen ? `, ${trungTen} tệp trùng tên nhiều nơi nên chưa nối` : ''}.`);
+  }
   function baoLoiMo(p) {
-    $('main').innerHTML = `<div class="notes"><div class="note warn">Không mở lại được <b>${esc(p)}</b>.<br>File đã bị xoá/đổi chỗ, hoặc trang đang mở bằng trình duyệt thường (chỉ bản cài đặt mới mở lại được theo đường dẫn — khi đó hãy kéo thả file vào).</div></div>`;
+    $('main').innerHTML = `<div class="notes"><div class="note warn">Không mở lại được <b>${esc(p)}</b>. <a href="#" id="lnkNoiLai">Nối lại đường dẫn</a><br>File đã bị xoá/đổi chỗ, hoặc trang đang mở bằng trình duyệt thường (chỉ bản cài đặt mới mở lại được theo đường dẫn — khi đó hãy kéo thả file vào).</div></div>`;
   }
 
   // Kéo thả cả thư mục: đọc đệ quy.
@@ -3423,6 +3731,7 @@
   }
 
   function moDashboard(folderPath) {
+    anCong();
     selected = -2;
     if (folderPath !== undefined) selectedFolder = folderPath || '';
     capNhatFolderFilterBar();
@@ -3596,7 +3905,8 @@
         </div>`;
       }
 
-      const hay = [d.title, d.mst, d.ten, d.ky, d.source, d.mtk, d.so, d.phanLoai || ''].join(' ').toLowerCase();
+      const gc = d.kind === 'hd' && window.SO_TAY ? window.SO_TAY.ghiChu(d) : '';
+      const hay = [d.title, d.mst, d.ten, d.ky, d.source, d.mtk, d.so, d.phanLoai || '', gc].join(' ').toLowerCase();
       if (q && !hay.includes(q)) return '';
       hienThiCount++;
 
@@ -3627,7 +3937,7 @@
           </span>
         </div>
         <div class="l2">${esc([d.ky || date(d.ngay), right, d.ten || d.mst].filter(Boolean).join(' · '))}</div>
-        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}${dupTag}${dcTag}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
+        <div class="l2" style="display:flex;align-items:center;gap:6px">${plTag}${dupTag}${dcTag}${gc ? `<span class="tag-pl ghi" title="${esc(gc)}">GHI CHÚ</span>` : ''}<span style="overflow:hidden;text-overflow:ellipsis">${esc(d.source)}</span></div></div>`;
     }).join('');
 
     if (!curDocs.length) { $('summary').textContent = 'Chưa có file nào.'; return; }
@@ -3642,6 +3952,7 @@
   function select(i) {
     if (i === -2) return moDashboard(selectedFolder);
     if (i < 0 || i >= docs.length) return;
+    anCong();
     if (!openTabs.includes(i)) {
       openTabs.push(i);
       // Giữ tối đa 15 tab làm việc gần nhất, đóng tab xem lâu nhất
@@ -3665,6 +3976,7 @@
       : d.kind === 'nh' ? (window.NGANH_DOC ? window.NGANH_DOC.renderBank(d) : renderDoc(d))
       : d.kind === 'thau' ? (window.NGANH_DOC ? window.NGANH_DOC.renderProcurement(d) : renderDoc(d))
       : renderDoc(d);
+    if (d.kind === 'hd' && !d.error && window.SO_TAY) $('main').insertAdjacentHTML('afterbegin', window.SO_TAY.oGhiChuHD(d));
     $('main').scrollTop = 0;
     const curShObj = d._itaxSheets && d._shIdx >= 0 && d._shIdx < d._itaxSheets.length ? d._itaxSheets[d._shIdx] : null;
     const shSuffix = curShObj ? ` - ${curShObj.label}` : '';
@@ -3904,7 +4216,7 @@
     $('dlgLapTk').showModal();
   }
   $('btnLapTk').onclick = () => moDlgLapTk();
-  if (window.DASHBOARD_KE_TOAN) window.DASHBOARD_KE_TOAN.ganSuKien($('main'), () => { if (selected === -2) moDashboard(); }, moDlgLapTk, chonCongTy);
+  if (window.DASHBOARD_KE_TOAN) window.DASHBOARD_KE_TOAN.ganSuKien($('main'), () => { if (selected === -2) moDashboard(); }, moDlgLapTk, chonCongTy, i => select(i));
   $('ltDong').onclick = () => $('dlgLapTk').close();
   $('ltMst').onchange = ltNapMstKy;
   $('ltKieu').onchange = () => { ltDienSo(); ltNapMstKy(); };
@@ -3925,13 +4237,21 @@
     if (!a) return;
     e.preventDefault(); $('dlgLapTk').close(); select(Number(a.dataset.moDoc));
   });
+  // Kỳ đã khoá sổ thì không lập tờ khai / bổ sung, phải mở khoá trên Dashboard trước
+  function chanKhoaSo(mst, ky) {
+    const ST = window.SO_TAY, r = window.LAP_TO_KHAI.khoangKy(ky), l = ST && ST.khoaGiao(mst, r.tu, r.den);
+    if (l) alert(`${ST.tenKy(l.ky)} của MST ${mst} đã khoá sổ. Muốn lập tờ khai thì mở khoá trên Dashboard trước.`);
+    return !!l;
+  }
   $('ltTai').onclick = () => {
+    if (chanKhoaSo($('ltMst').value, ltKy())) return;
     const { xml, ten } = ltXml();
     const url = URL.createObjectURL(new Blob([xml], { type: 'application/xml;charset=utf-8' }));
     const a = document.createElement('a'); a.href = url; a.download = ten; document.body.appendChild(a); a.click();
     setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
   };
   $('ltLap').onclick = () => {
+    if (chanKhoaSo($('ltMst').value, ltKy())) return;
     const { xml, ten } = ltXml();
     const i = addText(xml, ten, 'Lập từ hoá đơn/' + ten + ' (' + new Date().toLocaleTimeString('vi-VN') + ')');
     $('dlgLapTk').close();
@@ -3988,12 +4308,16 @@
   $('kbDong').onclick = () => $('dlgKhbs').close();
   $('dlgKhbs').addEventListener('input', e => { if (e.target.matches('#kbNgayLap, #kbNgayTinh, #kbLyDo')) kbTinhLai(); });
   $('kbTai').onclick = () => {
+    if (!_kbKq) kbTinhLai();
+    if (chanKhoaSo(_kbKq.cu.mst, _kbKq.ky)) return;
     const { xml, ten } = kbXml();
     const url = URL.createObjectURL(new Blob([xml], { type: 'application/xml;charset=utf-8' }));
     const a = document.createElement('a'); a.href = url; a.download = ten; document.body.appendChild(a); a.click();
     setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1500);
   };
   $('kbLap').onclick = () => {
+    if (!_kbKq) kbTinhLai();
+    if (chanKhoaSo(_kbKq.cu.mst, _kbKq.ky)) return;
     const { xml, ten } = kbXml();
     const i = addText(xml, ten, 'Lập từ hoá đơn/' + ten + ' (' + new Date().toLocaleTimeString('vi-VN') + ')');
     $('dlgKhbs').close();
@@ -4809,6 +5133,45 @@ Read-Host
     renderList();
     alert('Đã xoá dữ liệu phiên và lịch sử trên máy này.');
   }
+  $('btnNoiLai').onclick = moNoiLai;
+  $('btnNavCong').onclick = () => $('btnCongThue').click();
+  $('btnNavKho').onclick = () => moKho();
+  $('btnEmptyKho').onclick = () => moKho();
+  if (window.KHO_HD) window.KHO_HD.ganSuKien($('main'));
+  // Mở app: kho có sẵn thì báo ngay ở trang chủ, khỏi nạp lại thư mục
+  if (window.KHO_HD) window.KHO_HD.docTatCa().then(ds => { if (ds.length && $('homeKho')) { $('homeKhoChu').textContent = `Kho đang có ${ds.length.toLocaleString('vi-VN')} hoá đơn, không cần nạp lại.`; $('homeKho').hidden = false; } }).catch(e => console.warn(e));
+  if ($('btnEmptyCong')) $('btnEmptyCong').onclick = () => $('btnCongThue').click();
+  $('btnCongThue').onclick = () => {
+    if (VO) moCong();
+    else alert('Tải từ cổng thuế chỉ chạy trong XML-Pro cài trên máy.');
+  };
+  $('main').addEventListener('click', e => {
+    if (e.target.id === 'btnVeApp' || e.target.id === 'cgXem') moDashboard('');
+    if (e.target.id === 'btnXemTrang') { cong.xemTrang = !cong.xemTrang; veCong(); }
+    if (e.target.id === 'cgChay') {
+      if (cong.dang) { lenhCong('dung'); return; }
+      cong.tu = $('cgTu').value; cong.den = $('cgDen').value; cong.mua = $('cgMua').checked; cong.ban = $('cgBan').checked; cong.boQua = $('cgBoQua').checked;
+      cong.mttMua = $('cgMttMua').checked; cong.mttBan = $('cgMttBan').checked; cong.chiDs = $('cgChiDs').checked;
+      lenhCong('batDau', { tuyChon: { tuThang: cong.tu, denThang: cong.den, mua: cong.mua, ban: cong.ban, boQua: cong.boQua, mttMua: cong.mttMua, mttBan: cong.mttBan, chiDoiSoat: cong.chiDs } });
+    }
+    if (e.target.id === 'cgKho') moKho();
+    if (e.target.id === 'cgGuiMa') guiMa(false);
+    if (e.target.id === 'cgBoMa') guiMa(true);
+    if (e.target.id === 'btnDongCong') VO.postMessage({ lenh: 'dongCong' });
+  });
+  $('main').addEventListener('keydown', e => { if (e.target.id === 'cgNhapMa' && e.key === 'Enter') { e.preventDefault(); guiMa(false); } });
+  $('cgNhac').onclick = () => { $('cgNhac').hidden = true; moCong(); if ($('cgNhapMa')) $('cgNhapMa').focus(); };
+  window.addEventListener('resize', () => baoViTriCong());
+  // Hộp thoại của trang nằm dưới khung cổng thuế: có hộp thoại mở thì tạm ẩn khung
+  new MutationObserver(() => baoViTriCong()).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
+  $('nlDong').onclick = () => $('dlgNoiLai').close();
+  $('nlChon').onclick = () => { if (VO) VO.postMessage({ lenh: 'chonThuMucNoiLai' }); };
+  document.addEventListener('click', e => { if (e.target.id === 'lnkNoiLai') { e.preventDefault(); moNoiLai(); } });
+  $('main').addEventListener('input', e => {
+    if (!e.target.matches('[data-gc-hd]') || !docs[selected] || !window.SO_TAY) return;
+    window.SO_TAY.ghiLoat([[docs[selected], e.target.value]]);
+  });
+  $('main').addEventListener('change', e => { if (e.target.matches('[data-gc-hd]')) renderList(); });
   const btnXoaPhien = $('btnXoaPhien');
   if (btnXoaPhien) btnXoaPhien.onclick = xoaDuLieuPhien;
 
@@ -4868,6 +5231,20 @@ Read-Host
     VO.addEventListener('message', e => {
       const m = e.data || {};
       if (m.loai === 'tep') nhanTepTuVo(m);
+      else if (m.loai === 'congTien') nhanTienCong(m);
+      else if (m.loai === 'congDangNhap') {
+        // Đăng nhập xong: trang cổng lùi xuống, chỉ còn thẻ chọn tháng. Hết phiên: trang đăng nhập hiện lại
+        const doi = cong.dangNhap !== !!m.co;
+        cong.dangNhap = !!m.co;
+        if (doi && !cong.dang) { cong.xemTrang = false; if (cong.mo) veCong(); } // đang tải thì để lượt tải tự báo, không đổi màn hình
+      }
+      else if (m.loai === 'congDaDong') {
+        const dangXem = cong.mo;
+        Object.assign(cong, { mo: false, dangNhap: false, xemTrang: false, dang: false, coTep: false, tt: '', nk: [], anh: '' });
+        $('cgNhac').hidden = true;
+        if (dangXem) moDashboard('');
+      }
+      else if (m.loai === 'ketQuaDuongDan') { nl.mat = Array.isArray(m.mat) ? m.mat : []; if ($('dlgNoiLai').open) veNoiLai(); }
       else if (m.loai === 'loiMo') baoLoiMo(m.duongDan || '');
       else if (m.loai === 'thongBao') alert(m.noiDung);
       else if (m.loai === 'capNhat') hienCapNhat(m);

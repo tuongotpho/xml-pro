@@ -1,6 +1,6 @@
 # XML-Pro — Trình xem & trích xuất dữ liệu chứng từ điện tử (XML)
 
-Ứng dụng Windows nhẹ, chạy **hoàn toàn trên máy, không cần mạng, không gửi dữ liệu đi đâu**. Đọc tờ khai thuế HTKK theo mẫu iTax Viewer, hoá đơn điện tử và một số loại chứng từ XML khác.
+Ứng dụng Windows nhẹ, chạy **trên máy, không qua máy chủ trung gian** (chỉ ra mạng để hỏi bản mới, và khi người dùng tự mở khung tải hoá đơn từ cổng thuế). Đọc tờ khai thuế HTKK theo mẫu iTax Viewer, hoá đơn điện tử và một số loại chứng từ XML khác.
 
 Repository: [https://github.com/tuongotpho/xml-pro.git](https://github.com/tuongotpho/xml-pro.git)
 

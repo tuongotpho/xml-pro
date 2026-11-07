@@ -22,6 +22,34 @@ Lưu ý khi lên 3.0.0 từ bản cũ: MST đã cài, lịch sử tệp, phiên 
 - Đổi tên hàng loạt (nút "Đổi tên"): tải tệp .ZIP đã đổi tên, hoặc tải script `.ps1` → chép vào thư mục chứa hoá đơn → chuột phải → Run with PowerShell. Script không ghi đè tệp trùng tên. Windows chặn tệp tải về thì chuột phải → Properties → Unblock.
 - Dữ liệu lưu trên máy: phiên làm việc gần nhất và lịch sử tệp đã mở. Xoá bằng nút "🗑 Xoá dữ liệu phiên" trong hộp Giới thiệu.
 
+## Tải hoá đơn từ cổng thuế (bản 3.0.7)
+
+1. **🧰 Công cụ → ⬇ Tải hoá đơn từ cổng thuế.** Trang cổng thuế thật hiện ngay trong XML-Pro, thanh bên vẫn dùng được.
+2. Tự đăng nhập, tự gõ captcha trên trang đó. XML-Pro không có ô nhập mật khẩu, không đọc, không lưu. Bấm **Đóng và đăng xuất** là hết phiên. **Về XML-Pro** thì giữ phiên, chọn lại mục trong Công cụ để quay về.
+3. Đăng nhập xong trang cổng tự ẩn, chỉ còn thẻ chọn tháng trong XML-Pro. Chọn tháng, Mua vào / Bán ra, bấm **Chọn thư mục và tải**. Cần xem trang cổng thì bấm **Xem trang cổng**. Hết phiên thì trang đăng nhập tự hiện lại.
+4. Tệp lưu theo dạng `<thư mục>\<MST>\MUA-VAO\HD-DIEN-TU\XML\…`, có thêm bảng `TOM-TAT-HOA-DON-….xlsx`, và `CAN-XEM-LAI-….txt` nếu có hoá đơn thiếu hoặc lỗi. Tải xong tệp tự nạp vào app, bấm **Xem trên Dashboard** để xem.
+
+* Tải lại cùng thư mục thì chỉ tải bù hoá đơn còn thiếu, không ghi đè tệp đã có. Bấm Dừng hay hết phiên giữa chừng vẫn giữ tệp đã tải.
+* Tải chậm có chủ ý (khoảng 1 giây một hoá đơn) để cổng không khoá tài khoản. Tối đa 24 tháng một lần.
+* **Hoá đơn máy tính tiền:** tích **Máy tính tiền mua vào** hoặc **bán ra**. Cổng đòi captcha cho mỗi lần tìm, mỗi lần tối đa 10 ngày: tháng 31 ngày là 4 lần gõ cho bán ra, 12 lần cho mua vào (tháng 30 ngày 3 và 9), thêm 1 lần mỗi trang kết quả. Ảnh captcha hiện ngay trên thẻ; đang xem Dashboard thì có nút nhắc ở góc phải. Không có loại đó thì khỏi tích. XML-Pro không tự giải captcha.
+
+## Kho hoá đơn (bản 3.0.7)
+
+Nút **🧾 Kho hoá đơn** ở thanh bên. Hoá đơn tải về hoặc mở từ thư mục tự vào kho, lần sau mở app vẫn còn, không cần nạp lại. Kho là chỉ mục trên máy này; tệp XML trong thư mục vẫn là bản gốc, xoá tệp thì kho vẫn còn dòng nhưng không mở được.
+
+* **Lọc, tìm:** theo công ty, tháng, mua bán, trạng thái; tìm theo số, tên, MST, ghi chú.
+* **Đánh dấu:** tích dòng rồi bấm Đã hạch toán, Đã thanh toán, Cần xem. Kỳ đã khoá sổ được bỏ qua.
+* **Đối soát với cổng thuế:** ở thẻ tải, tích **Chỉ đối soát với Kho** để lấy danh sách, không tải XML. Mỗi lần tải thường cũng tự đối soát. Nhãn đỏ: chưa có XML, bị huỷ, bị thay thế, lệch tiền, không thấy trên cổng. Lọc **Lệch với cổng thuế** để xem riêng.
+* **Xuất Excel:** xuất đúng các dòng đang lọc.
+* **Sao lưu, Phục hồi:** ra một tệp `.json` gồm kho và sổ tay, không có mật khẩu nhưng có số liệu hoá đơn nên cần giữ kín. Phục hồi không ghi đè mục đang có.
+
+## Sổ tay kế toán (bản 3.0.7)
+
+* **Khoá sổ:** trên Dashboard, bấm **Khoá sổ** ở dòng kỳ đã nộp. Kỳ đó không lập tờ khai, tờ khai bổ sung; ghi chú hoá đơn không sửa được. App nhớ danh sách hoá đơn và số tiền lúc khoá: nạp thêm hoặc đổi hoá đơn của kỳ thì Dashboard báo rõ thêm mấy hoá đơn, lệch bao nhiêu. Bấm **Mở khoá** khi cần sửa.
+* **Ghi chú:** bấm số hoá đơn trên dòng kỳ để mở bảng hoá đơn của kỳ. Gõ thẳng vào cột Ghi chú, `Ctrl+D` chép từ dòng trên, `Ctrl+V` một cột từ Excel điền dọc, tích nhiều dòng rồi **Ghi cho dòng đã chọn**. Trang xem hoá đơn cũng có ô ghi chú. Ghi chú ra cột Ghi chú của bảng kê 01-1, 01-2 khi xuất Excel.
+* **Nối lại đường dẫn tệp** (🧰 Công cụ): thư mục chuyển chỗ thì chọn thư mục mới. App so nội dung nên tệp đổi tên vẫn nối được; mục chỉ có trong Lịch sử nối theo tên, tên trùng thì bỏ qua. Không sửa tệp nào trên ổ cứng. Chỉ chạy trong app cài trên máy.
+* Sổ tay lưu trên máy này (`so-tay.js`, khoá `xmlpro.soTay.v1`). Nút xoá dữ liệu phiên không xoá sổ tay. Hoá đơn nhận theo MST bán + mẫu + ký hiệu + số, nên đổi thư mục không mất ghi chú. Đổi máy thì dùng nút Sao lưu trong Kho hoá đơn.
+
 ## Bản cài đặt (.exe) — để bấm đúp tệp .xml là mở
 
 - Bộ cài: `dong-goi\ban-phat-hanh\CaiDat-XML-Pro-<phiên bản>.exe` (vd `CaiDat-XML-Pro-2.0.1.exe`) → bấm đúp → Có. Cài vào `%LOCALAPPDATA%\Programs\XemXmlThue`, không cần quyền quản trị.

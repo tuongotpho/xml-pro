@@ -7,7 +7,7 @@ XML-pro
 
 ## Description (mô tả)
 
-XML-Pro mở, đọc và xử lý tệp XML hoá đơn điện tử, tờ khai thuế ngay trên máy tính, không cần mạng, không gửi dữ liệu đi đâu.
+XML-Pro mở, đọc và xử lý tệp XML hoá đơn điện tử, tờ khai thuế ngay trên máy tính. Tải được hoá đơn từ cổng thuế: bạn tự đăng nhập trên trang thật của cổng, ứng dụng không thấy và không lưu mật khẩu, không qua máy chủ trung gian.
 
 Xem:
 - Hoá đơn điện tử (mọi nhà cung cấp theo chuẩn của Tổng cục Thuế), kiểm tra chữ ký số ngay trên máy.
@@ -35,7 +35,8 @@ Phát hành lần đầu trên Microsoft Store.
 - Lập tờ khai 01/CNKD cho hộ kinh doanh (TT 50/2026)
 - Bảng tổng hợp theo kỳ, khách hàng, nhà cung cấp
 - Xuất Excel
-- Chạy hoàn toàn trên máy, không gửi dữ liệu
+- Tải XML hoá đơn từ cổng thuế: tự đăng nhập, không lưu mật khẩu
+- Xử lý trên máy, không qua máy chủ trung gian
 
 ## Search terms (tối đa 7)
 xml hoá đơn; tờ khai thuế; hoá đơn điện tử; itax; 01/GTGT; hộ kinh doanh; kế toán

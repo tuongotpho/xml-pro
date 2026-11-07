@@ -42,7 +42,7 @@ foreach ($t in $tepWv) {
   Copy-Item (Join-Path $wv $t) $ra -Force
 }
 & $csc @chung '/platform:x64' "/r:$wv\Microsoft.Web.WebView2.Core.dll" "/r:$wv\Microsoft.Web.WebView2.WinForms.dll" '/r:System.Web.Extensions.dll' '/r:System.Drawing.dll' `
-  "/out:$ra\XML-Pro.exe" "$dg\VoWebView2.cs" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
+  "/out:$ra\XML-Pro.exe" "$dg\VoWebView2.cs" "$dg\KhungCongThue.cs" "$dg\XemXmlThue.cs" "$dg\Chung.cs" "$dg\PhienBan.cs"
 if ($LASTEXITCODE) { throw 'Biên dịch XML-Pro.exe lỗi' }
 
 $nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
@@ -58,6 +58,10 @@ $nhung = @("/resource:$ra\XML-Pro.exe,XML-Pro.exe",
            "/resource:$app\doi-chieu.js,doi-chieu.js",
            "/resource:$app\lap-to-khai.js,lap-to-khai.js",
            "/resource:$app\dashboard-ke-toan.js,dashboard-ke-toan.js",
+           "/resource:$app\so-tay.js,so-tay.js",
+           "/resource:$app\kho-hoa-don.js,kho-hoa-don.js",
+           "/resource:$app\tai-hoa-don.js,tai-hoa-don.js",
+           "/resource:$app\tai-hoa-don-loi.js,tai-hoa-don-loi.js",
            "/resource:$app\mau-itax.js,mau-itax.js",
            "/resource:$app\ten-chi-tieu.js,ten-chi-tieu.js",
            "/resource:$app\HUONG-DAN.md,HUONG-DAN.md")
