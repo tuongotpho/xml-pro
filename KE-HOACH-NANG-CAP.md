@@ -1,6 +1,8 @@
 # KẾ HOẠCH NÂNG CẤP VÀ LỘ TRÌNH PHÁT TRIỂN — XML-PRO V3
 
-*Cập nhật lần cuối: 07/11/2026 · Áp dụng cho nhánh `webview2-v3` (XML-Pro 3.0.7+)*
+*Cập nhật lần cuối: 08/11/2026 · Áp dụng cho nhánh `webview2-v3` (XML-Pro 3.0.8)*
+
+> **Bản thiết kế tái cấu trúc toàn diện sang ứng dụng mới (Mức 2 — V4):** xem chi tiết tại [KE-HOACH-TAI-CAU-TRUC-V4.md](KE-HOACH-TAI-CAU-TRUC-V4.md).
 
 Tài liệu này tổng hợp toàn bộ trạng thái các tính năng đã hoàn thành từ v1.4.0 đến v3.0.7+, đánh giá kiến trúc lưu trữ đa ngành hiện tại, và lộ trình phát triển chuyên sâu cho mảng **Kế toán – Hóa đơn – Thuế** (100% xử lý nội bộ trên máy người dùng, không gửi dữ liệu lên máy chủ trung gian).
 
