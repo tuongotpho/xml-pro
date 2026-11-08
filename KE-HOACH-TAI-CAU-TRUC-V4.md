@@ -170,3 +170,4 @@ git commit -m "Khoi tao nen tang tu XML-Pro 3.0.8 truoc khi tai cau truc V4"
 Khi mở cửa sổ làm việc mới tại thư mục mới, bạn chỉ cần nhắn:
 
 > *"Đọc tệp `KE-HOACH-TAI-CAU-TRUC-V4.md` và `KE-HOACH-NANG-CAP.md`. Hãy triển khai tuần tự **Giai đoạn 1** và **Giai đoạn 2** của kế hoạch tái cấu trúc Mức 2 (dựng App Shell mới có Topbar chọn Công ty/Kỳ toàn cục, Sidebar 7 phân hệ thu gọn `Ctrl+B`, bộ SVG icon 0 emoji, và hợp nhất Kho dữ liệu đa công ty `XmlProKho v2` + màn hình Danh bạ Công ty), giữ nguyên độ chính xác của toàn bộ các mô-đun thuế hiện có và bật cửa sổ xem trước để kiểm tra."*
+
